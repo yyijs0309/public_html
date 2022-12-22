@@ -1,0 +1,220 @@
+<div class="con_head_wrap">
+	<div class="con_head">
+		<h1><?=$_TITLE_SUB ? $SITE_NAME.'-'.$_TITLE_SUB : $SITE_NAME.'-'.$_TITLE?></h1>
+	</div>
+</div>
+<div class="con_body_wrap">
+	<div class="con_body">
+		<div class="con_body_top_info_wrap">
+			<div class="row">
+				<div class="col-sm-6 col-lg-3">
+					<div class="cloud_box">
+						<div class="plate_box plate_box_01">
+							<div class="plate_box_label">
+								매출
+								<a href="sell.siso" class="plate_box_target" title="바로가기">
+									바로가기
+								</a>
+							</div>
+							<div class="plate_box_stock">
+								<span class="plate_box_stock_label">
+									전일 대비
+								</span>
+								<?=$contrastdaytext?>
+							</div>
+							<div class="plate_box_info">
+								<b><?=number_format($todaysellsumarry["sumPrice"])?></b><span>원</span>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-sm-6 col-lg-3">
+					<div class="cloud_box">
+						<div class="plate_box plate_box_02">
+							<div class="plate_box_label">
+								앱 설치
+								<a href="install.siso" class="plate_box_target" title="바로가기">
+									바로가기
+								</a>
+							</div>
+							<div class="plate_box_stock">
+								<span class="plate_box_stock_label">
+									전일 대비
+								</span>
+								<?=$memcontrastdaytext?>
+							</div>
+							<div class="plate_box_info">
+								<b><?=number_format($todaymemcnt)?></b><span>건</span>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="clearfix visible-xs-block"></div>
+				<div class="col-sm-6 col-lg-3">
+					<div class="cloud_box">
+						<div class="plate_box plate_box_03">
+							<div class="plate_box_label">
+								회원가입
+								<a href="member.siso" class="plate_box_target" title="바로가기">
+									바로가기
+								</a>
+							</div>
+							<div class="plate_box_stock">
+								<span class="plate_box_stock_label">
+									전일대비
+								</span>
+								<?=$memcontrastdaytext?>
+							</div>
+							<div class="plate_box_info">
+								<b><?=number_format($todaymemcnt)?></b><span>명</span>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-sm-6 col-lg-3">
+					<div class="cloud_box">
+						<div class="plate_box plate_box_04">
+							<div class="plate_box_label">
+								평균 ARPU
+								<a href="arpu.siso" class="plate_box_target" title="바로가기">
+									바로가기
+								</a>
+							</div>
+							<div class="plate_box_stock">
+								<span class="plate_box_stock_label">
+									전일대비
+								</span>
+								<?=$arpucontrastdaytext?>
+							</div>
+							<div class="plate_box_info">
+								<b><?=number_format($todayarpu)?></b><span>원</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="con_body_mid_wrap">
+			<div class="row">
+				<div class="col-xs-12">
+					<div class="cloud_box">
+						<div class="table_all_wrap">
+							<div class="table_top_wrap">
+								<div class="table_top_left">
+									<div class="table_top_left_label_wrap">
+										<span class="table_top_left_label">
+											총 출시 앱
+										</span>
+										<span class="table_top_left_desc">
+											<b>1</b>개
+										</span>
+									</div>
+								</div>
+								<div class="table_top_right">
+									<div class="table_top_right_input_wrap">
+										<div class="select_box_wrap">
+											<select class="selectpicker">
+												<option>최신순</option>
+												<option>이름순</option>
+											</select>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="table_body_wrap">
+								<div class="table_wrap">
+									<table width="100%" border="0" cellspacing="0" cellpadding="0" class="table_st_total">
+										<tr>
+											<th rowspan="2" scope="col" class="total_td_app total_td_app_top">앱</th>
+											<th colspan="2" scope="col" class="total_td_wrap total_td_sell">
+												매출 <span>(원)</span>
+											</th>
+											<th colspan="2" scope="col" class="total_td_wrap total_td_install">
+												앱설치 <span>(건)</span>
+											</th>
+											<th colspan="2" scope="col" class="total_td_wrap total_td_member">
+												회원가입 <span>(명)</span>
+											</th>
+											<th colspan="2" scope="col" class="total_td_wrap total_td_arpu">
+												ARPU <span>(원)</span>
+											</th>
+										</tr>
+										<tr>
+											<th scope="col" class="total_td_today">오늘</th>
+											<th scope="col" class="total_td_all">누적</th>
+											<th scope="col" class="total_td_today">오늘</th>
+											<th scope="col" class="total_td_all">누적</th>
+											<th scope="col" class="total_td_today">오늘</th>
+											<th scope="col" class="total_td_all">누적</th>
+											<th scope="col" class="total_td_today">오늘</th>
+											<th scope="col" class="total_td_all">누적</th>
+										</tr>
+										<tr>
+											<th scope="row" class="total_td_app">파워로또</th>
+											<td class="total_td_today"><?=number_format($todaysellsumarry["sumPrice"])?></td>
+											<td class="total_td_all"><?=number_format($totalsell)?></td>
+											<td class="total_td_today"><?=number_format($todaymemcnt)?></td>
+											<td class="total_td_all"><?=number_format($totalmemcnt)?></td>
+											<td class="total_td_today"><?=number_format($todaymemcnt)?></td>
+											<td class="total_td_all"><?=number_format($todaymemcnt)?></td>
+											<td class="total_td_today"><?=number_format($todayarpu)?></td>
+											<td class="total_td_all"><?=number_format($totalarpu)?></td>
+										</tr>
+										<!--tr>
+											<th scope="row" class="total_td_app">파워로또</th>
+											<td class="total_td_today">220,000</td>
+											<td class="total_td_all">5,220,000,000</td>
+											<td class="total_td_today">220,000</td>
+											<td class="total_td_all">5,220,000,000</td>
+											<td class="total_td_today">220,000</td>
+											<td class="total_td_all">5,220,000,000</td>
+											<td class="total_td_today">220,000</td>
+											<td class="total_td_all">5,220,000,000</td>
+										</tr>
+										<tr>
+											<th scope="row" class="total_td_app">파워로또</th>
+											<td class="total_td_today">220,000</td>
+											<td class="total_td_all">5,220,000,000</td>
+											<td class="total_td_today">220,000</td>
+											<td class="total_td_all">5,220,000,000</td>
+											<td class="total_td_today">220,000</td>
+											<td class="total_td_all">5,220,000,000</td>
+											<td class="total_td_today">220,000</td>
+											<td class="total_td_all">5,220,000,000</td>
+										</tr>
+										<tr>
+											<th scope="row" class="total_td_app">파워로또</th>
+											<td class="total_td_today">220,000</td>
+											<td class="total_td_all">5,220,000,000</td>
+											<td class="total_td_today">220,000</td>
+											<td class="total_td_all">5,220,000,000</td>
+											<td class="total_td_today">220,000</td>
+											<td class="total_td_all">5,220,000,000</td>
+											<td class="total_td_today">220,000</td>
+											<td class="total_td_all">5,220,000,000</td>
+										</tr>
+										<tr>
+											<th scope="row" class="total_td_app">파워로또</th>
+											<td class="total_td_today">220,000</td>
+											<td class="total_td_all">5,220,000,000</td>
+											<td class="total_td_today">220,000</td>
+											<td class="total_td_all">5,220,000,000</td>
+											<td class="total_td_today">220,000</td>
+											<td class="total_td_all">5,220,000,000</td>
+											<td class="total_td_today">220,000</td>
+											<td class="total_td_all">5,220,000,000</td>
+										</tr-->
+									</table>
+								</div>
+							</div>
+							<div class="table_page_wrap">
+								<?=$paging?>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+

@@ -1,0 +1,336 @@
+<div class="con_head_wrap">
+    <div class="con_head">
+        <h1><?=$_TITLE_SUB ? $SITE_NAME.'-'.$_TITLE_SUB : $SITE_NAME.'-'.$_TITLE?></h1>
+    </div>
+</div>
+<div class="con_body_wrap">
+    <div class="con_body">
+        <div class="con_body_top_form_wrap">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="cloud_box">
+                        <div class="board_view_all_wrap">
+                            <form method="post" name="viewFreeFrmProcess" id="viewFreeFrmProcess" enctype="multipart/form-data">
+                                <input type="hidden" name="RETURNURL" value="review.siso?pagenum=<?=$pagenum?>&search_order=<?=$search_order?>&word=<?=$word?>&options=<?=$options?>&cate=<?=$cate?>&date_from=<?=$date_from?>&date_to=<?=$date_to?>">
+                                <input type="hidden" name="dbControl" value="setBoardDel_new">
+                                <input type="hidden" name="CODE" value="<?=$row['b_idx']?>">
+                                <input type="hidden" name="BCODE" value="14">
+                            </form>
+                            <div class="board_view_top">
+                                <h2><?=$row["b_title"]?></h2>
+                            </div>
+                            <div class="board_view_con_wrap">
+                                <div class="board_view_con_top_wrap">
+                                    <div class="board_view_con_top">
+										<span class="view_con_top_span">
+											<i class="fa fa-tags"></i>
+											<span><?=$row["b_cate"]?></span>
+										</span>
+                                        <span class="view_con_top_span">
+											<span class="sp"></span>
+											<i class="fa fa-user"></i>
+											<span><?=$row["b_name"]?></span>
+										</span>
+                                        <span class="view_con_top_span">
+											<span class="sp"></span>
+											<i class="fa fa-eye"></i>
+											<span><?=$row['b_hits']?> 회</span>
+										</span>
+                                        <span class="view_con_top_span pull-right">
+											<i class="fa fa-clock-o"></i>
+											<span><?=$row['b_regdate']?></span>
+										</span>
+                                    </div>
+                                    <?php  if(trim($getBoardAdmin['ba_file_is'])	==	'Y'){ ?>
+                                    <?php  for($f=1; $f <= trim($getBoardAdmin['ba_file_cnt']); $f++){ ?>
+                                    <div class="board_view_con_top">
+										<span class="view_con_top_span">
+											<i class="fa fa-user"> 첨부파일 #<?=$f?> : </i>
+											<span>
+												<?php  if($file[$f-1]['bf_file']){ ?><a href='<?=$file[$f-1]['bf_dir']?>/<?=$file[$f-1]['bf_file']?>' target="_blank"><?=$file[$f-1]['bf_file_org']?></a><?php  } ?>
+											</span>
+										</span>
+                                    </div>
+                                    <?php  } ?>
+                                    <?php  } ?>
+                                </div>
+                                <div class="board_view_con_in">
+                                    <div class="board_view_con">
+                                        <?=$row['b_contents']?>
+                                    </div>
+                                </div>
+                                <?php  if($getBoardAdmin['ba_comment_is']	==	'Y'){ ?>
+                                <div class="new_comment_all_wrap">
+                                    <div class="new_comment_wrap">
+                                        <?php  for($c=1; $c <= $commenttotal; $c++){ ?>
+                                        <div class="new_comment_box">
+                                            <div class="new_comment_user">
+                                                <a><?=$comment[$c-1]['m_name'];?></a>
+                                            </div>
+                                            <input type="hidden" name="b_idx<?=$c-1?>" id="b_idx<?=$c-1?>" value="<?=$comment[$c-1]['b_idx']?>">
+                                            <div class="new_comment_desc">
+                                                <?=$comment[$c-1]['comment'];?>
+                                            </div>
+                                            <div class="new_comment_info">
+                                                <div class="new_comment_info_left">
+                                                    <i class="fa fa-clock-o" aria-hidden="true"></i>
+                                                    <?=date('y.m.d H:i', strtotime($comment[$c-1]['b_regdate']))?>
+                                                </div>
+                                                <div class="new_comment_info_right">
+                                                    <div class="order_btn_wrap">
+                                                        <button type="button" class="btn btn-delete" id="cBtnDel<?=$c-1?>" onclick="comment_delete(this.id);">삭제</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <?php  } ?>
+                                    </div>
+                                </div>
+                                <div class="total_reply_wrap">
+                                    <div class="new_comment_reply_wrap">
+                                        <div class="new_comment_reply_box">
+                                            <div class="new_comment_reply_table">
+                                                <div class="new_comment_reply_table_td">
+                                                    <textarea class="form-control" name="b_comment" id="b_comment" ></textarea>
+                                                </div>
+                                                <a class="btn btn-white btn-sm new_comment_reply_table_a" id="commentBtn">
+                                                    <span>댓글입력</span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <?php  } ?>
+                                <?php  if($getBoardAdmin['ba_reply_is']	==	'Y'){ ?>
+                                <div class="table_form_wrap">
+                                    <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table_st_02">
+                                        <tr>
+                                            <th scope="row">
+                                                답변
+                                            </th>
+                                            <td>
+                                                <div class="form_div_wrap">
+                                                    <div class="input_box_100_wrap">
+                                                        <textarea name="b_reply" id="b_reply"  class="form-control" rows="10"><?=stripslashes($row["b_reply"])?></textarea>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <hr>
+                                <?php  } ?>
+                                <?php  if($getBoardAdmin['ba_reply_is']	==	'A'){ ?>
+                                <div class="table_form_wrap">
+                                    <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table_st_02">
+                                        <tr>
+                                            <th scope="row">
+                                                답변
+                                            </th>
+                                            <td>
+                                                <div class="form_div_wrap">
+                                                    <div class="input_box_100_wrap">
+                                                        <?=stripslashes($row["b_reply"])?>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <hr>
+                                <?php  } ?>
+
+
+                            </div>
+
+
+                            <div class="table_bottom_btn_wrap">
+                                <?php  if($getBoardAdmin['ba_reply_is']	==	'Y'){ ?>
+                                <a class="btn btn-warning" id="replyBtn">답변</a>
+                                <?php  } ?>
+                                <a href="review.form.siso?BCODE=<?=$BCODE?>&CODE=<?=$row['b_idx']?>&pagenum=<?=$pagenum?>&search_order=<?=$search_order?>&word=<?=$word?>&options=<?=$options?>&cate=<?=$cate?>&date_from=<?=$date_from?>&date_to=<?=$date_to?>"><button type="button" class="btn btn-edit">수정하기</button></a>
+                                <button type="button" class="btn btn-delete" id="viewDeleteBtn">삭제</button>
+                                <a href="review.siso?pagenum=<?=$pagenum?>&search_order=<?=$search_order?>&word=<?=$word?>&options=<?=$options?>&cate=<?=$cate?>&date_from=<?=$date_from?>&date_to=<?=$date_to?>"><button type="button" class="btn btn-default">목록</button></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var thisBumo = $(input).closest('.banner_img_all_wrap');
+                thisBumo.find(".banner_img_wrap img").attr('src', e.target.result);
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    // $('#replyBtn').click(function(){
+    // 	//tinyMCE.triggerSave();
+    // 	//oEditors1.getById["b_reply"].exec("UPDATE_CONTENTS_FIELD", []);
+    // 	if(jQuery.inArray(document.getElementById('b_reply').value.toLowerCase().replace(/^\s*|\s*$/g, ''), ['&nbsp;','<p>&nbsp;</p>','<p><br></p>','<div><br></div>','<p></p>','<br>','']) != -1){
+    // 		document.getElementById('b_reply').value='';
+    // 	}
+    // 	if(checkFormFn('b_reply', '답변') == false) return;
+    // 	setAjaxPostSend('/lib/control.siso', '<?=$CODE?>', 'setBoardReply', '<?=$BCODE?>@|@|@|'+$('#b_reply').val());
+    // }).css({"cursor":"pointer"});
+    $('#commentBtn').click(function(){
+        if(jQuery.inArray(document.getElementById('b_comment').value.toLowerCase().replace(/^\s*|\s*$/g, ''), ['&nbsp;','<p>&nbsp;</p>','<p><br></p>','<div><br></div>','<p></p>','<br>','']) != -1){
+            document.getElementById('b_comment').value='';
+        }
+        if(checkFormFn('b_comment', '댓글') == false) return;
+        setAjaxPostSend('/lib/control.siso', '<?=$CODE?>', 'setBoardComment', '<?=$BCODE?>@|@|@|'+'<?=$CODE?>@|@|@|'+$('#b_comment').val());
+    }).css({"cursor":"pointer"});
+    // $('#commentBtnDel').click(function(){
+    // 	// if(jQuery.inArray(document.getElementById('b_comment').value.toLowerCase().replace(/^\s*|\s*$/g, ''), ['&nbsp;','<p>&nbsp;</p>','<p><br></p>','<div><br></div>','<p></p>','<br>','']) != -1){
+    // 	// 	document.getElementById('b_comment').value='';
+    // 	// }
+    // 	// if(checkFormFn('b_comment', '댓글') == false) return;
+    // 	alert("1");
+    // 	setAjaxPostSend('/lib/control.siso', '<?=$CODE?>', 'delBoardComment', '<?=$BCODE?>@|@|@|'+'<?=$CODE?>@|@|@|'+$('#b_idx').val());
+    // }).css({"cursor":"pointer"});
+    function deleteFn(){
+        ajaxFormSave('viewFreeFrmProcess', '/lib/control.siso');
+    }
+    $('#viewDeleteBtn').click(function(){
+        deleteFn();
+    });
+
+    function comment_delete(value){
+
+        var value_num = value.substring(8,7);
+        var b_idx = 'b_idx' + value_num;
+        var idx_value = document.getElementById(b_idx).value
+
+        //alert(value2);
+        setAjaxPostSend('/lib/control.siso', '<?=$CODE?>', 'delBoardComment', '<?=$BCODE?>@|@|@|'+'<?=$CODE?>@|@|@|'+idx_value);
+    }
+</script>
+
+<style type="text/css">
+    .new_comment_all_wrap {
+        border-top: 2px solid #222;
+    }
+    .new_comment_user {
+        font-size: 16px; color: #222;
+        font-family: 'no500';
+    }
+    .new_comment_user a {
+        display: inline-block;color: #222;
+    }
+    .new_comment_box {
+        border-bottom: 1px solid #ddd;
+        padding: 15px;
+    }
+    .new_comment_desc {
+        padding: 5px 0; color: #666;
+        font-size: 14px;
+    }
+    .new_comment_box2 {
+        padding-left: 35px;
+    }
+    .new_comment_span {
+        color: #336ef4; padding-right: 10px;
+    }
+    .new_comment_info {
+
+    }
+    .new_comment_info:after{
+        content: "";
+        display: block;
+        height: 0;
+        clear: both;
+        visibility: hidden;
+    }
+    .new_comment_info_left {
+        float: left;
+    }
+    .new_comment_info_right {
+        float: right;
+    }
+    .new_comment_reply_wrap {
+        padding: 15px;
+        background-color: #f7f7f7;
+    }
+    .new_comment_reply_box {}
+    .new_comment_reply_box textarea {
+        border: 1px solid #ddd;
+        padding: 10px;
+        max-width: 100%!important;
+        height: 100px;
+    }
+    .new_comment_reply_btn {
+        padding: 15px;
+        text-align: right;
+    }
+    .new_comment_reply_btn a {
+        display: inline-block;
+        background-color: #fff;
+        border-color:#336ef4!important;
+        color: #336ef4!important;
+        width: 100px; height: 30px;
+        line-height: 30px; font-size: 14px;
+        padding: 0px;
+    }
+    .total_reply_wrap .new_comment_reply_wrap {
+        padding: 15px 0;
+        background-color:#fff;
+    }
+    .new_comment_reply_btn2 {
+        padding: 15px;
+        text-align: right;
+    }
+    .new_comment_reply_btn2 a {
+        display: inline-block;
+        background-color: #336ef4!important;
+        color: #fff!important;
+        width: 100px; height: 30px;
+        line-height: 30px; font-size: 14px;
+        padding: 0px;
+    }
+
+    .new_comment_reply_table {
+        display:block;
+        position: relative;top: 0px; left: 0px;
+        padding-right: 90px;
+    }
+    .new_comment_reply_table_td {
+        position: relative;top: 0px;
+        left: 0px; width: 100%;
+    }
+
+    .new_comment_reply_table_a {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        bottom: 0px;
+        width: 80px;
+        background-color: #f5f5f5;
+        word-break: break-all;
+        padding: 0px;
+        border: 1px solid #ccc;
+    }
+    .new_comment_reply_table_a:before {
+        content: '';
+        display: inline-block;
+        height: 100%;
+        vertical-align: middle;
+        margin-right: -0.25em;
+    }
+    .new_comment_reply_table_td textarea {
+        width: 100%!important
+    }
+
+    .new_comment_reply_table_a span {
+        vertical-align: middle;
+        display: inline-block;
+        line-height: 1.3;
+        color: #333;
+    }
+</style>

@@ -1,0 +1,36 @@
+<?php
+	require $_SERVER['DOCUMENT_ROOT'].'/lib/global.php';
+
+	$auth	=	$thisConnAuth != '' ?  $thisConnAuth : 'root';
+	menu_auth_limit($MCODE,$auth);
+
+	$BCODE = "1";
+	$getBoardAdmin	=	getValue('_BOARD_ADMIN',"WHERE ba_idx = '".$BCODE."' ");
+
+	$_where	=   " WHERE 1 ";
+	$_where .=  " AND b_idx = '".$_REQUEST['CODE']."' ";
+	$_table =   "_BOARD_".$getBoardAdmin['ba_table'];
+
+	if($CODE!=""){
+		$row    =   getValue("_BOARD_NOTICE","WHERE b_idx=".$CODE." AND b_use_is='Y'");
+		if($row['b_idx'] == ""){useExit('{"result":"N","message":"게시물을 확인하지 못하였습니다."}');}
+
+		$fileSql	=	"SELECT * FROM _BOARD_FILE WHERE bf_board_idx=".$CODE." AND bf_board_id=".$BCODE;
+		$fileRs		=	query($fileSql);
+		if(rows() > 0){
+			for($f=0; $fileRow = assoc($fileRs); $f++){
+				$file[]	=	$fileRow;
+			}
+		}
+	}
+
+	$_TITLE = "공지사항 작성";
+	$_TITLE_SUB = "";
+	$_SITE_DESCRIPTION = "공지사항 페이지입니다.";
+
+	getSkinSet('_'.str_replace('root', 'adm', $auth).'/', 'form', $PUSANKJS['filename'], 'main', true);
+
+	//exit($PSKIN['view_layout']);
+	include($PSKIN['view_layout']);
+	mysqli_close($DBINFO);
+?>

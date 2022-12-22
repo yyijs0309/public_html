@@ -1,0 +1,25 @@
+<?php
+require $_SERVER['DOCUMENT_ROOT'].'/lib/global.php';
+
+$auth	=	$thisConnAuth != '' ?  $thisConnAuth : 'root';
+auth_limit($auth);
+//auth_limit($thisConnAuth != '' ?  $thisConnAuth : 'root');
+
+$BCODE = "4";
+$getBoardAdmin	=	getValue('_BOARD_ADMIN', " where ba_idx = '".$BCODE."' ");
+
+$_WHERE	=	" WHERE 1 ";
+if($CODE){
+    $_WHERE	.=	" AND b_idx = '".$CODE."' ";
+    $_TABLE	=	'_BOARD_'.$getBoardAdmin['ba_table'];
+    $_ORDER	=	'ORDER BY b_regdate DESC';
+    $row	=	getValue($_TABLE, $_WHERE, 'ar', '*', false);
+}
+//echoAr($row);
+$m_id = getValue("_MEMBER","WHERE m_idx=".$row['b_user_idx']."","m_id","m_id");
+$_TITLE		=	$getBoardAdmin['ba_name'];
+//getSkinSet('_adm/', 'form', $PUSANKJS['filename'], 'main', true);
+getSkinSet('_'.str_replace('root', 'adm', $auth).'/', 'form', $PUSANKJS['filename'], 'main', true);
+include($PSKIN['view_layout']);
+mysqli_close($DBINFO);
+?>

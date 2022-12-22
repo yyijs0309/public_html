@@ -1,0 +1,49 @@
+<?php
+/*#################################################################################################
+#########	생성일 : 2016-07-11
+#########	만든이 : 김종수 대표
+#########	연락처 : 010-6368-2650
+#########	이메일 : pusankjs@siso.kr
+#################################################################################################*/
+require $_SERVER['DOCUMENT_ROOT'].'/lib/global.php';
+auth_limit('root');
+// $getSiteSkin['di_skin'] ='mall'; 
+
+$CODE = $_REQUEST['CODE'];
+$_WHERE	=	" WHERE 1 ";
+if($CODE){
+	$_WHERE	.=	" AND S.s_idx = '".$CODE."' ";
+	$_TABLE	=	'_SERVICE S';
+	$_JOIN	=	' LEFT OUTER JOIN _COMPANY C ON C.c_idx = S.s_cidx ';
+	$_ORDER	=	'ORDER BY S.s_regdate DESC';
+	$row	=	getValue($_TABLE.$_JOIN, $_WHERE, 'ar', 'S.*, C.*', false);
+}
+
+//검색어 조건
+$_WHERE_POP = " WHERE 1 ";
+$_TABLE_POP	=	'_COMPANY';
+$_ORDER_POP	=	"ORDER BY c_regdate DESC ";
+
+$onePageCount = 20;
+$pagenum = $_REQUEST['pagenum'] ? $_REQUEST['pagenum'] : 1;
+$total = getValue($_TABLE_POP, $_WHERE_POP, 'CNT', 'COUNT(*) AS CNT');
+$no = $total - ($pagenum-1) * $onePageCount;
+
+$list = selectBoard($_TABLE_POP,$_WHERE_POP,$_ORDER_POP,'*',$no,false);
+
+if($total > 0)
+	$toalPageCn	=	ceil($total/$onePageCount);
+else
+	$toalPageCn	=	1;
+$paging		=	disPgCount($toalPageCn, $pagenum, $_TAGS, 1);
+
+
+$_TITLE = "업체등록";
+$_TITLE_SUB = "";
+$_SITE_DESCRIPTION = "업체등록 페이지입니다.";
+
+getSkinSet('_adm/', 'form', $PUSANKJS['filename'], 'main', true);
+include($PSKIN['view_layout']);
+mysqli_close($DBINFO);
+?>
+

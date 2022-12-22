@@ -1,0 +1,176 @@
+@charset "utf-8";
+/* base */
+@import url(http://fonts.googleapis.com/earlyaccess/jejumyeongjo.css);
+@font-face {
+ font-family: 'na200';
+ src: url(font/NanumSquareL.eot);
+ src: url(font/NanumSquareL.eot?#iefix) format('embedded-opentype'),
+      url(font/NanumSquareL.woff) format('woff'),
+      url(font/NanumSquareL.ttf) format('truetype');
+}
+@font-face {
+ font-family: 'na300';
+ src: url(font/NanumSquareR.eot);
+ src: url(font/NanumSquareR.eot?#iefix) format('embedded-opentype'),
+      url(font/NanumSquareR.woff) format('woff'),
+      url(font/NanumSquareR.ttf) format('truetype');
+}
+@font-face {
+ font-family: 'na400';
+ src: url(font/NanumSquareB.eot);
+ src: url(font/NanumSquareB.eot?#iefix) format('embedded-opentype'),
+      url(font/NanumSquareB.woff) format('woff'),
+      url(font/NanumSquareB.ttf) format('truetype');
+}
+@font-face {
+ font-family: 'na500';
+ src: url(font/NanumSquareEB.eot);
+ src: url(font/NanumSquareEB.eot?#iefix) format('embedded-opentype'),
+      url(font/NanumSquareEB.woff) format('woff'),
+      url(font/NanumSquareEB.ttf) format('truetype');
+}
+@font-face {
+    font-family: 'no200';
+    src: url('font/notokr-light.eot');
+    src: url('font/notokr-light.eot?#iefix') format('embedded-opentype'),
+         url('font/notokr-light.woff2') format('woff2'),
+         url('font/notokr-light.woff') format('woff'),
+         url('font/notokr-light.ttf') format('truetype'),
+         url('font/notokr-light.svg#notokr-light') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'no300';
+    src: url('font/notokr-regular.eot');
+    src: url('font/notokr-regular.eot?#iefix') format('embedded-opentype'),
+         url('font/notokr-regular.woff2') format('woff2'),
+         url('font/notokr-regular.woff') format('woff'),
+         url('font/notokr-regular.ttf') format('truetype'),
+         url('font/notokr-regular.svg#notokr-regular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'no400';
+    src: url('font/notokr-medium.eot');
+    src: url('font/notokr-medium.eot?#iefix') format('embedded-opentype'),
+         url('font/notokr-medium.woff2') format('woff2'),
+         url('font/notokr-medium.woff') format('woff'),
+         url('font/notokr-medium.ttf') format('truetype'),
+         url('font/notokr-medium.svg#notokr-medium') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'no500';
+    src: url('font/notokr-bold.eot');
+    src: url('font/notokr-bold.eot?#iefix') format('embedded-opentype'),
+         url('font/notokr-bold.woff2') format('woff2'),
+         url('font/notokr-bold.woff') format('woff'),
+         url('font/notokr-bold.ttf') format('truetype'),
+         url('font/notokr-bold.svg#notokr-bold') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'no600';
+    src: url('font/notokr-black.eot');
+    src: url('font/notokr-black.eot?#iefix') format('embedded-opentype'),
+         url('font/notokr-black.woff2') format('woff2'),
+         url('font/notokr-black.woff') format('woff'),
+         url('font/notokr-black.ttf') format('truetype'),
+         url('font/notokr-black.svg#notokr-bold') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+  font-family: "timon";
+  src: url("font/TmonMonsori.eot");
+  src: url("font/TmonMonsori.eot?#iefix") format("embedded-opentype"),
+  url("font/TmonMonsori.woff") format("woff"),
+  url("font/TmonMonsori.woff2") format("woff2"),
+  url("font/TmonMonsori.ttf") format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'FontAwesome';
+  src: url('font/fontawesome-webfont.eot');
+  src: url('font/fontawesome-webfont.eot?#iefix') format('embedded-opentype'),
+        url('font/fontawesome-webfont.woff2') format('woff2'),
+        url('font/fontawesome-webfont.woff') format('woff'),
+        url('font/fontawesome-webfont.ttf') format('truetype'),
+        url('font/fontawesome-webfont.svg#fontawesomeregular') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+    font-family: 'score4';
+    src: url(font/S-CoreDream-4Regular.eot);
+    src: url(font/S-CoreDream-4Regular.eot?#iefix) format('embedded-opentype'),
+    url(font/S-CoreDream-4Regular.woff) format('woff'),
+    url(font/S-CoreDream-4Regular.ttf) format('truetype');
+}
+@font-face {
+    font-family: 'score5';
+    src: url(font/S-CoreDream-5Medium.eot);
+    src: url(font/S-CoreDream-5Medium.eot?#iefix) format('embedded-opentype'),
+    url(font/S-CoreDream-5Medium.woff) format('woff'),
+    url(font/S-CoreDream-5Medium.ttf) format('truetype');
+}
+html{
+font-smoothing: antialiased;
+-webkit-font-smoothing: antialiased;
+  filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNSBNYWNpbnRvc2giIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6OTJBQkFGRUZFOTIyMTFFMEJDRDNEQzkxOTVGOTNBODAiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6OTJBQkFGRjBFOTIyMTFFMEJDRDNEQzkxOTVGOTNBODAiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo5MkFCQUZFREU5MjIxMUUwQkNEM0RDOTE5NUY5M0E4MCIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo5MkFCQUZFRUU5MjIxMUUwQkNEM0RDOTE5NUY5M0E4MCIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PtrV+I8AAAAQSURBVHjaYvj//z8DQIABAAj8Av7bok0WAAAAAElFTkSuQmCC',sizingMethod=crop);
+  zoom: 1;
+  -webkit-font-smoothing: subpixel-antialiased;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
+html,body { }
+body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, input, textarea, p, blockquote, th, td, textfield, select, img{
+  margin:0;
+  padding:0;
+
+}
+.mal {
+  font-family:"Apple SD Gothic Neo", "Malgun Gothic", "맑은 고딕", sans-serif
+}
+body {color:#666;font-size:13px; font-family: 'no300','나눔고딕',NanumGothic, '돋움',Dotum,'굴림',Gulim,Helvetica,sans-serif !important; }
+h1, h2, h3, h4, h5, h6 {font-weight:normal; font-size:1em;}
+ol, ul, li, dd, dl, dt  {list-style:none;}
+fieldset, legend {border:0; margin:0;padding:0;}
+img {border:0; }
+label{cursor:pointer;}
+address, caption, em{font-weight:normal;font-style:normal;}
+* {
+  vertical-align: bottom;
+}
+*:hover {
+
+}
+a {cursor: pointer;}
+strong{letter-spacing:-1px}
+
+table {border-collapse:collapse;}
+.bx-wrapper a{display: block;}
+.bx-viewport ul:after {
+    content: "";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+}
+* {
+  -webkit-text-size-adjust: none;
+-moz-text-size-adjust: none;
+-ms-text-size-adjust: none;
+}

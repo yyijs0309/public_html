@@ -1,0 +1,4 @@
+<?php
+require $_SERVER['DOCUMENT_ROOT'].'/lib/global.php';
+msg('', _APPS_URL);
+?>

@@ -1,0 +1,67 @@
+<?php
+	require $_SERVER['DOCUMENT_ROOT'].'/lib/global.php';
+//echo "auth:".print_r($AUTH); exit;
+	$auth	=	$thisConnAuth != '' ?  $thisConnAuth : 'root';
+	menu_auth_limit($MCODE,$auth);
+
+	$check_yn = $_REQUEST['check_yn'];
+	$a_idx = $_REQUEST['a_idx'];
+
+	if($check_yn == ''){
+		$check_yn = "2";
+	}
+	if($a_idx == ''){
+		$a_idx = "2";
+	}
+
+//사용자 그룹 조회
+	$_AUTH_WHERE = " WHERE 1 ";
+	$_AUTH_WHERE .= " AND A_AUTHGROUP_CODE <> '01000001' ";
+	$_AUTH_TABLE = "_AUTH";
+	$_AUTH_ORDER = " ORDER BY a_idx";
+	$authsql = "
+    select 
+        *
+    from
+        ".$_AUTH_TABLE.$_AUTH_WHERE.$_AUTH_ORDER." 
+";
+//echo "sql:".$authsql; exit;
+	$authrs = query($authsql);
+	if(rows() > 0){
+		for($i=0; $authrow = assoc($authrs); $i++){
+//        $authrow['num']		=	$no--;
+			$authlist[]			=	$authrow;
+		}
+	}
+
+//메뉴 조회
+	$_MENU_WHERE = " WHERE 1 ";
+	$_MENU_WHERE .= " and m.m_menu_state = 'Y' AND m.idx <> '6' ";
+	$_MENU_TABLE = "_MENU m";
+	$_MENU_JOIN = " LEFT OUTER JOIN _MENU_AUTH ma ON m.idx = ma.ma_m_idx AND ma.ma_a_idx = '".$check_yn."' ";
+	$_MENU_ORDER = " ";
+	$menusql = "
+    select 
+        m.*, ma.ma_idx,ma_state AS check_box
+    from
+        ".$_MENU_TABLE.$_MENU_JOIN.$_MENU_WHERE.$_MENU_ORDER." 
+";
+//echo "sql:".$menusql; exit;
+	$menurs = query($menusql);
+	if(rows() > 0){
+		for($i=0; $menurow = assoc($menurs); $i++){
+			$menurow['num']		=	$no--;
+			$menulist[]			=	$menurow;
+		}
+	}
+
+	$_TITLE = "권한관리";
+	$_TITLE_SUB = "";
+	$_SITE_DESCRIPTION = "권한관리 페이지입니다.";
+
+	getSkinSet('_'.str_replace('root', 'adm', $auth).'/', 'form', $PUSANKJS['filename'], 'main', true);
+
+//exit($PSKIN['view_layout']);
+	include($PSKIN['view_layout']);
+	mysqli_close($DBINFO);
+?>

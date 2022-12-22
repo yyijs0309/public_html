@@ -1,0 +1,22 @@
+<?php
+require $_SERVER['DOCUMENT_ROOT'].'/lib/global.php';
+auth_limit('root');
+// $getSiteSkin['di_skin'] ='mall';
+
+$_WHERE	=	" WHERE 1 ";
+if($CODE){
+    $_WHERE	.=	" AND sc_idx = '".$CODE."' ";
+    $_TABLE	=	'_SHOP_CATE';
+    $_ORDER	=	'';
+    $row	=	getValue($_TABLE, $_WHERE, 'ar', '*', false);
+}
+
+$_TITLE = "상위카테고리 관리";
+$_TITLE_SUB = "";
+$_SITE_DESCRIPTION = "상위카테고리 관리 페이지입니다.";
+
+getSkinSet('_adm/', 'form', $PUSANKJS['filename'], 'main', true);
+include($PSKIN['view_layout']);
+mysqli_close($DBINFO);
+?>
+

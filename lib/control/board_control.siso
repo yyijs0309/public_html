@@ -1,0 +1,597 @@
+<?php
+require $_SERVER['DOCUMENT_ROOT'].'/lib/global.php';
+use ElephantIO\Client as Elephant;
+
+	//<editor-fold desc="모바일공지사항리스트:getMobileNoticList">
+	if($dbControl == "getMobileNoticList"){
+
+		//<editor-fold desc="param">
+		$b_code         = "1";
+		$b_title		= $_SENDTYPE["title"];       //기기고유값
+		//</editor-fold>
+
+		$getBoardAdmin	=	getValue("_BOARD_ADMIN","WHERE ba_idx=".$b_code);
+		$_where			=	" WHERE 1 ";
+		if($b_title != ""){
+			$_where			.=	" AND b_title like '%".$b_title."%' ";
+		}
+		$_tags			=	" ";
+		$_order			=	" ORDER BY b_regdate desc";
+		$_table			=	" _BOARD_".$getBoardAdmin['ba_table']." F ";
+		$_jointable 	=	" LEFT JOIN _MEMBER M ON M.m_idx = F.b_user_idx ";
+
+		$onePageCount	=	20;
+		$pagenum		=	$_REQUEST['pagenum'] ? $_REQUEST['pagenum'] : 1;
+		$offset			=	($pagenum-1) * $onePageCount;
+		$total			=	getValue($_table,$_where,"CNT","COUNT(*) AS CNT");
+		$no				=	$total	 -	($pagenum-1) * $onePageCount;
+
+		$_column =  "F.b_idx as board_idx";
+		$_column .= ",F.b_title as title,F.b_contents as contents";
+		$_column .= ",F.b_user_idx as user_idx,M.m_name as user_name,F.b_regdate as regdate,F.b_hits as hits";
+
+		$sql	= " SELECT ".$_column." FROM ".$_table.$_jointable.$_where.$_order." limit ".$offset.", ".$onePageCount;
+		$rs		=	query($sql);
+
+		$list	=	array();
+		if(rows() > 0){
+			for($i=0; $row = assoc($rs); $i++){
+				$row['num']		    =	$no--;
+				$list[]			    =	$row;
+
+				//<editor-fold desc="파일">
+				$filecnt		=   getValue("_BOARD_FILE","WHERE bf_board_id=".$b_code." AND bf_board_idx=".$list[$i]['board_idx'],"CNT","COUNT(*) AS CNT",false);
+				$filesql        =   "SELECT bf_idx as file_idx,bf_dir as dir,bf_file as file,bf_file_org as file_org FROM _BOARD_FILE WHERE bf_board_id = ".$b_code." AND bf_board_idx= ".$list[$i]['board_idx'];
+				$rsfile 		=	query($filesql);
+				$fileRow = Array();
+				for($j=0; $rowfile = assoc($rsfile); $j++){
+					$list[$i]["file"][$j] = $rowfile;
+				}
+				//</editor-fold>
+			}
+
+			$toalPageCn	=	1;
+
+			$jsonList	=	array('total'=> $total,'maxpageno'=>$toalPageCn,'result'=>'Y','message'=>'게시물을 조회하였습니다.','data'=>$list);
+			$json = json_encode( $jsonList);
+		}else{
+			$jsonList	=	array('total'=> 0,'maxpageno'=>0,'result'=>'N','message'=>'조회 오류가 발생하였습니다.','data'=>$list);
+			$json = json_encode( $jsonList);
+		}
+		useExit($json);
+	}
+	//</editor-fold>
+	//<editor-fold desc="모바일공지사항상세:getMobileNoticeDetail">
+	if($dbControl == "getMobileNoticeDetail"){
+
+		//<editor-fold desc="param">
+		$b_code = "1";
+		$b_idx  = $_SENDTYPE['board_idx'];
+		//</editor-fold>
+
+		//<editor-fold desc="validation">
+		if($b_idx == ""){useExit('{"result":"N","message":"게시물 idx 값이 없습니다.","ErrCODE":"BOARD02"}');}
+		//</editor-fold>
+
+		$getBoardAdmin	=	getValue('_BOARD_ADMIN', " where ba_idx=".$b_code);
+
+		$_where			=	" WHERE 1 AND b_idx=".$b_idx;
+		$_tags			=	"";
+		$_order			=	"ORDER BY b_regdate desc";
+		$_table			=	"_BOARD_".$getBoardAdmin['ba_table']." F ";
+		$_jointable		=	" LEFT JOIN _MEMBER M ON M.m_idx = F.b_user_idx ";
+		$total			=	getValue($_table.$_jointable,$_where,"CNT","COUNT(*) AS CNT");
+
+		$_column =  "F.b_idx as board_idx";
+		$_column .= ",F.b_title as title,F.b_contents as contents";
+		$_column .= ",F.b_user_idx as user_idx,M.m_name as user_name,F.b_regdate as regdate,F.b_hits as hits";
+
+		$sql	= " SELECT ".$_column." FROM ".$_table.$_jointable.$_where.$_order;
+		$rs		=	query($sql);
+
+		$list	=	array();
+		if(rows() > 0){
+			for($i=0; $row = assoc($rs); $i++){
+				$list[]			=	$row;
+
+				//<editor-fold desc="파일">
+				$filecnt		=   getValue("_BOARD_FILE","WHERE bf_board_id=".$b_code." AND bf_board_idx=".$list[$i]['board_idx'],"CNT","COUNT(*) AS CNT",false);
+				$filesql        =   "SELECT bf_idx as file_idx,bf_dir as dir,bf_file as file,bf_file_org as file_org FROM _BOARD_FILE WHERE bf_board_id = ".$b_code." AND bf_board_idx= ".$list[$i]['board_idx'];
+				$rsfile 		=	query($filesql);
+				$fileRow = Array();
+				for($j=0; $rowfile = assoc($rsfile); $j++){
+					$list[$i]["file"][$j] = $rowfile;
+				}
+				//</editor-fold>
+			}
+
+			query("UPDATE ".$_table." SET b_hits = b_hits+1 WHERE b_idx=".$b_idx);
+
+			$commentCnt = getValue('_BOARD_COMMENT', " where bf_board_idx=".$b_code, 'CNT', 'COUNT(*) AS CNT');
+
+			$jsonList	=	array('result'=>'Y','message'=>'게시물을 조회하였습니다.','data'=>$list);
+			$json = json_encode( $jsonList);
+		}else{
+			$jsonList	=	array('result'=>'N','message'=>'오류가 발생하였습니다.','data'=>$list);
+			$json = json_encode( $jsonList);
+		}
+		useExit($json);
+	}
+	//</editor-fold>
+	//<editor-fold desc="이벤트리스트:getMobileEventList">
+	if($dbControl == "getMobileEventList"){
+
+		//<editor-fold desc="param">
+		$b_code         = "6";
+		$b_title		= $_SENDTYPE["title"];       //기기고유값
+		//</editor-fold>
+
+		$getBoardAdmin	=	getValue("_BOARD_ADMIN","WHERE ba_idx=".$b_code);
+		$_where			=	" WHERE 1 ";
+		if($b_title != ""){
+			$_where			.=	" AND b_title like '%".$b_title."%' ";
+		}
+		$_tags			=	" ";
+		$_order			=	" ORDER BY b_regdate desc";
+		$_table			=	" _BOARD_".$getBoardAdmin['ba_table']." F ";
+		$_jointable 	=	" LEFT JOIN _MEMBER M ON M.m_idx = F.b_user_idx ";
+
+		$onePageCount	=	20;
+		$pagenum		=	$_REQUEST['pagenum'] ? $_REQUEST['pagenum'] : 1;
+		$offset			=	($pagenum-1) * $onePageCount;
+		$total			=	getValue($_table,$_where,"CNT","COUNT(*) AS CNT");
+		$no				=	$total	 -	($pagenum-1) * $onePageCount;
+
+		$_column =  "F.b_idx as board_idx";
+		$_column .= ",F.b_title as title,F.b_contents as contents";
+		$_column .= ",F.b_user_idx as user_idx,M.m_name as user_name,F.b_regdate as regdate,F.b_hits as hits";
+
+		$sql	= " SELECT ".$_column." FROM ".$_table.$_jointable.$_where.$_order." limit ".$offset.", ".$onePageCount;
+		$rs		=	query($sql);
+
+		$list	=	array();
+		if(rows() > 0){
+			for($i=0; $row = assoc($rs); $i++){
+				$row['num']		    =	$no--;
+				$list[]			    =	$row;
+
+				//<editor-fold desc="파일">
+				$filecnt		=   getValue("_BOARD_FILE","WHERE bf_board_id=".$b_code." AND bf_board_idx=".$list[$i]['board_idx'],"CNT","COUNT(*) AS CNT",false);
+				$filesql        =   "SELECT bf_idx as file_idx,bf_dir as dir,bf_file as file,bf_file_org as file_org FROM _BOARD_FILE WHERE bf_board_id = ".$b_code." AND bf_board_idx= ".$list[$i]['board_idx'];
+				$rsfile 		=	query($filesql);
+				$fileRow = Array();
+				for($j=0; $rowfile = assoc($rsfile); $j++){
+					$list[$i]["file"][$j] = $rowfile;
+				}
+				//</editor-fold>
+			}
+
+			$toalPageCn	=	1;
+
+			$jsonList	=	array('total'=> $total,'maxpageno'=>$toalPageCn,'result'=>'Y','message'=>'게시물을 조회하였습니다.','data'=>$list);
+			$json = json_encode( $jsonList);
+		}else{
+			$jsonList	=	array('total'=> 0,'maxpageno'=>0,'result'=>'N','message'=>'조회 오류가 발생하였습니다.','data'=>$list);
+			$json = json_encode( $jsonList);
+		}
+		useExit($json);
+	}
+	//</editor-fold>
+	//<editor-fold desc="이벤트상세:getMobileEventDetail">
+	if($dbControl == "getMobileEventDetail"){
+
+		//<editor-fold desc="param">
+		$b_code = "6";
+		$b_idx  = $_SENDTYPE['board_idx'];
+		//</editor-fold>
+
+		//<editor-fold desc="validation">
+		if($b_idx == ""){useExit('{"result":"N","message":"게시물 idx 값이 없습니다.","ErrCODE":"BOARD02"}');}
+		//</editor-fold>
+
+		$getBoardAdmin	=	getValue('_BOARD_ADMIN', " where ba_idx=".$b_code);
+
+		$_where			=	" WHERE 1 AND b_idx=".$b_idx;
+		$_tags			=	"";
+		$_order			=	"ORDER BY b_regdate desc";
+		$_table			=	"_BOARD_".$getBoardAdmin['ba_table']." F ";
+		$_jointable		=	" LEFT JOIN _MEMBER M ON M.m_idx = F.b_user_idx ";
+		$total			=	getValue($_table.$_jointable,$_where,"CNT","COUNT(*) AS CNT");
+
+		$_column =  "F.b_idx as board_idx";
+		$_column .= ",F.b_title as title,F.b_contents as contents";
+		$_column .= ",F.b_user_idx as user_idx,M.m_name as user_name,F.b_regdate as regdate,F.b_hits as hits";
+
+		$sql	= " SELECT ".$_column." FROM ".$_table.$_jointable.$_where.$_order;
+		$rs		=	query($sql);
+
+		$list	=	array();
+		if(rows() > 0){
+			for($i=0; $row = assoc($rs); $i++){
+				$list[]			=	$row;
+
+				//<editor-fold desc="파일">
+				$filecnt		=   getValue("_BOARD_FILE","WHERE bf_board_id=".$b_code." AND bf_board_idx=".$list[$i]['board_idx'],"CNT","COUNT(*) AS CNT",false);
+				$filesql        =   "SELECT bf_idx as file_idx,bf_dir as dir,bf_file as file,bf_file_org as file_org FROM _BOARD_FILE WHERE bf_board_id = ".$b_code." AND bf_board_idx= ".$list[$i]['board_idx'];
+				$rsfile 		=	query($filesql);
+				$fileRow = Array();
+				for($j=0; $rowfile = assoc($rsfile); $j++){
+					$list[$i]["file"][$j] = $rowfile;
+				}
+				//</editor-fold>
+			}
+
+			query("UPDATE ".$_table." SET b_hits = b_hits+1 WHERE b_idx=".$b_idx);
+
+			$commentCnt = getValue('_BOARD_COMMENT', " where bf_board_idx=".$b_code, 'CNT', 'COUNT(*) AS CNT');
+
+			$jsonList	=	array('result'=>'Y','message'=>'게시물을 조회하였습니다.','data'=>$list);
+			$json = json_encode( $jsonList);
+		}else{
+			$jsonList	=	array('result'=>'N','message'=>'오류가 발생하였습니다.','data'=>$list);
+			$json = json_encode( $jsonList);
+		}
+		useExit($json);
+	}
+	//</editor-fold>
+
+
+    //<editor-fold desc="베스트상품리스트:getBestList">
+    if($dbControl == "getBestList"){
+    
+        //<editor-fold desc="param">
+        $b_code         = "17";
+        $b_cate		    = $_SENDTYPE["cate"];       //카테고리
+        $b_title	    = $_SENDTYPE["title"];      //제목
+        //</editor-fold>
+    
+        $_where			=	" WHERE 1 ";
+
+        $_tags			=	" ";
+        $_table			=	" _BOARD_SHOP_BEST";
+        $_jointable 	=	" LEFT JOIN _SHOP_CATE SC ON SC.sc_idx = $_table.b_sc_idx ";
+        $_jointable 	.=	" LEFT JOIN _SHOP_CATE2 SCC ON SCC.scc_idx = $_table.b_scc_idx ";
+    
+        $onePageCount	=	20;
+        $pagenum		=	$_REQUEST['pagenum'] ? $_REQUEST['pagenum'] : 1;
+        $offset			=	($pagenum-1) * $onePageCount;
+        $total			=	getValue($_table,$_where,"CNT","COUNT(*) AS CNT");
+        $no				=	$total	 -	($pagenum-1) * $onePageCount;
+
+        $_column =  "b_idx as board_idx";
+        $_column .= ",b_title as title,b_contents as contents,b_list_name as list_name";
+        $_column .= ",b_img_url as img_url,b_img_url_org as img_org,b_regdate as regdate,b_price as price";
+        $_column .= ",b_sc_idx as sc_idx,b_scc_idx as scc_idx,b_img_url as img_url,b_img_url_org as img_org,b_regdate as regdate";
+
+        $sql	= " SELECT ".$_column." FROM ".$_table.$_where." limit ".$offset.", ".$onePageCount;
+        $rs		=	query($sql);
+
+
+        $list	=	array();
+        if(rows() > 0){
+            for($i=0; $row = assoc($rs); $i++){
+                $row['num']		    =	$no--;
+                $list[]			    =	$row;
+            }
+    
+            $toalPageCn	=	1;
+    
+            $jsonList	=	array('total'=> $total,'maxpageno'=>$toalPageCn,'result'=>'Y','message'=>'게시물을 조회하였습니다.','data'=>$list);
+            $json = json_encode( $jsonList);
+        }else{
+            $jsonList	=	array('total'=> 0,'maxpageno'=>0,'result'=>'N','message'=>'조회 오류가 발생하였습니다.','data'=>$list);
+            $json = json_encode( $jsonList);
+        }
+        useExit($json);
+    }
+    //</editor-fold>
+
+	//<editor-fold desc="상품리스트:getShopList">
+	if($dbControl == "getShopList"){
+
+		//<editor-fold desc="param">
+		$b_code         = "14";
+		$b_cate		    = $_SENDTYPE["cate"];       //카테고리
+		$b_title	    = $_SENDTYPE["title"];      //제목
+		//</editor-fold>
+
+		$getBoardAdmin	=	getValue("_BOARD_ADMIN","WHERE ba_idx=".$b_code);
+		$_where			=	" WHERE 1 ";
+		if($b_cate != ""){
+			$_where			.=	" AND b_cate='".$b_cate."'";
+		}
+		if($b_title != ""){
+			$_where			.=	" AND b_title like'%".$b_title."%'";
+		}
+		$_tags			=	" ";
+		$_order			=	" ORDER BY b_regdate DESC";
+		$_table			=	" _BOARD_".$getBoardAdmin['ba_table']." F ";
+		$_jointable 	=	" LEFT JOIN _MEMBER M ON M.m_idx = F.b_user_idx ";
+		$_jointable 	.=	" LEFT JOIN _SHOP_CATE SC ON SC.sc_idx = F.b_sc_idx ";
+		$_jointable 	.=	" LEFT JOIN _SHOP_CATE2 SCC ON SCC.scc_idx = F.b_scc_idx ";
+
+		$onePageCount	=	20;
+		$pagenum		=	$_REQUEST['pagenum'] ? $_REQUEST['pagenum'] : 1;
+		$offset			=	($pagenum-1) * $onePageCount;
+		$total			=	getValue($_table,$_where,"CNT","COUNT(*) AS CNT");
+		$no				=	$total	 -	($pagenum-1) * $onePageCount;
+
+		$_column =  "F.b_idx as board_idx,F.b_best_yn as best_yn";
+		$_column .= ",F.b_title as title,F.b_contents as contents,F.b_list_name as list_name";
+		$_column .= ",F.b_img_url as img_url,F.b_img_url_org as img_org,F.b_regdate as regdate,F.b_price as price";
+		$_column .= ",F.b_sc_idx as sc_idx,F.b_scc_idx as scc_idx,F.b_img_url as img_url,F.b_img_url_org as img_org,F.b_regdate as regdate";
+
+		$sql	= " SELECT ".$_column." FROM ".$_table.$_jointable.$_where.$_order." limit ".$offset.", ".$onePageCount;
+		$rs		=	query($sql);
+
+		$list	=	array();
+		if(rows() > 0){
+			for($i=0; $row = assoc($rs); $i++){
+				$row['num']		    =	$no--;
+				$list[]			    =	$row;
+
+				//<editor-fold desc="파일">
+				$filecnt		=   getValue("_BOARD_FILE","WHERE bf_board_id=".$b_code." AND bf_board_idx=".$list[$i]['board_idx'],"CNT","COUNT(*) AS CNT",false);
+				$filesql        =   "SELECT bf_idx as file_idx,bf_dir as dir,bf_file as file,bf_file_org as file_org FROM _BOARD_FILE WHERE bf_board_id = ".$b_code." AND bf_board_idx= ".$list[$i]['board_idx'];
+				$rsfile 		=	query($filesql);
+				$fileRow = Array();
+				for($j=0; $rowfile = assoc($rsfile); $j++){
+					$list[$i]["file"][$j] = $rowfile;
+				}
+				//</editor-fold>
+			}
+
+			$toalPageCn	=	1;
+
+			$jsonList	=	array('total'=> $total,'maxpageno'=>$toalPageCn,'result'=>'Y','message'=>'게시물을 조회하였습니다.','data'=>$list);
+			$json = json_encode( $jsonList);
+		}else{
+			$jsonList	=	array('total'=> 0,'maxpageno'=>0,'result'=>'N','message'=>'조회 오류가 발생하였습니다.','data'=>$list);
+			$json = json_encode( $jsonList);
+		}
+		useExit($json);
+	}
+	//</editor-fold>
+	//<editor-fold desc="상품게시판상세:getMobileShopDetail">
+	if($dbControl == "getShopCateList"){
+
+		//<editor-fold desc="param">
+		$b_code = "14";
+		$b_idx  = $_SENDTYPE['board_idx'];
+		//</editor-fold>
+
+		//<editor-fold desc="validation">
+		if($b_idx == ""){useExit('{"result":"N","message":"게시물 idx 값이 없습니다.","ErrCODE":"BOARD02"}');}
+		//</editor-fold>
+
+		$getBoardAdmin	=	getValue('_BOARD_ADMIN', " WHERE ba_idx=".$b_code);
+
+		$_where			=	" WHERE 1 AND b_idx=".$b_idx;
+		$_tags			=	"";
+		$_order			=	" ORDER BY b_regdate DESC";
+		$_table			=	"_BOARD_".$getBoardAdmin['ba_table']." F ";
+		$_jointable		=	" LEFT JOIN _MEMBER M ON M.m_idx = F.b_user_idx ";
+		$total			=	getValue($_table.$_jointable,$_where,"CNT","COUNT(*) AS CNT");
+
+		query("UPDATE ".$_table." SET b_hits = b_hits+1 WHERE b_idx=".$b_idx);
+
+		$_column =  "F.b_idx as board_idx,F.b_best_yn as best_yn";
+		$_column .= ",F.b_title as title,F.b_contents as contents,F.b_list_name as list_name";
+		$_column .= ",F.b_user_idx as user_idx,M.m_name as user_name,F.b_img_url as img_url,F.b_img_url_org as img_org,F.b_regdate as regdate,F.b_hits as hits";
+
+		$sql	= " SELECT ".$_column." FROM ".$_table.$_jointable.$_where.$_order;
+		$rs		=	query($sql);
+
+		$list	=	array();
+		if(rows() > 0){
+			for($i=0; $row = assoc($rs); $i++){
+				$list[]			=	$row;
+
+				//<editor-fold desc="파일">
+				$filecnt		=   getValue("_BOARD_FILE","WHERE bf_board_id=".$b_code." AND bf_board_idx=".$list[$i]['board_idx'],"CNT","COUNT(*) AS CNT",false);
+				$filesql        =   "SELECT bf_idx as file_idx,bf_dir as dir,bf_file as file,bf_file_org as file_org FROM _BOARD_FILE WHERE bf_board_id = ".$b_code." AND bf_board_idx= ".$list[$i]['board_idx'];
+				$rsfile 		=	query($filesql);
+				$fileRow = Array();
+				for($j=0; $rowfile = assoc($rsfile); $j++){
+					$list[$i]["file"][$j] = $rowfile;
+				}
+				//</editor-fold>
+			}
+
+			$commentCnt = getValue('_BOARD_COMMENT', " where bf_board_idx=".$b_code, 'CNT', 'COUNT(*) AS CNT');
+
+			$jsonList	=	array('result'=>'Y','message'=>'게시물을 조회하였습니다.','data'=>$list);
+			$json = json_encode( $jsonList);
+		}else{
+			$jsonList	=	array('result'=>'N','message'=>'오류가 발생하였습니다.','data'=>$list);
+			$json = json_encode( $jsonList);
+		}
+		useExit($json);
+	}
+	//</editor-fold>
+    //<editor-fold desc="상품상위카테고리리스트:getShopCateList">
+    if($dbControl == "getShopCateList"){
+
+        //<editor-fold desc="param">
+        $sc_idx             = $_SENDTYPE['sc_idx'];
+//        $CODE               = $_SENDTYPE["sc_idx"];
+        $sc_cate_name       = $_SENDTYPE["sc_cate_name"];                  //상위카테고리
+        $sc_cate_contents	= $_SENDTYPE["sc_cate_contents"];              //상위카테고리설명
+        $sc_status	        = $_SENDTYPE["sc_status"];                     //사용여부
+        //</editor-fold>
+
+        //<editor-fold desc="validation">
+        if($sc_idx == ""){useExit('{"result":"N","message":"게시물 idx 값이 없습니다.","ErrCODE":"BOARD02"}');}
+        //</editor-fold>
+
+        $_where			=	" WHERE 1";
+        if($sc_cate_contents != ""){
+            $_where			.=	" AND sc_cate_contents='".$sc_cate_contents."'";
+        }
+        if($sc_cate_name != ""){
+            $_where			.=	" AND sc_cate_name like'%".$sc_cate_name."%'";
+        }
+        $_tags			=	" ";
+        $_order			=	" ORDER BY sc_regdate DESC";
+        $_table			=	" _SHOP_CATE";
+//        $_jointable 	=	" LEFT JOIN _MEMBER M ON M.m_idx = F.b_user_idx ";
+
+
+        $onePageCount	=	20;
+        $pagenum		=	$_REQUEST['pagenum'] ? $_REQUEST['pagenum'] : 1;
+        $offset			=	($pagenum-1) * $onePageCount;
+        $total			=	getValue($_table,$_where,"CNT","COUNT(*) AS CNT");
+        $no				=	$total	 -	($pagenum-1) * $onePageCount;
+
+        $_column =  "sc_idx as idx";
+        $_column .= ",sc_cate_name as name,sc_cate_contents as contents,sc_status as status,sc_regdate as regdate";
+
+
+        $sql	= " SELECT ".$_column." FROM ".$_table.$_where.$_order." limit ".$offset.", ".$onePageCount;
+        $rs		=	query($sql);
+
+        $list	=	array();
+        if(rows() > 0){
+            for($i=0; $row = assoc($rs); $i++){
+                $row['num']		    =	$no--;
+                $list[]			    =	$row;
+            }
+
+            $toalPageCn	=	1;
+
+            $jsonList	=	array('total'=> $total,'maxpageno'=>$toalPageCn,'result'=>'Y','message'=>'게시물을 조회하였습니다.','data'=>$list);
+            $json = json_encode( $jsonList);
+        }else{
+            $jsonList	=	array('total'=> 0,'maxpageno'=>0,'result'=>'N','message'=>'조회 오류가 발생하였습니다.','data'=>$list);
+            $json = json_encode( $jsonList);
+        }
+        useExit($json);
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="브랜드소개:getBrandIntro">
+    if($dbControl == "getBrandIntro"){
+
+        //<editor-fold desc="param">
+        $b_code         = "15";
+        $b_contents	    = $_SENDTYPE["contents"];      //내용
+        //</editor-fold>
+
+        $getBoardAdmin	=	getValue("_BOARD_ADMIN","WHERE ba_idx=".$b_code);
+        $_where			=	" WHERE 1 ";
+
+
+        $_tags			=	" ";
+        $_order			=	" ORDER BY b_regdate DESC";
+        $_table			=	" _BOARD_".$getBoardAdmin['ba_table']." F ";
+
+
+        $onePageCount	=	20;
+        $pagenum		=	$_REQUEST['pagenum'] ? $_REQUEST['pagenum'] : 1;
+        $offset			=	($pagenum-1) * $onePageCount;
+        $total			=	getValue($_table,$_where,"CNT","COUNT(*) AS CNT");
+        $no				=	$total	 -	($pagenum-1) * $onePageCount;
+
+        $_column =  "F.b_idx as idx,F.b_contents as contents,F.b_regdate as regdate";
+
+        $sql	= " SELECT ".$_column." FROM ".$_table.$_where.$_order." limit ".$offset.", ".$onePageCount;
+        $rs		=	query($sql);
+
+        $list	=	array();
+        if(rows() > 0){
+            for($i=0; $row = assoc($rs); $i++){
+                $row['num']		    =	$no--;
+                $list[]			    =	$row;
+
+            }
+
+            $toalPageCn	=	1;
+
+            $jsonList	=	array('total'=> $total,'maxpageno'=>$toalPageCn,'result'=>'Y','message'=>'게시물을 조회하였습니다.','data'=>$list);
+            $json = json_encode( $jsonList);
+        }else{
+            $jsonList	=	array('total'=> 0,'maxpageno'=>0,'result'=>'N','message'=>'조회 오류가 발생하였습니다.','data'=>$list);
+            $json = json_encode( $jsonList);
+        }
+        useExit($json);
+    }
+    //</editor-fold>
+    //<editor-fold desc="브랜드스토리:getBrandStory">
+    if($dbControl == "getBrandStory"){
+
+        //<editor-fold desc="param">
+        $b_code         = "16";
+        $b_contents	    = $_SENDTYPE["contents"];      //내용
+        //</editor-fold>
+
+        $getBoardAdmin	=	getValue("_BOARD_ADMIN","WHERE ba_idx=".$b_code);
+        $_where			=	" WHERE 1 ";
+
+
+        $_tags			=	" ";
+        $_order			=	" ORDER BY b_regdate DESC";
+        $_table			=	" _BOARD_".$getBoardAdmin['ba_table']." F ";
+
+
+        $onePageCount	=	20;
+        $pagenum		=	$_REQUEST['pagenum'] ? $_REQUEST['pagenum'] : 1;
+        $offset			=	($pagenum-1) * $onePageCount;
+        $total			=	getValue($_table,$_where,"CNT","COUNT(*) AS CNT");
+        $no				=	$total	 -	($pagenum-1) * $onePageCount;
+
+        $_column =  "F.b_idx as idx,F.b_contents as contents,F.b_regdate as regdate";
+
+        $sql	= " SELECT ".$_column." FROM ".$_table.$_where.$_order." limit ".$offset.", ".$onePageCount;
+        $rs		=	query($sql);
+
+        $list	=	array();
+        if(rows() > 0){
+            for($i=0; $row = assoc($rs); $i++){
+                $row['num']		    =	$no--;
+                $list[]			    =	$row;
+
+            }
+
+            $toalPageCn	=	1;
+
+            $jsonList	=	array('total'=> $total,'maxpageno'=>$toalPageCn,'result'=>'Y','message'=>'게시물을 조회하였습니다.','data'=>$list);
+            $json = json_encode( $jsonList);
+        }else{
+            $jsonList	=	array('total'=> 0,'maxpageno'=>0,'result'=>'N','message'=>'조회 오류가 발생하였습니다.','data'=>$list);
+            $json = json_encode( $jsonList);
+        }
+        useExit($json);
+    }
+    //</editor-fold>
+
+	//<editor-fold desc="상품카테고리별카운트:getMobileCateCount">
+	if($dbControl == "getMobileCateCount"){
+
+		$_where			=	" WHERE 1 AND code_cid <> '0000' ";
+		$_tags			=	"";
+		$_table			=	"_CATE_CODE cc";
+		$_jointable		=	" LEFT OUTER JOIN (SELECT b_cate,COUNT(*) CNT FROM _BOARD_SHOP WHERE DATE_FORMAT(b_regdate, '%y/%m/%d')= DATE_FORMAT(NOW(), '%y/%m/%d') GROUP BY b_cate) bs ON cc.code_cid = bs.b_cate ";
+
+		$_column =  "*";
+
+		$_column =  "code_cid AS code,code_name as name,IFNULL(bs.CNT,0) CNT,DATE_FORMAT(NOW(), '%Y-%m-%d') today";
+
+		$sql	= " SELECT ".$_column." FROM ".$_table.$_jointable.$_where;
+		$rs		=	query($sql);
+
+		$list	=	array();
+		if(rows() > 0){
+			for($i=0; $row = assoc($rs); $i++){
+				$list[]			=	$row;
+			}
+
+			$jsonList	=	array('result'=>'Y','message'=>'게시물을 조회하였습니다.','data'=>$list);
+			$json = json_encode( $jsonList);
+		}else{
+			$jsonList	=	array('result'=>'N','message'=>'오류가 발생하였습니다.','data'=>$list);
+			$json = json_encode( $jsonList);
+		}
+		useExit($json);
+	}
+	//</editor-fold>
+

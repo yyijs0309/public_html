@@ -1,0 +1,440 @@
+<div class="con_head_wrap">
+    <div class="con_head">
+        <h1><?=$_TITLE_SUB ? $SITE_NAME.'-'.$_TITLE_SUB : $SITE_NAME.'-'.$_TITLE?></h1>
+    </div>
+</div>
+<div class="con_body_wrap">
+    <div class="con_body">
+        <div class="con_body_top_form_wrap">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="cloud_box">
+                        <form class="form-search">
+                            <input type="hidden" name="BCODE" value="<?=$BCODE?>">
+                            <div class="form_search_wrap">
+                                <label class="form_search_label">검색어</label>
+                                <div class="form_search_desc">
+                                    <div class="form_div_wrap">
+                                        <div class="form_select_box_wrap">
+                                            <select class="selectpicker" name="keyword">
+                                                <option value="title" <?=$_REQUEST["keyword"]=="title"?" selected":""?>>푸시제목</option>
+                                                <option value="msg" <?=$_REQUEST["keyword"]=="msg"?" selected":""?>>푸시내용</option>
+                                            </select>
+                                        </div>
+                                        <div class="search_box_wrap">
+                                            <!--                                        <input type="text" class="form-control" id="" placeholder="검색어를 입력해주세요.">-->
+                                            <input type="text" name="word" value="<?=$_REQUEST['word']?>" class="form-control" id="" placeholder="검색어를 입력해주세요.">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form_search_wrap">
+                                <label class="form_search_label">전송일</label>
+                                <div class="form_search_desc">
+                                    <div class="form_div_wrap">
+                                        <div class="date_tab_wrap">
+                                            <div class="btn-group" data-toggle="buttons">
+                                                <label class="btn btn_radio date_today <?php if($options=='today') echo 'active'; ?>">
+                                                    <input type="radio" name="options" id="option1" value="today" <?php if($options=='today') echo 'checked'; ?> onchange="check_date(this.value)" >
+                                                    오늘
+                                                </label>
+                                                <label class="btn btn_radio date_3days <?php if($options=='3days') echo 'active'; ?>">
+                                                    <input type="radio" name="options" id="option2" value="3days" <?php if($options=='3days') echo 'checked'; ?> onchange="check_date(this.value)" >
+                                                    3일
+                                                </label>
+                                                <label class="btn btn_radio date_week <?php if($options=='week') echo 'active'; ?>">
+                                                    <input type="radio" name="options" id="option3" value="week" <?php if($options=='week') echo 'checked'; ?> onchange="check_date(this.value)" >
+                                                    1주일
+                                                </label>
+                                                <label class="btn btn_radio date_month <?php if($options=='month') echo 'active'; ?>">
+                                                    <input type="radio" name="options" id="option4" value="month" <?php if($options=='month') echo 'checked'; ?> onchange="check_date(this.value)" >
+                                                    1개월
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="date_input_wrap">
+                                            <div class="input-group input-daterange">
+                                                <input type="text" class="form-control date_input" value="<?=$_REQUEST['date_from'];?>" id="date_from" name="date_from">
+                                                <div class="input-group-addon">~</div>
+                                                <input type="text" class="form-control date_input" value="<?=$_REQUEST['date_to'];?>" id="date_to" name="date_to">
+                                            </div>
+                                        </div>
+                                        <div class="date_btn_wrap">
+                                            <button type="submit" class="btn btn-primary">검색</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="con_body_mid_wrap">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="cloud_box">
+                        <div class="table_all_wrap">
+                            <div class="table_top_wrap">
+                                <div class="table_top_left">
+                                    <div class="table_top_left_label_wrap">
+										<span class="table_top_left_label">
+											검색결과
+										</span>
+                                        <span class="table_top_left_desc">
+											<b><?=number_format($total)?></b>건
+										</span>
+                                    </div>
+                                </div>
+                                <div class="table_top_right">
+                                    <div class="table_top_right_input_wrap">
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="table_body_wrap">
+                                <div class="table_wrap">
+                                    <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table_st_01">
+                                        <tr>
+                                            <!--th class="td_chk">
+                                                <div class="td_chk_box_wrap">
+                                                    <input type="checkbox" id="allCheck">
+                                                    <label for="allCheck">
+                                                        <span>전체 선택/해제</span>
+                                                    </label>
+                                                </div>
+                                            </th-->
+                                            <th class="td_num">
+                                                번호
+                                            </th>
+                                            <th class="td_push_name">
+                                                전송 ID
+                                            </th>
+                                            <th class="td_push_name">
+                                                PUSH 제목
+                                            </th>
+                                            <th class="td_push_desc">
+                                                PUSH 내용
+                                            </th>
+                                            <th class="td_push_date">
+                                                PUSH 결과
+                                            </th>
+                                            <!--                                            <th class="td_state">-->
+                                            <!--                                                상태-->
+                                            <!--                                            </th>-->
+                                            <!--                                            <th class="td_state_order">-->
+                                            <!--                                                상태설정-->
+                                            <!--                                            </th>-->
+                                            <th class="td_reg_date">
+                                                최근 전송일
+                                            </th>
+                                            <!--                                            <th class="td_order">-->
+                                            <!--                                                관리-->
+                                            <!--                                            </th>-->
+                                        </tr>
+                                        <?php
+											if(count($list)>0)
+                                        {
+                                        for($i=0;count($list)>$i;$i++)
+                                        {
+                                        ?>
+                                        <tr>
+                                            <!--td class="td_chk">
+                                                <div class="td_chk_box_wrap">
+                                                    <input type="checkbox" id="chk_id_1" name="" value="1">
+                                                    <label for="chk_id_1">
+                                                        <span>선택</span>
+                                                    </label>
+                                                </div>
+                                            </td-->
+                                            <td class="td_num"><?=$list[$i]["num"]?></td>
+                                            <td class="td_num"><?=$list[$i]["m_id"]?></td>
+                                            <td class="td_push_name"><?=$list[$i]["title"]?></td>
+                                            <td class="td_push_desc"><?=$list[$i]["msg"]?></td>
+
+                                            <td class="td_push_date">
+
+                                                <?php
+												if ($list[$i]["send"]=="direct")
+												{
+													echo "[전송완료] ";
+												}else{
+													echo "[예약] ";
+													if($list[$i]["repeat"]=="once")
+													{
+														echo $list[$i]["fixday"]." ".$list[$i]["reserve_hour"].":".$list[$i]["reserve_min"]." 전송";
+													}else if ($list[$i]["repeat"]=="everyday")
+													{
+														echo "매일 ".$list[$i]["reserve_hour"].":".$list[$i]["reserve_min"]." 전송";
+													}else if ($list[$i]["repeat"]=="everyweek")
+													{
+														switch($list[$i]["week"])
+														{
+															case "mon" : $weektext = "월"; break;
+															case "tue" : $weektext = "화"; break;
+															case "wed" : $weektext = "수"; break;
+															case "thr" : $weektext = "목"; break;
+															case "fri" : $weektext = "금"; break;
+															case "sat" : $weektext = "토"; break;
+															case "sun" : $weektext = "일"; break;
+														}
+														echo "매주 ".$weektext." ".$list[$i]["reserve_hour"].":".$list[$i]["reserve_min"]." 전송";
+													}else if ($list[$i]["repeat"]=="everymonth")
+													{
+														echo "매달 ".$list[$i]["setday"]."일 ".$list[$i]["reserve_hour"].":".$list[$i]["reserve_min"]." 전송";
+													}
+												}
+											?>
+                                            </td>
+                                            <?php
+												if($list[$i]["type"]=="top")
+												{
+													$sendtypetext = "노티";
+												}else{
+													$sendtypetext = "전면";
+												}
+											?>
+                                            <!--                                            <td class="td_state">-->
+                                            <!--                                                <span class="td_banner_state td_banner_state_end"><?=$sendtypetext?></span>-->
+                                            <!--                                            </td>-->
+                                            <!--                                            <td class="td_state_order">-->
+                                            <!--                                                <div class="state_select_box">-->
+
+                                            <!--                                                    <select name="push_style" class="selectpicker">-->
+                                            <!--                                                        <option value="top" <?=($list[$i]["type"]=="top"?"selected":"")?>>노티</option>-->
+                                            <!--                                                        <option value="push_style" <?=($list[$i]["type"]=="front"?"selected":"")?>>전면</option>-->
+                                            <!--                                                    </select>-->
+                                            <!--                                                </div>-->
+                                            <!--                                            </td>-->
+                                            <td class="td_reg_date"><?=$list[$i]["regdate"]?></td>
+                                            <!--                                            <td class="td_order">-->
+                                            <!--                                                <div class="order_btn_wrap">-->
+                                            <!--                                                    <button type="button" class="btn btn-edit" onclick="push_edit('<?=$list[$i][idx]?>');">수정</button>-->
+                                            <?php
+														if ($list[$i]["send"]!="direct")
+														{
+													?>
+                                            <!--                                                    <button type="button" class="btn btn-delete" onclick="push_delete('<?=$list[$i][idx]?>');">삭제</button>-->
+                                            <?php
+														}
+													?>
+                                            <!--                                                </div>-->
+                                            </td>
+                                        </tr>
+                                        <?php
+												}
+											}else{
+										?>
+                                        <tr>
+                                            <td colspan="6" class="td_none">
+                                                자료가 없습니다.
+                                            </td>
+                                        </tr>
+                                        <?php
+											}
+										?>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="table_bottom_btn_wrap">
+                                <a href='push.form.siso' class="btn btn-primary">추가</a>
+                            </div>
+                            <div class="table_page_wrap">
+                                <?=$paging?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function push_edit(idx)
+    {
+        //alert(idx);
+        location.href='push.form.siso?idx='+idx;
+    }
+
+    function push_delete(idx)
+    {
+        location.href='push_delete.siso?idx='+idx;
+    }
+
+</script>
+<style type="text/css">
+    .td_img {
+        width: 100px;
+    }
+    .td_push_date {
+        width: 120px;
+    }
+    .td_img a {
+        display: inline-block;
+    }
+    .td_img img {
+        cursor: pointer;
+    }
+    .img-popup {
+        display:none;
+        max-width:90%;
+        text-align:center;
+        background-color:transparent;
+        box-shadow: none;
+        -webkit-box-shadow: none;
+        border: none;
+    }
+
+    .img-popup .title {
+        position:relative;
+        background-color:#222;
+        color:#fff;
+        padding: 10px;
+        font-size:18px
+    }
+
+    .img-popup .title .b-close {
+        cursor:pointer;
+        position:absolute;
+        right: 10px;
+        top: 5px;
+        font-size:25px
+    }
+
+    .img-view-popup .content {
+        padding: 10px
+    }
+
+    .img-popup .content img {
+        max-width:1000px
+    }
+</style>
+<div class="img-popup modal-content"  id="popupDiv">
+    <div class="title">
+        상세보기
+        <span class="b-close"  id="popCloseBtn">&times;</span>
+    </div>
+    <div class="content">
+        <img src="" class="p-img">
+    </div>
+</div>
+<script type="text/javascript">
+    $('.imagebtn').click (function(){
+        var ImageUrl = $(this).attr('src');
+        $('.p-img').attr('src', ImageUrl);
+        $('.img-popup').bPopup({
+            modalClose: true
+            , opacity: 0.8
+            , positionStyle: 'absolute'
+            , speed: 300
+            , transition: 'fadeIn'
+            , transitionClose: 'fadeOut'
+            , zIndex : 99997
+        });
+    });
+
+    $(document).ready(function(){
+        var date_from = document.getElementById('date_from').value;
+        var date_to = document.getElementById('date_to').value;
+        if(date_from == '' || date_to == ''){
+            init();
+        }
+
+        //var request = new Request();
+        //var options_param =  request.getParameter("options");
+
+        var today = new Date();
+        var yyyy = today.getFullYear();
+        var mm = today.getMonth()+1;
+        var dd = today.getDate();
+        if(dd<10) {
+            dd='0'+dd
+        }
+        if(mm<10) {
+            mm='0'+mm
+        }
+        today = yyyy + '-' + mm + '-' + dd;
+        if ((document.getElementById('date_from').value == today) && (document.getElementById('date_to').value == today)) {
+            $('.date_today').addClass("active");
+        }
+        if ((document.getElementById('date_from').value == today) && (document.getElementById('date_to').value == today)) {
+            $('.date_today').addClass("active");
+        }
+        if(("<?=$cate?>" == "all") || ("<?=$cate?>" == "")){
+            $('.cate_tab_wrap label').removeClass("active");
+            $('.cate_all').addClass("active");
+            $('input[name="cate"]').attr("checked", false);
+            $('#cate1').attr("checked", true);
+        }else if("<?=$cate?>" == "sponsor"){
+            $('.cate_tab_wrap label').removeClass("active");
+            $('.cate_sponsor').addClass("active");
+            $('input[name="cate"]').attr("checked", false);
+            $('#cate2').attr("checked", true);
+        }else if("<?=$cate?>" == "user"){
+            $('.cate_tab_wrap label').removeClass("active");
+            $('.date_user').addClass("active");
+            $('input[name="cate"]').attr("checked", false);
+            $('#cate3').attr("checked", true);
+        }
+    });
+
+    function init(){
+        var today = new Date();
+        var yyyy = today.getFullYear();
+        var mm = today.getMonth()+1;
+        var dd = today.getDate();
+        if(dd<10) {
+            dd='0'+dd
+        }
+        if(mm<10) {
+            mm='0'+mm
+        }
+        today = yyyy + '-' + mm + '-' + dd;
+
+        document.getElementById('date_from').value = today;
+        document.getElementById('date_to').value = today;
+    }
+
+    function check_date(checkvalue){
+        var today = new Date();
+        var yyyy = today.getFullYear();
+        var mm = today.getMonth()+1;
+        var monthmm = today.getMonth();
+        var dd = today.getDate();
+        var threedd = today.getDate()-3;
+        var weekdd = today.getDate()-7;
+        if(dd<10) {
+            dd='0'+dd
+        }
+        if(mm<10) {
+            mm='0'+mm
+        }
+        if(monthmm<10) {
+            monthmm='0'+monthmm
+        }
+        if(weekdd<10) {
+            weekdd='0'+weekdd
+        }
+        if(threedd<10) {
+            threedd='0'+threedd
+        }
+        today = yyyy + '-' + mm + '-' + dd;
+
+        var threedays = yyyy + '-' + mm + '-' + threedd;
+        var week = yyyy + '-' + mm + '-' + weekdd;
+        var month = yyyy + '-' + monthmm + '-' + dd;
+
+        document.getElementById('date_to').value = today;
+
+        if(checkvalue == "today"){
+            document.getElementById('date_from').value = today;
+        }else if(checkvalue == "3days"){
+            document.getElementById('date_from').value = threedays;
+        }else if(checkvalue == "week"){
+            document.getElementById('date_from').value = week;
+        }else{
+            document.getElementById('date_from').value = month;
+        }
+    }
+</script>

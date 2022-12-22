@@ -1,0 +1,20 @@
+<?php
+/*#################################################################################################
+#########	생성일 : 2016-07-11
+#########	만든이 : 김종수 대표
+#########	연락처 : 010-6368-2650
+#########	이메일 : pusankjs@siso.kr
+#################################################################################################*/
+require $_SERVER['DOCUMENT_ROOT'].'/lib/global.php';
+//auth_limit('guest');
+
+$auth	=	$thisConnAuth != '' ?  $thisConnAuth : 'root';
+auth_limit($auth);
+
+// $getSiteSkin['di_skin'] ='mall'; 
+getSkinSet('_adm/', 'form', $PUSANKJS['filename'], 'main', true);
+
+include($PSKIN['view_layout']);
+mysqli_close($DBINFO);
+?>
+

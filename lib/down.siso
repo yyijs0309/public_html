@@ -1,0 +1,108 @@
+<?php
+require $_SERVER['DOCUMENT_ROOT'].'/lib/global.php';
+msg('새로운 프로그램 업데이트 적용중입니다.\n불편을 드려서 죄송합니다.\n업데이트 이후 알림톡을 이용해서 안내하겠습니다.', '', "window.close();");
+
+
+$or			=	$getSiteSkin['di_setup_file_org'];// 'DBMAKERLITE_'.$getSiteSkin['di_lite_ver'].'.exe';
+$file		=	$getSiteSkin['di_setup_file'];// 'DBMAKERLITE_'.$getSiteSkin['di_lite_ver'].'.exe';
+$filesize	=	$getSiteSkin['di_setup_file_size'];// 'DBMAKERLITE_'.$getSiteSkin['di_lite_ver'].'.exe';
+//echo $file;exit;
+if(preg_match("/^utf/i", 'utf-8'))
+	$orginal = urlencode($or);
+else	
+	$orginal = $or;
+
+if(!function_exists('mime_content_type_simple')) {
+   function mime_content_type_simple($filename) {
+	   $idx = strtolower(end( explode( '.', $filename )) );
+	   $mimet = array(    
+		   'ai' =>'application/postscript',
+		   'aif' =>'audio/x-aiff',
+		   'aifc' =>'audio/x-aiff',
+		   'xyz' =>'chemical/x-xyz',
+		   'zip' =>'application/zip',
+		   'xls' =>'application/vnd.ms-excel',
+		   'ppt' =>'application/mspowerpoint',
+		   'doc' =>'application/msword',
+		   'htm' =>'text/html',
+		   'html' =>'text/html',
+		   'eml' =>'message/rfc822',
+		   'txt' =>'text/plain',
+		   'pdf' =>'application/pdf',
+		   'jpg' =>'image/jpeg',
+		   'gif' =>'image/gif',
+		   'png' =>'image/png',
+		   'dwg' =>'application/acad',
+		   'dxf' =>'application/dxf',
+		   'swf' =>'application/x-shockwave-flash'
+	   );
+
+	   if (isset( $mimet[$idx] )) {
+		   return $mimet[$idx];
+	   } else {
+		   return 'application/octet-stream';
+	   }
+   }
+}
+$c_type = mime_content_type_simple($orginal);
+
+if($filesize === NULL){
+	$length = strlen($contents);
+}else{
+	$length = $filesize;
+}
+
+if(strstr($_SERVER['HTTP_USER_AGENT'],"MSIE 5.5")){
+	header("Content-Type: doesn/matter\r\n");
+	header("Content-Disposition: filename=\"$orginal\"\r\n\r\n");
+	header("Content-Length: ".$length."\r\n");
+	header("Content-Transfer-Encoding: binary\r\n");
+}else{
+	header("Content-Type: $c_type\r\n");
+	header("Content-Disposition: attachment; filename=\"$orginal\"\r\n\r\n");
+	header("Content-Length: ".$length."\r\n");
+	header("Content-Transfer-Encoding: binary\r\n");
+}	// if()
+
+$files = $_SERVER['DOCUMENT_ROOT'].$file;
+
+if(is_file($files)){	//파일이 존재하는가 check
+	$fp = fopen($files, 'rb');
+	
+	/*
+	$oldinfo		=	getValue("_DOWNLOAD_LIST", " where  d_class = '".$class."' and d_host = '".$connectIP."' and d_agent = '".$agent."' and date_format(d_regdate, '%Y-%m-%d') = curdate() ", 'ar', 'd_idx');
+	if($oldinfo['d_idx']){
+		$sss	=	query("update _DOWNLOAD_LIST set d_cnt = d_cnt+1 where d_idx = '".$oldinfo['d_idx']."'  ");
+		if($sss){
+			$ck	=	getValue("_STATISTICS_NEW", " where s_date = curdate() and s_class = '".$class."' ", 's_idx', 's_idx');
+			if($ck){
+				query("update _STATISTICS_NEW set s_down_cnt = s_down_cnt+1 where s_idx = '".$ck."'  ");
+			}else{
+				query("insert into _STATISTICS_NEW set s_down_cnt = '1', s_date = now(), s_class = '".$class."' ");
+			}
+		}
+	}else{
+		$sss	=	query("insert into _DOWNLOAD_LIST set d_class = '".$class."', d_host = '".$connectIP."', d_agent = '".$agent."', d_regdate = now() ");
+		if($sss){
+			$ck	=	getValue("_STATISTICS_NEW", " where s_date = curdate() and s_class = '".$class."'   ", 's_idx', 's_idx');
+			if($ck){
+				query("update _STATISTICS_NEW set s_down_cnt = s_down_cnt+1 where s_idx = '".$ck."'  ");
+			}else{
+				query("insert into _STATISTICS_NEW set s_down_cnt = '1', s_date = now(), s_class = '".$class."' ");
+			}
+		}
+	}
+	*/
+
+	if(!fpassthru($fp)){
+		fclose($fp);
+		
+		exit(true);
+	}else{
+		exit('NO.');
+	}
+	exit(true);
+}else{	 //파일이 미존재시
+	exit('NO FILE');
+}
+?>

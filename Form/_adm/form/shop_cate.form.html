@@ -1,0 +1,99 @@
+<div class="con_head_wrap">
+    <div class="con_head">
+        <h1><?=$_TITLE_SUB ? $SITE_NAME.'-'.$_TITLE_SUB : $SITE_NAME.'-'.$_TITLE?></h1>
+    </div>
+</div>
+<div class="con_body_wrap">
+    <div class="con_body">
+        <div class="con_body_top_form_wrap">
+            <form method="post" name="saveFrmProcess" id="saveFrmProcess" action="" enctype="multipart/form-data">
+                <input type="hidden" name="dbControl" value="<?=$row['sc_idx'] == '' ? 'setCateInsert' : 'setCateUpdate'?>">
+                <input type="hidden" name="CODE" value="<?=$row['sc_idx']?>">
+                <input type="hidden" name="retrunUrl" value="shop_cate.siso?CODE=<?=$list[$i]['sc_idx']?>&pagenum=<?=$_REQUEST['pagenum']?>&keyword=<?=$_REQUEST['keyword']?>&word=<?=$_REQUEST['word']?>">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="cloud_box">
+                            <div class="table_form_all_wrap">
+                                <div class="table_form_wrap">
+                                    <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table_st_02">
+                                        <tr>
+                                            <th scope="row">
+                                                <span>*</span>카테고리명
+                                            </th>
+                                            <td>
+                                                <div class="form_div_wrap">
+                                                    <div class="search_box_wrap">
+                                                        <input type="text" class="form-control" id="sc_cate_name" name="sc_cate_name" placeholder="카테고리명을 입력해주세요." value="<?=setOutput($row['sc_cate_name'])?>" >
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">
+                                                <span>*</span>카테고리설명
+                                            </th>
+                                            <td>
+                                                <div class="">
+                                                    <div class="input_box_100_wrap">
+                                                        <textarea name="sc_cate_contents" id="sc_cate_contents"  class="form-control" rows="10"><?=trim(stripslashes($row["sc_cate_contents"]))?></textarea>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">
+                                                <span>*</span>사용상태
+                                            </th>
+                                            <td>
+                                                <div class="form_div_wrap">
+                                                    <div class="search_box_wrap">
+                                                        <select class="form-control" name="sc_status" id="sc_status">
+                                                            <option value="Y" <?php if($row['sc_status'] == 'Y') echo 'selected'; ?>>사용</option>
+                                                            <option value="N" <?php if($row['sc_status'] == 'N') echo 'selected'; ?>>정지</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="table_bottom_btn_wrap">
+                                    <?php  if($row["sc_cate_name"] == ''){ ?>
+                                    <button type="button" class="btn btn-primary" id="saveBtn">등록하기</button>
+                                    <?php  }else{ ?>
+                                    <button type="button" class="btn btn-primary" id="saveBtn">수정하기</button>
+                                    <?php  } ?>
+                                    <button type="button" class="btn btn-default" onclick="javascript:history.back();">목록</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" charset="utf-8">
+    $(document).ready(function(){
+        $('#saveBtn').click(function(){
+
+            if(checkFormFn('sc_cate_name', '카레고리명') == false) return;
+            if(checkFormFn('sc_cate_contents', '카레고리설명') == false) return;
+            ajaxFormSave('saveFrmProcess', '/lib/control.siso');
+        }).css({"cursor":"pointer"});
+
+
+    });
+
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var thisBumo = $(input).closest('.file_img_all_wrap');
+                thisBumo.find(".file_img_wrap > img").attr('src', e.target.result);
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
+

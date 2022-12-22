@@ -1,0 +1,22 @@
+<?php
+require $_SERVER['DOCUMENT_ROOT'].'/lib/global.php';
+auth_limit('root');
+// $getSiteSkin['di_skin'] ='mall';
+
+$_WHERE	=	" WHERE 1 ";
+if($CODE){
+	$_WHERE	.=	" AND m_idx = '".$CODE."' ";
+	$_TABLE	=	'_MEMBER';
+	$_ORDER	=	'';
+	$row	=	getValue($_TABLE, $_WHERE, 'ar', '*', false);
+}
+
+$_TITLE = "관리자정보 수정";
+$_TITLE_SUB = "";
+$_SITE_DESCRIPTION = "관리자정보 수정 페이지입니다.";
+
+getSkinSet('_adm/', 'form', $PUSANKJS['filename'], 'main', true);
+include($PSKIN['view_layout']);
+mysqli_close($DBINFO);
+?>
+

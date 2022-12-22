@@ -1,0 +1,136 @@
+<div class="con_head_wrap">
+	<div class="con_head">
+		<h1><?=$_TITLE_SUB ? $SITE_NAME.'-'.$_TITLE_SUB : $SITE_NAME.'-'.$_TITLE?></h1>
+	</div>
+</div>
+<div class="con_body_wrap">
+	<div class="con_body">
+		<div class="con_body_top_form_wrap">
+			<div class="row">
+				<div class="col-xs-12">
+					<div class="cloud_box">
+						<form class="form-search">
+							<input type="hidden" name="MCODE" value="<?=$MCODE?>">
+							<div class="form_search_wrap">
+								<label class="form_search_label">검색어</label>
+								<div class="form_search_desc">
+									<div class="form_div_wrap">
+										<div class="form_select_box_wrap">
+											<select class="selectpicker" id="search_order" name="keyword">
+												<option value="all" <?php if($search_order == 'all') echo 'selected'; ?>>전체</option>
+												<option value="b_hp" <?php if($search_order == 'b_hp') echo 'selected'; ?>>휴대폰번호</option>
+											</select>
+										</div>
+										<div class="search_box_wrap">
+											<input type="text" name="word" value="<?=$_REQUEST['word']?>" class="form-control" id="word" placeholder="검색어를 입력해주세요.">
+										</div>
+										<div class="date_btn_wrap">
+											<button type="submit" class="btn btn-primary">검색</button>
+										</div>
+									</div>
+								</div>
+							</div>
+						</form>
+						<div class="table_form_all_wrap">
+							<div class="table_form_top" style="padding:30px 0 10px">
+								<h2>전화번호 관리</h2>
+							</div>
+							<div class="table_form_wrap">
+								<table width="100%" border="0" cellspacing="0" cellpadding="0" class="table_st_01">
+									<tr>
+										<th>번호</th>
+										<th>전화번호</th>
+										<th class="td_reg_date">등록일자</th>
+										<th class="td_order">관리</th>
+									</tr>
+									<tr>
+										<form method="post" name="listsaveFrmProcess" id="listsaveFrmProcess" enctype="multipart/form-data">
+											<input type="hidden" name="dbControl" value="setBlackListSend">
+											<input type="hidden" name="b_idx" value="<?=$row['b_idx']?>">
+
+											<td>-</td>
+											<td><div class="">
+												<input type="text" maxlength="12" oninput="this.value = this.value.replace(/[^/0-9.]/g, '')" name="b_hp" id="b_hp"  placeholder="전화번호를 입력하세요." class="form-control ">
+											</div></td>
+											<td class="td_write_date">
+												-
+											</td>
+											<td><div class="order_btn_wrap">
+												<a class="btn btn-edit" id="listSaveBtn2">추가</a>
+											</div></td>
+										</form>
+									</tr>
+									<? if(count($list)) {
+											 for($i=0; $i < count($list); $i++)
+                                    { ?>
+									<tr>
+										<form method="post" name="listsaveFrmProcess<?=setOutput($row['b_idx'])?>" id="listsaveFrmProcess<?=setOutput($list[$i]['b_idx'])?>" enctype="multipart/form-data">
+											<input type="hidden" name="b_idx" value="<?=$row['b_idx']?>">
+											<td class="text-center" style="vertical-align:middle">
+												<?=setOutput($list[$i]['num'])?>
+											</td>
+											<td class="text-center" style="vertical-align:middle">
+												<?=setOutput($list[$i]['b_hp'])?>
+											</td>
+											<td class="">
+												<?=setOutput($list[$i]['b_regdate'])?>
+											</td>
+											<td class="text-center" style="vertical-align:middle">
+												<div class="order_btn_wrap">
+												   	<a class="btn btn-danger btn-sm"
+												   	onclick="controlSelect('<?=$list[$i]['b_idx']?>', 'DELETE')">삭제</a>
+												   </div>
+
+											</td>
+										</form>
+									</tr>
+									<? } } else{ ?>
+									<tr>
+										<td colspan="4" class="td_none">
+											자료가 없습니다.
+										</td>
+									</tr>
+									<? } ?>
+								</table>
+							</div>
+						</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+<script type="text/javascript">
+	$(document).ready(function () {
+		$("#listSaveBtn2").click(function () {
+			saveFn2();
+		});
+
+	}).css({"cursor": "pointer"});
+
+
+	///QNA 수정 및 삭제
+	function controlSelect(id, val) {
+		switch (val) {
+			case 'DELETE' :
+				var text = '삭제를';
+				var addMsg = '\n한번 삭제한 데이터는 복구 불가능합니다.';
+				break;
+		}
+
+		if (val != '') {
+			if (confirm(text + ' 진행하시겠습니까?' + addMsg)) {
+				 if (val == 'DELETE')
+					setAjaxPostSend('/lib/control.siso', id, 'setBlackListDel', '<?//=$_CLASS?>');
+			}
+			$('.control_select').val('');
+		}
+	}
+	///QNA 추가
+	function saveFn2() {
+
+		ajaxFormSave('listsaveFrmProcess', '/lib/control.siso');
+	}
+</script>

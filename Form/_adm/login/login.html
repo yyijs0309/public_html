@@ -1,0 +1,138 @@
+<script>
+function login(){
+	var frm = $('form[name="frmProcess"]');
+
+	var obj = $('#p_id');
+	if( !$.trim( obj.val() ) ){
+		alert('아이디를 입력하세요.');
+		obj.focus();
+		return;
+	}
+
+	var obj = $('#p_pass');
+	if( !$.trim( obj.val() ) ){
+		alert('비밀번호를 입력하세요.');
+		obj.focus();
+		return;
+	}
+	
+	var url = "/lib/member.check2.php";
+	var params = frm.serialize();
+	$.post(url, params, function(data){
+		//$('#SENDPGINFO').val('A');
+		//alert(data);return;
+		var ojson = $.parseJSON(data);
+		if( ojson.result=='Y'){
+			//location.href='/adm/index.php';
+			location.href=ojson.url;//'<?=$loginAfterUrl != '' ? $loginAfterUrl : _ADMIN_URL?>';
+		}else{
+			alert( ojson.message );
+		}
+	});
+}
+
+$(document).ready(function(){ 
+	$('#btn_login').click(function(){ login(); }).css({"cursor":"pointer"});
+	$('#p_pass').keypress(function(e){ if(e.keyCode==13) login(); });
+	$('#p_id').focus();
+
+	$('#btn_join').click(function(){ location.href='./partner_regi.php'; }).css({"cursor":"pointer"});
+});
+</script>
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+
+<table width="100%" border="0" cellspacing="0" cellpadding="0"><tr><td height="278">&nbsp;</td></tr></table>
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+<tr>
+	<td height="172" align="center" class="login_mid_bg">
+		<table width="980" border="0" cellspacing="0" cellpadding="0">
+		<tr>
+			<td align="right">
+				<table width="521" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td height="173" class="">
+						<table border="0" cellspacing="0" cellpadding="0">
+						<tr>
+							<td width="100">&nbsp;</td>
+							<td height="48"><img src="<?=adminSkinDirRoot('images')?>/admin.png" /></td>
+						</tr>
+						</table>
+						<table border="0" cellspacing="0" cellpadding="0">
+						<tr>
+							<td width="100" class="dotum_white">&nbsp;</td>
+							<td class="dotum_white">
+								<?=$_SERVER['HTTP_HOST']	==	'n-protect.co.kr' ?  'PRIVATE GUARD' : '통합'?>
+								 관리자페이지에 오신것을 환영합니다.
+							</td>
+						</tr>
+						</table>
+						<br />
+						<form method="post" name="frmProcess" id="frmProcess" action="" >
+						<input type="hidden" name="loginUser" id="loginUser" value="ADMIN">
+						<table border="0" cellspacing="0" cellpadding="0">
+						<tr>
+							<td>
+								<table border="0" cellspacing="0" cellpadding="0">
+								<tr>
+									<td width="100" class="dotum_white">&nbsp;</td>
+									<td height="25" class="dotum_white"><strong> </strong>
+										<table border="0" cellspacing="0" cellpadding="0">
+										<tr>
+											<td width="25" align="left"><strong>ID</strong></td>
+											<td><input name="p_id" type="text" class="id_can" id="p_id" style="ime-mode:disabled" /></td>
+										</tr>
+										</table>
+									</td>
+								</tr>
+								</table>
+								<table border="0" cellspacing="0" cellpadding="0">
+								<tr>
+									<td width="100" class="dotum_white">&nbsp;</td>
+									<td height="25" class="dotum_white">
+										<table border="0" cellspacing="0" cellpadding="0">
+										<tr>
+											<td width="25" align="left"><strong>Pw</strong></td>
+											<td><input name="p_pass" type="password" class="id_can" id="p_pass" /></td>
+										</tr>
+										</table>
+									</td>
+								</tr>
+								<tr>
+									<td width="100" class="dotum_white">&nbsp;</td>
+									<td>
+										<input type="checkbox" id="idSave" name="idSave" value="Y" CHECKED /> 
+										<label >아이디 저장</label>
+										<input type="checkbox" id="pwSave" name="pwSave" value="Y" CHECKED /> 
+										<label >비밀번호 저장</label>
+									</td>
+								</tr>
+								</table>
+							</td>
+							<td width="60" style="padding:3px 0 0 10px" valign="top"><img src="<?=adminSkinDirRoot('images')?>/login_bt2.png" id="btn_login" /></td>
+						</tr>
+						</table>
+						</form>
+						<br />
+						<table border="0" cellspacing="0" cellpadding="0">
+						<tr>
+							<td width="100" class="dotum_chung">&nbsp;</td>
+							<td class="dotum_cho">Copyright @ 2014. All rights.</td>
+						</tr>
+						</table>
+						<br />
+					</td>
+				</tr>
+				</table>
+			</td>
+		</tr>
+		</table>
+	</td>
+</tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="0"><tr><td height="278" class="login_top_bg2">&nbsp;</td></tr></table>

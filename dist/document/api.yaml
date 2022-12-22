@@ -1,0 +1,881 @@
+openapi: 3.0.0
+info:
+  version: 0.0.1
+  title: EPIHAIMAPP API
+  description: EPIHAIMAPP API
+servers:
+  # Added by API Auto Mocking Plugin
+  # Added by API Auto Mocking Plugin
+  - description: EPIHAIMAPP API
+    url: https://epihaimapp.adamstore.co.kr
+tags:
+  - name: 1.공통
+    description: 공통 API
+    externalDocs:
+      description: more
+  - name: 2.회원관리
+    description: 회원관리 API
+    externalDocs:
+      description: more
+  - name: 3.커뮤니티
+    description: 커뮤니티 API
+    externalDocs:
+      description: more
+paths:
+  /getDomailUrl :
+    get:
+      summary: 도메인
+      tags:
+        - 1.공통
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                    example: Y
+                    description: 결과값(Y,N)
+                    enum:
+                      - Y
+                      - N
+                  message:
+                    type: string
+                    example: 성공
+                    description: 결과 메세지 내용
+                  ErrCODE:
+                    type: string
+                    example: 에러코드
+                    description: 에러코드
+  /getMobileDomain:
+    get:
+      summary: 이용약관
+      tags:
+        - 1.공통
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                    example: Y
+                    description: 결과값(Y,N)
+                    enum:
+                      - Y
+                      - N
+                  message:
+                    type: string
+                    example: 성공
+                    description: 결과 메세지 내용
+                  data:
+                    $ref: '#/components/schemas/getMobileDomain'
+                  ErrCODE:
+                    type: string
+                    example: 에러코드
+                    description: 에러코드
+  /getCodeName:
+    get:
+      summary: 공통코드
+      tags:
+        - 1.공통
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                    example: Y
+                    description: 결과값(Y,N)
+                    enum:
+                      - Y
+                      - N
+                  message:
+                    type: string
+                    example: 성공
+                    description: 결과 메세지 내용
+                  data:
+                    type: object
+                    properties:
+                      idx:
+                        type: integer
+                        description: 코드idx
+                        example: 코드idx
+                      code_pid:
+                        type: string
+                        description: PCODE ID(000100)
+                        example: PCODE ID(000100)
+                      code_cid:
+                        type: string
+                        description: CCODE ID(000100)
+                        example: CCODE ID(000100)
+                      code_name:
+                        type: string
+                        description: CODE 명
+                        example: CODE 명
+                      code_order:
+                        type: string
+                        description: 출력순서
+                        example: 출력순서
+                      code_state:
+                        type: string
+                        description: 사용여부
+                        example: 사용여부
+                      code_list:
+                        type: object
+                        $ref: '#/components/schemas/getCodeList'
+
+                  ErrCODE:
+                    type: string
+                    example: 에러코드
+                    description: 에러코드
+  /versionchk:
+    get:
+      summary: 버전체크
+      tags:
+        - 1.공통
+      parameters:
+        - name: cate
+          in: query
+          description: 종류(AOS,IOS)
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                    example: Y
+                    description: 결과값(Y,N)
+                    enum:
+                      - Y
+                      - N
+                  message:
+                    type: string
+                    example: 성공
+                    description: 결과 메세지 내용
+                  data:
+                    type: object
+                    properties:
+                      idx:
+                        type: integer
+                        description: 프로그램idx
+                        example: 프로그램idx
+                      name:
+                        type: string
+                        description: 프로그램 명
+                        example: 프로그램 명
+                      cate:
+                        type: string
+                        description: 종류(AOS,AOSTV,IOS,MAC,PC)
+                        example: 종류(AOS,AOSTV,IOS,MAC,PC)
+                      last_ver:
+                        type: string
+                        description: 최종버전(0.0.2)
+                        example: 최종버전(0.0.2)last_ver
+                      last_build:
+                        type: string
+                        description: 최종빌드버전(강제업데이트용)
+                        example: 최종빌드버전(강제업데이트용)
+                      last_history:
+                        type: string
+                        description: 최종업데이트내역
+                        example: 최종업데이트내역
+                      file:
+                        type: string
+                        description: 설치파일명
+                        example: 설치파일명
+                      url:
+                        type: string
+                        description: 설치파일경로
+                        example: 설치파일경로
+                      upload_file:
+                        type: string
+                        description: 업데이트파일명
+                        example: 업데이트파일명
+                      upload_url:
+                        type: string
+                        description: 업데이트파일경로
+                        example: 업데이트파일경로
+                      memo:
+                        type: string
+                        description: 메모
+                        example: 메모
+                      status:
+                        type: string
+                        description: 사용유무(Y,N)
+                        example: 사용유무(Y,N)
+                        enum:
+                          - Y
+                          - N
+                      regdate:
+                        type: string
+                        description: 등록일
+                        example: 등록일
+                      editdate:
+                        type: string
+                        description: 수정일
+                        example: 수정일
+                      history:
+                        type: object
+                        $ref: '#/components/schemas/getHistoryList'
+                  ErrCODE:
+                    type: string
+                    example: 에러코드
+                    description: 에러코드
+
+  /setMobileMemberRegi:
+    post:
+      summary: 회원가입&로그인
+      tags:
+        - 2.회원관리
+      parameters:
+        - name: hp
+          in: query
+          description: 휴대폰
+          required: true
+          schema:
+            type: string
+        - name: uniq
+          in: query
+          description: 기기고유값
+          required: true
+          schema:
+            type: string
+        - name: fcm
+          in: query
+          description: 푸시키
+          required: true
+          schema:
+            type: string
+        - name: conn
+          in: query
+          description: 기기종류
+          required: true
+          schema:
+            type: string
+        - name: agent
+          in: query
+          description: 휴대폰정보(통신사)
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                    example: Y
+                    description: 결과값(Y,N)
+                    enum:
+                      - Y
+                      - N
+                  message:
+                    type: string
+                    example: 성공
+                    description: 결과 메세지 내용
+                  ErrCODE:
+                    type: string
+                    example: 에러코드
+                    description: 에러코드
+
+  /getMobileNoticList:
+    get:
+      summary: 공지사항 리스트조회
+      tags:
+        - 3.커뮤니티
+      parameters:
+        - name: pagenum
+          in: query
+          description: 현재 페이지(1~), null일 경우 1페이지 세팅(1page 20row)
+          required: false
+          schema:
+            type: integer
+        - name: title
+          in: query
+          description: 제목 검색(null일 경우 전체 검색)
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                    example: Y
+                    description: 결과값(Y,N)
+                    enum:
+                      - Y
+                      - N
+                  message:
+                    type: string
+                    example: 성공
+                    description: 결과 메세지 내용
+                  data:
+                    $ref: '#/components/schemas/getMobileNoticList'
+                  ErrCODE:
+                    type: string
+                    example: 에러코드
+                    description: 에러코드
+  /getMobileNoticeDetail:
+    get:
+      summary: 공지사항 상세
+      tags:
+        - 3.커뮤니티
+      parameters:
+        - name: board_idx
+          in: query
+          description: 게시물idx
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                    example: Y
+                    description: 결과값(Y,N)
+                    enum:
+                      - Y
+                      - N
+                  message:
+                    type: string
+                    example: 성공
+                    description: 결과 메세지 내용
+                  data:
+                    $ref: '#/components/schemas/getMobileNoticList'
+                  ErrCODE:
+                    type: string
+                    example: 에러코드
+                    description: 에러코드
+  /getMobileEventList:
+    get:
+      summary: 이벤트 리스트조회
+      tags:
+        - 3.커뮤니티
+      parameters:
+        - name: pagenum
+          in: query
+          description: 현재 페이지(1~), null일 경우 1페이지 세팅(1page 20row)
+          required: false
+          schema:
+            type: integer
+        - name: title
+          in: query
+          description: 제목 검색(null일 경우 전체 검색)
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                    example: Y
+                    description: 결과값(Y,N)
+                    enum:
+                      - Y
+                      - N
+                  message:
+                    type: string
+                    example: 성공
+                    description: 결과 메세지 내용
+                  data:
+                    $ref: '#/components/schemas/getMobileNoticList'
+                  ErrCODE:
+                    type: string
+                    example: 에러코드
+                    description: 에러코드
+  /getMobileEventDetail:
+    get:
+      summary: 이벤트 상세
+      tags:
+        - 3.커뮤니티
+      parameters:
+        - name: board_idx
+          in: query
+          description: 게시물idx
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                    example: Y
+                    description: 결과값(Y,N)
+                    enum:
+                      - Y
+                      - N
+                  message:
+                    type: string
+                    example: 성공
+                    description: 결과 메세지 내용
+                  data:
+                    $ref: '#/components/schemas/getMobileNoticList'
+                  ErrCODE:
+                    type: string
+                    example: 에러코드
+                    description: 에러코드
+  /getShopCateCodelist:
+    get:
+      summary: 카테고리 리스트
+      tags:
+        - 3.커뮤니티
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                    example: Y
+                    description: 결과값(Y,N)
+                    enum:
+                      - Y
+                      - N
+                  message:
+                    type: string
+                    example: 성공
+                    description: 결과 메세지 내용
+                  data:
+                    $ref: '#/components/schemas/getShopCateCodelist'
+                  ErrCODE:
+                    type: string
+                    example: 에러코드
+                    description: 에러코드
+  /getMobileShopList:
+    get:
+      summary: 상품 리스트조회
+      tags:
+        - 3.커뮤니티
+      parameters:
+        - name: pagenum
+          in: query
+          description: 현재 페이지(1~), null일 경우 1페이지 세팅(1page 15row)
+          required: false
+          schema:
+            type: integer
+        - name: cate
+          in: query
+          description: 카테고리 코드(상품카테고리 code_cid 조회출력값)
+          required: false
+          schema:
+            type: string
+        - name: title
+          in: query
+          description: 제목조회(null일 경우 전체조회)
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                    example: Y
+                    description: 결과값(Y,N)
+                    enum:
+                      - Y
+                      - N
+                  message:
+                    type: string
+                    example: 성공
+                    description: 결과 메세지 내용
+                  data:
+                    $ref: '#/components/schemas/getMobileShopList'
+                  ErrCODE:
+                    type: string
+                    example: 에러코드
+                    description: 에러코드
+  /getMobileShopDetail:
+    get:
+      summary: 상품 상세
+      tags:
+        - 3.커뮤니티
+      parameters:
+        - name: board_idx
+          in: query
+          description: 게시물idx
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                    example: Y
+                    description: 결과값(Y,N)
+                    enum:
+                      - Y
+                      - N
+                  message:
+                    type: string
+                    example: 성공
+                    description: 결과 메세지 내용
+                  data:
+                    $ref: '#/components/schemas/getMobileShopList'
+                  ErrCODE:
+                    type: string
+                    example: 에러코드
+                    description: 에러코드
+  /getMobileCateCount:
+    get:
+      summary: 상품카테고리별카운트
+      tags:
+        - 3.커뮤니티
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                    example: Y
+                    description: 결과값(Y,N)
+                    enum:
+                      - Y
+                      - N
+                  message:
+                    type: string
+                    example: 성공
+                    description: 결과 메세지 내용
+                  data:
+                    $ref: '#/components/schemas/getMobileCateCount'
+                  ErrCODE:
+                    type: string
+                    example: 에러코드
+                    description: 에러코드
+components:
+  schemas:
+    getErrCODE:
+      type: object
+      properties:
+        m_reg01:
+          type: string
+          description: 차단된 전화번호
+        m_reg02:
+          type: string
+          description: 회원 등록오류
+        m_reg03:
+          type: string
+          description: 푸시키 업데이트오류
+        domain01:
+          type: string
+          description: 도메인 조회오류
+        code01:
+          type: string
+          description: 코드 조회오류
+        ver01:
+          type: string
+          description: 카테고리 값이 없음.
+        BOARD01:
+          type: string
+          description: 카테고리 값이 없음.
+        BOARD02:
+          type: string
+          description: 게시물 idx 값이 없습니다.
+    getMobileDomain:
+      type: object
+      properties:
+        terms:
+          type: string
+          description: 이용약관
+        personal_info:
+          type: string
+          description: 전자금융거래 이용약관
+        financial_info:
+          type: string
+          description: 전자금융거래 이용약관
+    getCodeList:
+      type: object
+      properties:
+        idx:
+          type: integer
+          description: 코드idx
+          example: 코드idx
+        code_pid:
+          type: string
+          description: PCODE ID(000100)
+          example: PCODE ID(000100)
+        code_cid:
+          type: string
+          description: CCODE ID(000100)
+          example: CCODE ID(000100)
+        code_name:
+          type: string
+          description: CODE 명
+          example: CODE 명
+        code_order:
+          type: string
+          description: 출력순서
+          example: 출력순서
+        code_state:
+          type: string
+          description: 사용여부
+          example: 사용여부
+    getHistoryList:
+      type: object
+      properties:
+        hidx:
+          type: integer
+          description: 프로그램 버전관리내역idx
+          example: 프로그램 버전관리내역idx
+        name:
+          type: string
+          description: 프로그램 명
+          example: 프로그램 명
+        class:
+          type: string
+          description: 프로그램class(인식코드)
+          example: 프로그램class(인식코드)
+        cate:
+          type: string
+          description: 종류(AOS,AOSTV,IOS,MAC,PC)
+          example: 종류(AOS,AOSTV,IOS,MAC,PC)
+        ver:
+          type: string
+          description: 버전(0.0.2)
+          example: 버전(0.0.2)
+        build:
+          type: string
+          description: 빌드버전
+          example: 빌드버전
+        history:
+          type: string
+          description: 업데이트내역
+          example: 업데이트내역
+        file:
+          type: string
+          description: 설치파일명
+          example: 설치파일명
+        url:
+          type: string
+          description: 설치파일경로
+          example: 설치파일경로
+        upload_file:
+          type: string
+          description: 업데이트파일명
+          example: 업데이트파일명
+        upload_url:
+          type: string
+          description: 업데이트파일경로
+          example: 업데이트파일경로
+        memo:
+          type: string
+          description: 메모
+          example: 메모
+        status:
+          type: string
+          description: 사용유무(Y,N)
+          example: 사용유무(Y,N)
+          enum:
+            - Y
+            - N
+        regdate:
+          type: string
+          description: 등록일
+          example: 등록일
+    getMobileShopList:
+      type: object
+      properties:
+        board_idx:
+          type: integer
+          description: 게시물idx
+          example: 게시물idx
+        title:
+          type: string
+          description: 제목
+          example: 제목
+        best_yn:
+          type: string
+          description: 베스트여부
+          example: 베스트여부
+        contents:
+          type: string
+          description: 내용
+          example: 내용
+        list_name:
+          type: string
+          description: 리스트명
+          example: 리스트명
+        user_idx:
+          type: integer
+          description: 등록자idx
+          example: 등록자idx
+        user_name:
+          type: string
+          description: 등록자명
+          example: 등록자명
+        regdate:
+          type: string
+          description: 등록일자
+          example: 등록일자
+        img_url:
+          type: string
+          description: 대표이미지 경로
+          example: 대표이미지 경로
+        img_org:
+          type: string
+          description: 대표이미지명
+          example: 대표이미지명
+        hits:
+          type: integer
+          description: 조회수
+          example: 조회수
+        comment_cnt:
+          type: integer
+          description: 댓글수
+          example: 댓글수
+        file:
+          $ref: '#/components/schemas/getFileList'
+    getMobileNoticList:
+      type: object
+      properties:
+        board_idx:
+          type: integer
+          description: 게시물idx
+          example: 게시물idx
+        title:
+          type: string
+          description: 제목
+          example: 제목
+        contents:
+          type: string
+          description: 내용
+          example: 내용
+        user_idx:
+          type: integer
+          description: 등록자idx
+          example: 등록자idx
+        user_name:
+          type: string
+          description: 등록자명
+          example: 등록자명
+        regdate:
+          type: string
+          description: 등록일자
+          example: 등록일자
+        hits:
+          type: integer
+          description: 조회수
+          example: 조회수
+        comment_cnt:
+          type: integer
+          description: 댓글수
+          example: 댓글수
+        file:
+          $ref: '#/components/schemas/getFileList'
+    getFileList:
+      type: object
+      properties:
+        file_idx:
+          type: integer
+          description: 파일idx
+          example: 파일idx
+        dir:
+          type: string
+          description: 경로
+          example: 경로
+        file:
+          type: string
+          description: 파일명
+          example: 파일명
+        file_org:
+          type: string
+          description: 원본 파일명
+          example: 원본 파일명
+    getShopCateCodelist:
+      type: object
+      properties:
+        code_pid:
+          type: varchar
+          description: main
+          example: main
+        code_cid:
+          type: string
+          description: sub
+          example: sub
+        code_did:
+          type: string
+          description: 사용안함
+          example: 사용안함
+    getMobileCateCount:
+      type: object
+      properties:
+        code:
+          type: varchar
+          description: main
+          example: main
+        name:
+          type: string
+          description: sub
+          example: sub
+        CNT:
+          type: string
+          description: 금일 등록카운트
+          example: 금일 등록카운트
+        todya:
+          type: string
+          description: 오늘날짜
+          example: 오늘날짜

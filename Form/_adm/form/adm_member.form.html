@@ -1,0 +1,138 @@
+<div class="con_head_wrap">
+	<div class="con_head">
+		<h1><?=$_TITLE_SUB ? $SITE_NAME.'-'.$_TITLE_SUB : $SITE_NAME.'-'.$_TITLE?></h1>
+	</div>
+</div>
+<div class="con_body_wrap">
+	<div class="con_body">
+		<div class="con_body_top_form_wrap">
+			<form method="post" name="saveFrmProcess" id="saveFrmProcess" action="" enctype="multipart/form-data">
+				<input type="hidden" name="dbControl" value="<?=$row["m_idx"] == '' ? 'setMemberRegi' : 'setMemberModify'?>">
+				<input type="hidden" name="useControl" value="<?=$row["m_use"] == 'Y' ? 'setUseMemberN' : 'setUseMemberY'?>">
+				<input type="hidden" name="CODE" value="<?=$row["m_idx"]?>">
+				<input type="hidden" name="retrunUrl" value="<?=str_replace('.form', '', $PUSANKJS['filename'])?>">
+			<div class="row">
+				<div class="col-xs-12">
+					<div class="cloud_box">
+						<div class="table_form_all_wrap">
+							<div class="table_form_wrap">
+								<table width="100%" border="0" cellspacing="0" cellpadding="0" class="table_st_02">
+									<tr>
+										<th scope="row">
+											사용자ID
+										</th>
+										<td>
+											<div class="form_div_wrap">
+												<div class="search_box_wrap">
+												<input type="text" class="form-control" id="m_id" name="m_id" placeholder="ID를 입력해주세요." value="<?=setOutput($row['m_id'])?>"  <?=$row['m_idx'] == "" ? "" : "readonly"?>>
+												</div>
+											</div>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row">
+											사용자비밀번호
+										</th>
+										<td>
+											<div class="form_div_wrap">
+												<div class="search_box_wrap">
+													<input type="text" class="form-control" id="m_pass" name="m_pass" placeholder="비밀번호 입력해주세요." value="<?=setOutput($row['m_pass'])?>">
+												</div>
+											</div>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row">
+											사용자명
+										</th>
+										<td>
+											<div class="form_div_wrap">
+												<div class="search_box_wrap">
+													<input type="text" class="form-control" id="m_name" name="m_name" placeholder="사용자명을 입력해주세요." value="<?=setOutput($row['m_name'])?>">
+												</div>
+											</div>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row">
+											권한레벨
+										</th>
+										<td>
+											<div class="form_div_wrap">
+												<div class="search_box_wrap">
+													<select class="form-control" name="m_auth_level" id="m_auth_level">
+														<option value="" <?php  if($row['m_auth_level'] == '') echo 'selected'; ?>>선택</option>
+														<?php
+														$code = codename('0100','','A','and code_cid <> "0001" and code_cid <> "1000"');
+														for($a=0; $a < $code['code_count']; $a++){
+															echo "<option value='".$code[$a]['code_pid'].$code[$a]['code_cid']."' ".($code[$a]['code_pid'].$code[$a]['code_cid'] == $row['m_auth_level'] ? 'selected' : '').">".$code[$a]['code_name']."</option>";
+														}
+														?>
+													</select>
+												</div>
+											</div>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row">
+											사용상태
+										</th>
+										<td>
+											<div class="form_div_wrap">
+												<div class="search_box_wrap">
+													<select class="form-control" name="m_use" id="m_use">
+														<option value="Y" <?php if($row['m_use_is'] == 'Y') echo 'selected'; ?>>사용</option>
+														<option value="N" <?php if($row['m_use_is'] == 'N') echo 'selected'; ?>>정지</option>
+													</select>
+												</div>
+											</div>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row">
+											메모
+										</th>
+										<td>
+											<div class="form_div_wrap">
+												<div class="input_box_100_wrap">
+													<textarea class="form-control" name="m_memo" id="m_memo"><?=$row["m_memo"]?></textarea>
+												</div>
+											</div>
+										</td>
+									</tr>
+								</table>
+							</div>
+							<div class="table_bottom_btn_wrap">
+								<?php  if($row["m_idx"] == ''){ ?>
+									<button type="button" class="btn btn-primary" id="saveBtn">등록하기</button>
+								<?php  }else{ ?>
+									<button type="button" class="btn btn-primary" id="saveBtn">수정하기</button>
+								<?php  } ?>
+								<button type="button" class="btn btn-default" onclick="javascript:history.back();">목록</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			</form>
+		</div>
+	</div>
+</div>
+<script type="text/javascript" charset="utf-8">
+$(document).ready(function(){ 
+	$('#saveBtn').click(function(){
+		if(checkFormFn('m_id', '사용자ID') == false) return;
+		if(checkFormFn('m_name', '사용자명') == false) return;
+		//if(checkFormFn('m_email', '이메일') == false) return;
+		//if(checkFormFn('m_option1', '메신저') == false) return;
+		//if(checkFormFn('m_option3', '서비스 기기수') == false) return;
+		if(checkFormFn('m_auth_level', '권한레벨') == false) return;
+		//if(checkFormFn('m_class', '사용자등급') == false) return;
+		//if(checkFormFn('m_option5', '제한 트레픽양') == false) return;
+		if(checkFormFn('m_use', '사용여부') == false) return;
+
+		ajaxFormSave('saveFrmProcess', '/lib/control.siso');
+	}).css({"cursor":"pointer"});
+});
+</script>
+

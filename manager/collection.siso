@@ -1,0 +1,59 @@
+<?php
+require $_SERVER['DOCUMENT_ROOT'].'/lib/global.php';
+
+$auth	=	$thisConnAuth != '' ?  $thisConnAuth : 'root';
+auth_limit($auth);
+
+//변수처리
+$cate = $_REQUEST['cate'];
+$search_order = $_REQUEST['search_order'];  //검색타입
+$word = setOutput($_REQUEST['word']);   //검색 텍스트
+$searchidArr = "c_name##s_service_name";  //검색할 검색어 컬럼명
+$search_year = $_REQUEST['search_year'];
+$search_month = $_REQUEST['search_month'];
+
+if($search_year == "" || $search_month == ""){
+    $search_year = date('Y');
+    $search_month = date('m');
+}
+
+
+//echo "year:".$search_year.",month:".$search_month; exit;
+
+$_WHERE = searchboxArr($search_order,$searchidArr,$word);
+//echo "where:".$_WHERE; exit;
+//if($_REQUEST['word']	!=	''){
+//    $_WHERE	.=	" AND ( c_name like '%".setOutput($_REQUEST['word'])."%' )";
+//}
+$_TABLE = "_COLLECTION CL";
+$_JOIN1 = " LEFT JOIN _SERVICE S ON CL.cb_sidx = S.s_idx ";
+$_JOIN2 = " LEFT JOIN _COMPANY C ON S.s_cidx = C.c_idx ";
+$_JOIN3 = " LEFT OUTER JOIN _COLLECTION_HISTORY CH ON CH.ch_cbidx = CL.cb_idx AND CH.ch_year = '".$search_year."' AND CH.ch_month = '".$search_month."' ";
+$_ORDER	= "ORDER BY cb_regdate DESC";
+
+$onePageCount = 20;
+$pagenum = $_REQUEST['pagenum'] ? $_REQUEST['pagenum'] : 1;
+$total = getValue($_TABLE.$_JOIN1.$_JOIN2.$_JOIN3, $_WHERE, 'CNT', 'COUNT(*) AS CNT');
+$no = $total - ($pagenum-1) * $onePageCount;
+
+$list = selectBoard($_TABLE.$_JOIN1.$_JOIN2.$_JOIN3,$_WHERE,$_ORDER,'CL.*,S.*,C.*,CH.*',$no,false);
+
+//print_r($list); exit;
+
+if($total > 0)
+    $toalPageCn	=	ceil($total/$onePageCount);
+else
+    $toalPageCn	=	1;
+$paging		=	disPgCount($toalPageCn, $pagenum, $_TAGS, 1);
+
+$_TITLE = "수금관리";
+$_TITLE_SUB = "";
+$_SITE_DESCRIPTION = "수금관리 페이지입니다.";
+
+getSkinSet('_'.str_replace('root', 'adm', $auth).'/', 'form', $PUSANKJS['filename'], 'main', true);
+
+//exit($PSKIN['view_layout']);
+include($PSKIN['view_layout']);
+mysqli_close($DBINFO);
+?>
+

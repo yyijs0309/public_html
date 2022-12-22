@@ -1,0 +1,80 @@
+<?php
+require $_SERVER['DOCUMENT_ROOT'].'/lib/global.php';
+
+$auth	=	$thisConnAuth != '' ?  $thisConnAuth : 'root';
+auth_limit($auth);
+
+$_WHERE	=	" WHERE 1 ";
+if($_REQUEST['word']	!=	''){
+    $_WHERE	.=	" AND m.m_id like '%".str_replace('-', '', $_REQUEST['word'])."%' ";
+    $_TAGS	.=	'&word='.$_REQUEST['word'];
+}
+
+if($_REQUEST['cate']	!=	'ALL' && $_REQUEST['cate']	!=	''){
+    $_WHERE	.=	" AND p.p_use_is = '".$_REQUEST['cate']."' ";
+    $_TAGS	.=	"&cate=".$_REQUEST['cate'];
+}
+
+if($_REQUEST['options']	==	''){
+    $options = 'today';
+}
+
+//기간검색
+if($_REQUEST['date_from']	==	'' || $_REQUEST['date_to']	==	''){
+    $date_from = date("Y-m-d");
+    $date_to = date("Y-m-d");
+}else{
+    //날짜 설정 //date('Y-m-d')
+    $date_from = $_REQUEST['date_from'];
+    $date_to = $_REQUEST['date_to'];
+    $_TAGS	.=	'&date_from='.$_REQUEST['date_from'];
+    $_TAGS	.=	'&date_to='.$_REQUEST['date_to'];
+    $_TAGS	.=	'&options='.$_REQUEST['options'];
+}
+$_WHERE .= " AND date_format(p_regdate, '%Y-%m-%d') BETWEEN '".$date_from."' AND '". $date_to."'";
+$_WHERE .= " AND p_type='+' ";
+
+$_TABLE	=	"_POINT p";
+$_TABLE_JOIN	=	" INNER JOIN _MEMBER to_m ON p.p_m_id=to_m.m_id INNER JOIN _MEMBER from_m ON p.p_from_id=from_m.m_id ";
+$_TABLE_JOIN	.=	" LEFT OUTER JOIN _PAYMENT_CLASS pc ON pc.pc_idx = p.pc_idx ";
+$_ORDER	=	" order by p_regdate desc  ";
+
+$onePageCount = 20;
+$pagenum = $_REQUEST['pagenum'] ? $_REQUEST['pagenum'] : 1;
+$offset			=	($pagenum-1) * $onePageCount;
+$total = getValue($_TABLE.$_TABLE_JOIN, $_WHERE, 'CNT', 'COUNT(*) AS CNT');
+$no = $total - ($pagenum-1) * $onePageCount;
+
+$sql	=
+    "
+    SELECT
+        p.*,to_m.m_id to_id,from_m.m_id from_id,from_m.m_bank,from_m.m_account,from_m.m_account_holder,pc.pc_name,pc.pc_price_cn
+    FROM
+        ".$_TABLE.$_TABLE_JOIN.$_WHERE.$_ORDER."
+    limit ".$offset.", ".$onePageCount
+;
+//echo "sql:" . $sql; exit;
+$rs		=	query($sql);
+if(rows() > 0){
+    for($i=0; $row = assoc($rs); $i++){
+        $row['num']		=	$no--;
+        $list[]			=	$row;
+    }
+}
+
+if($total > 0)
+    $toalPageCn	=	ceil($total/$onePageCount);
+else
+    $toalPageCn	=	1;
+$paging		=	disPgCount($toalPageCn, $pagenum, $_TAGS, 1);
+
+$_TITLE = "수익금관리";
+$_TITLE_SUB = "";
+$_SITE_DESCRIPTION = "수익금관리 페이지입니다.";
+
+getSkinSet('_'.str_replace('root', 'adm', $auth).'/', 'form', $PUSANKJS['filename'], 'main', true);
+
+//exit($PSKIN['view_layout']);
+include($PSKIN['view_layout']);
+mysqli_close($DBINFO);
+?>

@@ -1,0 +1,86 @@
+<?php
+/*#################################################################################################
+#########	생성일 : 2016-07-11
+#########	만든이 : 김종수 대표
+#########	연락처 : 010-6368-2650
+#########	이메일 : pusankjs@siso.kr
+#################################################################################################*/
+require $_SERVER['DOCUMENT_ROOT'].'/lib/global.php';
+auth_limit('root');
+
+//총 회원
+$_WHERE	=	" WHERE 1 ";
+$_WHERE	.=	" AND m_idx <> 1 AND m_level = 'user' ";
+$_TABLE	=	"_MEMBER ";
+$_ORDER	=	"ORDER BY m_regdate DESC";
+$memberalllist = selectBoard($_TABLE,$_WHERE,$_ORDER,'COUNT(*) AS COUNT',$no,false);
+
+//신규 회원
+$_WHERE	=	" WHERE 1 ";
+$_WHERE	.=	" AND m_idx <> 1 AND m_level = 'user' AND DATE(m_regdate) = DATE(NOW()) ";
+$_TABLE	=	"_MEMBER ";
+$_ORDER	=	"ORDER BY m_regdate DESC";
+$membertodaylist = selectBoard($_TABLE,$_WHERE,$_ORDER,'COUNT(*) AS COUNT',$no,false);
+
+//////유료 회원
+//$_WHERE	=	" WHERE 1 ";
+//$_WHERE	.=	" AND m_idx <> 1 AND m_level = 'user' and DATE(m_pay_datetime) = DATE(NOW()) ";
+//$_TABLE	=	"_MEMBER ";
+//$_ORDER	=	"ORDER BY m_regdate DESC";
+//$memberpaylist = selectBoard($_TABLE,$_WHERE,$_ORDER,'COUNT(*) AS COUNT',$no,false);
+//
+//////종료2일전
+//$_WHERE	=	" WHERE 1 ";
+//$_WHERE	.=	" AND m_idx <> 1 AND m_level = 'user' and DATEDIFF(m_expire_datetime, NOW()) = 2 ";
+//$_TABLE	=	"_MEMBER ";
+//$_ORDER	=	"ORDER BY m_regdate DESC";
+//$member2daybeforelist = selectBoard($_TABLE,$_WHERE,$_ORDER,'COUNT(*) AS COUNT',$no,false);
+//
+//////종료1일전
+//$_WHERE	=	" WHERE 1 ";
+//$_WHERE	.=	" AND m_idx <> 1 AND m_level = 'user' and DATEDIFF(m_expire_datetime, NOW()) = 1 ";
+//$_TABLE	=	"_MEMBER ";
+//$_ORDER	=	"ORDER BY m_regdate DESC";
+//$member1daybeforelist = selectBoard($_TABLE,$_WHERE,$_ORDER,'COUNT(*) AS COUNT',$no,false);
+//
+//////종료0일전
+//$_WHERE	=	" WHERE 1 ";
+//$_WHERE	.=	" AND m_idx <> 1 AND m_level = 'user' and DATE(m_expire_datetime) = DATE(NOW()) ";
+//$_TABLE	=	"_MEMBER ";
+//$_ORDER	=	"ORDER BY m_regdate DESC";
+//$memberdaybeforelist = selectBoard($_TABLE,$_WHERE,$_ORDER,'COUNT(*) AS COUNT',$no,false);
+//
+//////유료결제 회원
+//$_WHERE	=	" WHERE 1 ";
+//$_WHERE	.=	" AND m_idx <> 1 AND m_level = 'user' and DATEDIFF(m_expire_datetime, NOW()) >= 0 ";
+//$_TABLE	=	"_MEMBER ";
+//$_ORDER	=	"ORDER BY m_regdate DESC";
+//$memberpaymemberlist = selectBoard($_TABLE,$_WHERE,$_ORDER,'COUNT(*) AS COUNT',$no,false);
+//
+//////기간만료 회원
+//$_WHERE	=	" WHERE 1 ";
+//$_WHERE	.=	" AND m_idx <> 1 AND m_level = 'user' and DATEDIFF(m_expire_datetime, NOW()) < 0  ";
+//$_TABLE	=	"_MEMBER ";
+//$_ORDER	=	"ORDER BY m_regdate DESC";
+//$memberexpirelist = selectBoard($_TABLE,$_WHERE,$_ORDER,'COUNT(*) AS COUNT',$no,false);
+//
+//////블랙리스트 회원
+//$_WHERE	=	" WHERE 1 ";
+//$_WHERE	.=	" AND m_idx <> 1 AND m_level = 'user' and m_option6 = 'Y'  ";
+//$_TABLE	=	"_MEMBER ";
+//$_ORDER	=	"ORDER BY m_regdate DESC";
+//$memberblacklist = selectBoard($_TABLE,$_WHERE,$_ORDER,'COUNT(*) AS COUNT',$no,false);
+//
+//////접속회원
+//$_WHERE	=	" WHERE 1 ";
+//$_WHERE	.=	" AND MD.m_state = 'Y' ";
+//$_TABLE	=	" ( select M.m_idx from _MEMBER M LEFT OUTER JOIN _MEMBER_DEVICE MD ON M.M_IDX = MD.M_IDX ";
+////$_GROUP	=	" group by M.m_idx) A";
+//$_GROUP	=	" ) A";
+//$joinlist = selectBoard($_TABLE,$_WHERE,$_GROUP,'COUNT(*) AS COUNT ',$no,false);
+
+getSkinSet('_adm/', 'form', $PUSANKJS['filename'], 'main', true);
+include($PSKIN['view_layout']);
+mysqli_close($DBINFO);
+?>
+

@@ -1,0 +1,123 @@
+<?php
+require $_SERVER['DOCUMENT_ROOT'].'/lib/global.php';
+$RETURN					=	json_decode(stripslashes($_RETURN), true);
+
+$getMemberInfoOOOOO		=	getValue('_MEMBER', " where m_idx = '".addslashes(trim($RETURN['RESERVEDINDEX1']))."' ", 'ar', '*', false);
+
+
+$_PRICE		=	str_replace(',', '', $RETURN['AMOUNT']);
+
+$sql	=	"
+	INSERT INTO
+		_PAYMENT
+	SET
+		p_site				=	'".$getSiteSkin['di_idx']."'
+		, p_user_idx		=	'".trim(addslashes($RETURN['RESERVEDINDEX1']))."'
+		, p_store_type		=	'ZEROPAY'
+		, p_purchasetime	=	now()
+		, p_purchasePrice	=	'".setSqlFilter(str_replace(',','',$_PRICE))."'
+		, p_info			=	'".json_encode($RETURN, JSON_UNESCAPED_UNICODE)."'
+		, item_idx			=	'".$RETURN['ZEROEXTEND1']."'
+		, item_name			=	'".trim(addslashes($RETURN['PRODUCTNAME']))."'		
+		, p_status          =   'Y'
+		, p_regdate			=	now()
+";
+$rs	=	query($sql);
+$PAYCODE	=	insert_id();
+
+if($rs){
+    query("
+		update
+			_MEMBER 
+		set
+		    m_pay_datetime	=	now()
+			,m_expire_datetime	=	'".$RETURN['ZEROEXTEND2']."'
+		where
+			m_idx			=	'".$getMemberInfoOOOOO['m_idx']."'
+	");
+
+    $_CLASS	=	getValue('_PAYMENT_CLASS', " where pc_idx = '".trim(addslashes($RETURN['ZEROEXTEND1']))."' ");
+    $_MEMBER = getValue('_MEMBER', " where m_idx = '".trim(addslashes($RETURN['RESERVEDINDEX1']))."' ",'ar','DATEDIFF(m_expire_datetime, NOW()) as checkdate');
+
+    if($_MEMBER['checkdate'] > 0){
+        query("update _MEMBER set m_expire_datetime = DATE_ADD(m_expire_datetime,INTERVAL ".$_CLASS['pc_day']."+1 DAY), m_option3 = ".$_CLASS['pc_cnt']." , m_option7 = ".$_CLASS['pc_idx']." where m_idx = '".$RETURN['RESERVEDINDEX1']."' ");
+    }else{
+        query("update _MEMBER set m_expire_datetime = DATE_ADD(NOW(),INTERVAL ".$_CLASS['pc_day']."+1 DAY), m_option3 = ".$_CLASS['pc_cnt']." , m_option7 = ".$_CLASS['pc_idx']." where m_idx = '".$RETURN['RESERVEDINDEX1']."' ");
+    }
+
+	$smsmsg		=	"[MONKEYVPN] ".$getMemberInfoOOOOO['m_id']." | 카드결제 | ".$p_purchasePrice."원";
+	$sms_from	=	"1644-1111";
+
+	$sms_park   = "01028138088";
+	$sms_no     = "01039050012";
+	$sms_hwang  = "01093212814";
+//	$smssend1    =	socketPost('https://alrigo.co.kr/lib/sms.send.siso', '&sms_from='.$sms_from.'&sms_to='.$sms_park.'&smsmsg='.$smsmsg);  //박대훈 팀장 010-2813-8088
+	$smssend2    =	socketPost('https://alrigo.co.kr/lib/sms.send.siso', '&sms_from='.$sms_from.'&sms_to='.$sms_no.'&smsmsg='.$smsmsg);  //노현우 대표님 010-3905-0012
+//	$smssend3    =	socketPost('https://alrigo.co.kr/lib/sms.send.siso', '&sms_from='.$sms_from.'&sms_to='.$sms_hwang.'&smsmsg='.$smsmsg);  //황동화 개발자
+
+
+	//exit('{"result":"Y","message":"성공적으로 등록하였습니다.","url":"f5"}');
+}else{
+    //exit('{"result":"N","message":"일시적 오류입니다.","url":""}');
+}
+
+//print_r($RETURN); exit;
+
+/*
+if($RETURN['ZEROEXTEND1']	==	''){
+	exit();
+}
+*/
+//$getMemberInfoOOOOO		=	getValue('_MEMBER', " where m_idx = '".addslashes(trim($RETURN['RESERVEDINDEX1']))."' ", 'ar', '*', false);
+//$_PRICE					=	str_replace(',', '', $RETURN['AMOUNT']);
+//$_BUPRICE				=	$_PRICE-($_PRICE/1.1);
+//$_CARDSUSU				=	$_PRICE*0.08;
+//$_TOTALSUSU				=	$_PRICE-$_BUPRICE-$_CARDSUSU;
+//$PERMISSION				=	$_TOTALSUSU/2;
+//$ZEROEXTEND1Ar			=	explode('|||||', addslashes(trim($RETURN['ZEROEXTEND1'])));
+
+//$shop_code_ar			=	$RETURN['ZEROEXTEND1'];
+//$productOrderInfo		=	getValue('_SHOP_ORDER', " where so_idx = '".$shop_code_ar[0]."' ");
+//$productInfo			=	getValue('_POST', " where p_idx = '".$RETURN['ZEROEXTEND1']."' ");
+//query("insert into TEST set t_sql = 'this' ");
+//$_CLASS	=	getValue('_PAYMENT_CLASS', " where pc_idx = '8' ");
+//
+//$user = $RETURN['USERID'];
+//$price = $RETURN['AMOUNT'];
+//$user_idx = $RETURN['ZEROEXTEND1'];
+//$pc_idx = $RETURN['ZEROEXTEND2'];
+//
+//$sql	=	"
+//	INSERT INTO
+//		_PAYMENT
+//	SET
+//		p_site				=	'".$getSiteSkin['di_idx']."'
+//		, p_user_idx		=	'".trim(addslashes($user_idx))."'
+//		, p_store_type		=	'ZEROPAY'
+//		, p_purchasetime	=	now()
+//		, p_purchasePrice	=	'".setSqlFilter(str_replace(',','',$price))."'
+//		, p_info			=	'".json_encode($RETURN, JSON_UNESCAPED_UNICODE)."'
+//		, item_idx			=	'".$pc_idx."'
+//		, p_status          =   'Y'
+//		, p_regdate			=	now()
+//";
+//
+//$rs		=	query($sql);
+////$CODE	=	insert_id();
+//
+//$_CLASS	=	getValue('_PAYMENT_CLASS', " where pc_idx = '".trim(addslashes($pc_idx))."' ");
+//$_MEMBER = getValue('_MEMBER', " where m_idx = '".trim(addslashes($user_idx))."' ",'ar','DATEDIFF(m_expire_datetime, NOW()) as checkdate');
+//
+//if($_MEMBER['checkdate'] > 0){
+//    query("update _MEMBER set m_expire_datetime = DATE_ADD(m_expire_datetime,INTERVAL ".$_CLASS['pc_day']."+1 DAY), m_option3 = ".$_CLASS['pc_cnt']." , m_option7 = ".$_CLASS['pc_idx']." where m_idx = '".$user_idx."' ");
+//}else{
+//    query("update _MEMBER set m_expire_datetime = DATE_ADD(NOW(),INTERVAL ".$_CLASS['pc_day']."+1 DAY), m_option3 = ".$_CLASS['pc_cnt']." , m_option7 = ".$_CLASS['pc_idx']." where m_idx = '".$user_idx."' ");
+//}
+//
+//
+//if($rs){
+//
+//}else{
+//    ;
+//}
+?>

@@ -1,0 +1,504 @@
+<div class="con_head_wrap">
+    <div class="con_head">
+        <h1><?=$_TITLE_SUB ? $SITE_NAME.'-'.$_TITLE_SUB : $SITE_NAME.'-'.$_TITLE?></h1>
+    </div>
+</div>
+<div class="con_body_wrap">
+    <div class="popup">
+        <div class="content">
+            <form class="form-search" id="frm" name="frm">
+                <input type="hidden" name="pop_on" id="pop_on" value="<?=$pop_on?>">
+                <div class="title">
+                    사용자 조회
+                </div>
+                <div class="select">
+                    <select class="" name="keyword">
+                        <option value="m_id" <?=$_REQUEST["keyword"]=="m_id"?" selected":""?>>아이디</option>
+                        <option value="m_name" <?=$_REQUEST["keyword"]=="m_name"?" selected":""?>>사용자명</option>
+                    </select>
+                    <input type="text" id="word" name="word" value="">
+                    <!--<button>검색</button>-->
+                    <input type="button" value="검색" class="btn btn-primary" onclick="srch_submit()">
+                </div>
+                <ul class="list">
+                    <li>
+                        <div class="number">번호</div>
+                        <div class="id">아이디</div>
+                        <div class="name">사용자명</div>
+                    </li>
+                    <?php
+                    if(count($list) > 0){
+                        for($i=0; $i < count($list); $i++){
+                ?>
+                    <li>
+                        <div class="number"><?=$list[$i]["num"]?></div>
+                        <div class="id"><a href="#" onclick="go_member('<?=$list[$i]['m_idx']?>','<?=$list[$i]['m_id']?>','<?=$list[$i]['m_name']?>')"><?=setOutput($list[$i]['m_id'])?></a></div>
+                        <div class="name"><?=setOutput($list[$i]['m_name'])?></div>
+                    </li>
+                    <?php
+                        }
+                    }else{
+                ?>
+
+                    <?php
+					}
+                ?>
+                </ul>
+        </div>
+        <div class="btn-group">
+            <?=$paging?>
+        </div>
+        </form>
+        <div class="close01">닫기</div>
+    </div>
+    <div class="con_body">
+        <div class="con_body_top_form_wrap">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="cloud_box">
+                        <div class="table_form_all_wrap">
+                            <div class="table_form_top">
+                                <h2>PUSH 내용 입력</h2>
+                            </div>
+                            <form method="post" name="listsaveFrmProcess" id="listsaveFrmProcess" enctype="multipart/form-data">
+                                <input type="hidden" name="dbControl" value="setPushMsgSendNew">
+                                <input type="hidden" name="retrunUrl" value="f5">
+                                <input type="hidden" name="push_send" value="direct">
+                                <input type="hidden" name="push_idx" value="<?=$push_info["idx"]?>">
+                                <div class="table_form_wrap">
+                                    <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table_st_02">
+                                        <?php
+									//echoAr($push_info);
+									//echo $push_info["type"];
+								?>
+                                        <tr>
+                                            <th scope="row">
+                                                <span>*</span>PUSH할 앱
+                                            </th>
+                                            <td>
+                                                <div class="form_div_wrap">
+                                                    <div class="form_radio_chk_wrap user_check_box">
+                                                        <div class="radio_chk_st_wrap">
+                                                            <input type="radio" id="push_app" name="push_app" value="" checked>
+                                                            <label for="push_app">
+                                                                <span><?=$SITE_NAME?></span>
+                                                            </label>
+                                                            <input type="hidden" id="push_style" name="push_style" value="message">
+                                                        </div>
+                                                    </div>
+                                                    <div class="form_select_box_wrap push_app_select_wrap">
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                        <!--                                        <tr>-->
+                                        <!--                                            <th scope="row">-->
+                                        <!--                                                <span>*</span>상태설정-->
+                                        <!--                                            </th>-->
+                                        <!--                                            <td>-->
+                                        <!--                                                <div class="form_div_wrap">-->
+                                        <!--                                                    <div class="form_radio_chk_wrap">-->
+                                        <!--                                                        <div class="radio_chk_st_wrap">-->
+                                        <!--                                                            <input type="radio" id="push_style_noti" name="push_style" value="top" <?=($push_info["type"]=="top"?"checked":"")?>>-->
+                                        <!--                                                            <label for="push_style_noti">-->
+                                        <!--                                                                <span>노티</span>-->
+                                        <!--                                                            </label>-->
+                                        <!--                                                        </div>-->
+                                        <!--                                                        <div class="radio_chk_st_wrap">-->
+                                        <!--                                                            <input type="radio" id="push_style_front" name="push_style" value="front" <?=($push_info["type"]=="front"?"checked":"")?>>-->
+                                        <!--                                                            <label for="push_style_front">-->
+                                        <!--                                                                <span>전면</span>-->
+                                        <!--                                                            </label>-->
+                                        <!--                                                        </div>-->
+
+                                        <!--                                                        <div class="radio_chk_st_wrap">-->
+                                        <!--                                                            <input type="radio" id="push_style_popup" name="push_style" value="popup" <?=($push_info["type"]=="popup"?"checked":"")?>>-->
+                                        <!--                                                            <label for="push_style_popup">-->
+                                        <!--                                                                <span>팝업</span>-->
+                                        <!--                                                            </label>-->
+                                        <!--                                                        </div>-->
+
+                                        <!--                                                    </div>-->
+                                        <!--                                                </div>-->
+                                        <!--                                            </td>-->
+                                        <!--                                        </tr>-->
+
+                                        <!--                                        <tr>-->
+                                        <!--                                            <th scope="row">-->
+                                        <!--                                                <span>*</span>지역-->
+                                        <!--                                            </th>-->
+                                        <!--                                            <td>-->
+                                        <!--                                                <div class="input_box_100_wrap">-->
+                                        <!--                                                    <select name="addr" class="form-control" id="addr">-->
+                                        <!--                                                        <option value="">전국</option>-->
+                                        <!--                                                        <option value="서울">서울</option>-->
+                                        <!--                                                        <option value="경기">경기</option>-->
+                                        <!--                                                        <option value="인천">인천</option>-->
+                                        <!--                                                        <option value="부산">부산</option>-->
+                                        <!--                                                        <option value="대전">대전</option>-->
+                                        <!--                                                        <option value="대구">대구</option>-->
+                                        <!--                                                        <option value="광주">광주</option>-->
+                                        <!--                                                        <option value="울산">울산</option>-->
+                                        <!--                                                        <option value="세종">세종</option>-->
+                                        <!--                                                        <option value="강원">강원</option>-->
+                                        <!--                                                        <option value="경남">경남</option>-->
+                                        <!--                                                        <option value="경북">경북</option>-->
+                                        <!--                                                        <option value="충남">충남</option>-->
+                                        <!--                                                        <option value="충북">충북</option>-->
+                                        <!--                                                        <option value="전남">전남</option>-->
+                                        <!--                                                        <option value="전북">전북</option>-->
+                                        <!--                                                        <option value="제주">제주</option>-->
+                                        <!--                                                    </select>-->
+                                        <!--                                                </div>-->
+                                        <!--                                                &lt;!&ndash; placeholder="PUSH제목을 입력해주세요." value="<?=$push_info["title"]?>" &ndash;&gt;-->
+                                        <!--                                            </td>-->
+                                        <!--                                        </tr>-->
+
+                                        <tr>
+                                            <th scope="row">
+                                                <span>*</span>PUSH 제목
+                                            </th>
+                                            <td>
+                                                <div class="form_div_wrap">
+                                                    <div class="input_box_100_wrap">
+                                                        <input type="text" name="title" class="form-control" id="title" placeholder="PUSH제목을 입력해주세요." value="<?=$push_info["title"]?>">
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr class="tr_contents">
+                                            <th scope="row">
+                                                <span>*</span>PUSH 내용
+                                            </th>
+                                            <td>
+                                                <div class="form_div_wrap">
+                                                    <div class="input_box_100_wrap">
+                                                        <input type="text" name="msg" class="form-control" id="msg" placeholder="PUSH내용을 입력해주세요." value="<?=$push_info["msg"]?>">
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <!--                                        <tr class="tr_img_url">-->
+                                        <!--                                            <th scope="row">-->
+                                        <!--                                                <span>*</span>내용 이미지 등록-->
+                                        <!--                                            </th>-->
+                                        <!--                                            <td>-->
+                                        <!--                                                <div class="file_img_all_wrap">-->
+                                        <!--                                                    <div class="file_img_wrap">-->
+                                        <!--                                                        <input type="file" name="filename" id="filename" class="form-control file_input" value="">-->
+                                        <!--                                                        <label for="filename">-->
+                                        <!--                                                            <img src="<?=$push_info["filename"]?>" onerror="this.src='<?=THEME_SKIN_URL?>/images/common/file_img.jpg'">-->
+                                        <!--                                                        </label>-->
+                                        <!--                                                    </div>-->
+                                        <!--                                                    <div class="file_btn_wrap">-->
+                                        <!--                                                        <button type="button" class="btn btn-delete">삭제</button>-->
+                                        <!--                                                    </div>-->
+                                        <!--                                                </div>-->
+                                        <!--                                            </td>-->
+                                        <!--                                        </tr>-->
+                                        <tr class="tr_img_url">
+                                            <th scope="row">
+                                                <span>*</span>전송할 사용자
+                                            </th>
+                                            <td>
+                                                <div class="form_div_wrap">
+                                                    <div class="input_box_100_wrap user_search">
+                                                        <input type="hidden" name="m_id" class="form-control" id="m_id" placeholder="" value="">
+                                                        <input type="hidden" name="m_idx" class="form-control" id="m_idx" placeholder="" value="">
+                                                        <input type="text" name="m_name" class="form-control type01" id="m_name" placeholder="전송할 사용자를 등록해주세요." value="">
+                                                        <button class="search"><a href="#">사용자검색</a></button>
+
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <!--                                        <tr class="tr_banner_button_img">-->
+                                        <!--                                            <th scope="row" style="display:none">-->
+                                        <!--                                                <span>*</span>버튼 이미지 등록-->
+                                        <!--                                            </th>-->
+                                        <!--                                            <td style="display:none">-->
+                                        <!--                                                <div class="file_img_all_wrap">-->
+                                        <!--                                                    <div class="file_img_wrap">-->
+                                        <!--                                                        <input type="file" name="banner_button_img" id="banner_button_img" class="form-control file_input" value="">-->
+                                        <!--                                                        <label for="banner_button_img">-->
+                                        <!--                                                            <img src="<?=$push_info["banner_file"]?>" onerror="this.src='<?=THEME_SKIN_URL?>/images/common/file_img.jpg'">-->
+                                        <!--                                                        </label>-->
+                                        <!--                                                    </div>-->
+                                        <!--                                                    <div class="file_btn_wrap">-->
+                                        <!--                                                        <button type="button" class="btn btn-delete">삭제</button>-->
+                                        <!--                                                    </div>-->
+                                        <!--                                                </div>-->
+                                        <!--                                            </td>-->
+                                        <!--                                        </tr>-->
+                                        <!--                                        <tr>-->
+                                        <!--                                            <th scope="row">-->
+                                        <!--                                                PUSH URL-->
+                                        <!--                                            </th>-->
+                                        <!--                                            <td>-->
+                                        <!--                                                <div class="form_div_wrap">-->
+                                        <!--                                                    <div class="input_box_100_wrap">-->
+                                        <!--                                                        <input type="text" name="b_url" class="form-control" id="b_url" placeholder="링크를 입력해주세요." value="<?=$push_info["url"]?>">-->
+                                        <!--                                                    </div>-->
+                                        <!--                                                </div>-->
+                                        <!--                                            </td>-->
+                                        <!--                                        </tr>-->
+                                    </table>
+                                </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table_bottom_btn_wrap">
+                    <button type="button" class="btn btn-primary" id="listSaveBtn">등록하기</button>
+                    <!--button type="button" class="btn btn-preview">미리보기</button-->
+                    <!--                                    <button type="button" class="btn btn-default">취소</button>-->
+                    <button type="button" class="btn btn-default" onclick="go('push.siso?pagenum=<?=$pagenum?>')">취소</button>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function() {
+        if ($("#pop_on").val() == "Y") {
+            $(".popup").addClass("view");
+        } else {
+            $(".popup").removeClass("view");
+        }
+
+        $("#push_app_select").on('change', function() {
+            var app_selectWrap = $(this).closest('.form_div_wrap');
+            app_selectWrap.find(".radio_chk_st_wrap input").prop("checked", false);
+        });
+        $(".push_app_select_wrap").on('click', function() {
+            var app_selectWrap = $(this).closest('.form_div_wrap');
+            app_selectWrap.find(".radio_chk_st_wrap input").prop("checked", false);
+        });
+        $("input[type='radio']").on('change', function() {
+            if ($("#push_style_noti, #push_style_popup").is(':checked')) {
+                $(".tr_img_url").hide();
+            } else {
+                $(".tr_img_url").show();
+            }
+
+
+            if ($("#push_style_front").is(':checked')) {
+                $(".tr_banner_button_img").hide();
+                $(".tr_contents").hide();
+            } else {
+                $(".tr_banner_button_img").show();
+                $(".tr_contents").show();
+            }
+            if ($("#push_send_now").is(':checked')) {
+                $(".tr_repeat").hide();
+                $(".tr_select_day").hide();
+                $(".tr_select_date").hide();
+                $(".tr_select_date_day").hide();
+                $(".tr_select_time").hide();
+            } else {
+                $(".tr_repeat").show();
+                if ($("#repeat_01").is(':checked')) {
+                    $(".tr_select_day").hide();
+                    $(".tr_select_date").show();
+                    $(".tr_select_date_day").hide();
+                    $(".tr_select_time").show();
+                }
+                if ($("#repeat_02").is(':checked')) {
+                    $(".tr_select_day").hide();
+                    $(".tr_select_date").hide();
+                    $(".tr_select_date_day").hide();
+                    $(".tr_select_time").show();
+                }
+                if ($("#repeat_03").is(':checked')) {
+                    $(".tr_select_day").show();
+                    $(".tr_select_date").hide();
+                    $(".tr_select_date_day").hide();
+                    $(".tr_select_time").show();
+                }
+                if ($("#repeat_04").is(':checked')) {
+                    $(".tr_select_day").hide();
+                    $(".tr_select_date").hide();
+                    $(".tr_select_date_day").show();
+                    $(".tr_select_time").show();
+                }
+            }
+        });
+        if ($("#push_style_noti").is(':checked')) {
+            $(".tr_img_url").hide();
+        } else {
+            $(".tr_img_url").show();
+        }
+        if ($("#push_style_front").is(':checked')) {
+            $(".tr_banner_button_img").hide();
+            $(".tr_contents").hide();
+        } else {
+            $(".tr_banner_button_img").show();
+            $(".tr_contents").show();
+        }
+        if ($("#push_send_now").is(':checked')) {
+            $(".tr_repeat").hide();
+            $(".tr_select_day").hide();
+            $(".tr_select_date").hide();
+            $(".tr_select_date_day").hide();
+            $(".tr_select_time").hide();
+        } else {
+            $(".tr_repeat").show();
+            if ($("#repeat_01").is(':checked')) {
+                $(".tr_select_day").hide();
+                $(".tr_select_date").show();
+                $(".tr_select_date_day").hide();
+                $(".tr_select_time").show();
+            }
+            if ($("#repeat_02").is(':checked')) {
+                $(".tr_select_day").hide();
+                $(".tr_select_date").hide();
+                $(".tr_select_date_day").hide();
+                $(".tr_select_time").show();
+            }
+            if ($("#repeat_03").is(':checked')) {
+                $(".tr_select_day").show();
+                $(".tr_select_date").hide();
+                $(".tr_select_date_day").hide();
+                $(".tr_select_time").show();
+            }
+            if ($("#repeat_04").is(':checked')) {
+                $(".tr_select_day").hide();
+                $(".tr_select_date").hide();
+                $(".tr_select_date_day").show();
+                $(".tr_select_time").show();
+            }
+        }
+
+        $('#listSaveBtn').click(function() {
+            saveFn();
+        });
+
+
+
+    });
+
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var thisBumo = $(input).closest('.file_img_all_wrap');
+                thisBumo.find(".file_img_wrap img").attr('src', e.target.result);
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function saveFn() {
+        //alert('w');
+        /*
+        var frm = document.listsaveFrmProcess;
+        var push_style = frm.push_style;
+        var push_send = frm.push_send;
+
+        if (push_style.value == "")
+        {
+            alert('상태설정은 필수 항목입니다.');
+            push_style.focus();
+            return false;
+        }else if (push_send.value == ""){
+            alert('전송시점은 필수 항목입니다.');
+            push_send.focus();
+            return false;
+        }else if (push_style.value == "top"){				//노티일경우
+            if (push_send.value=="direct")				//즉시 전송일때
+            {
+
+            }else{										//예약 전송일때
+                var repeat = frm.repeat;
+                if (repeat.value=="once")				//지정일 전송
+                {
+                    if(checkFormFn('fixday', '날짜 설정') == false) return;
+                }else if (repeat.value=="everyday")
+                {
+                }else if (repeat.value=="everyweek")
+                {
+                }else if (repeat.value=="everymonth")
+                {
+                }
+            }
+            if(checkFormFn('title', 'PUSH 제목') == false) return;
+            if(checkFormFn('msg', 'PUSH 내용') == false) return;
+            ajaxFormSave('listsaveFrmProcess', '/lib/control.siso');
+        }else if (push_style.value == "front"){				//전면일경우
+            if (push_send.value=="direct")				//즉시 전송일때
+            {
+
+            }else{										//예약 전송일때
+                var repeat = frm.repeat;
+                if (repeat.value=="once")				//지정일 전송
+                {
+                    if(checkFormFn('fixday', '날짜 설정') == false) return;
+                }else if (repeat.value=="everyday")
+                {
+                }else if (repeat.value=="everyweek")
+                {
+                }else if (repeat.value=="everymonth")
+                {
+                }
+            }
+            if(checkFormFn('title', 'PUSH 제목') == false) return;
+        }
+        */
+        ajaxFormSave('listsaveFrmProcess', '/lib/control.siso');
+    }
+
+    $(".file_img_wrap .file_input").change(function() {
+        readURL(this);
+    });
+    $(document).on("click", ".file_btn_wrap .btn-delete", function() {
+        if ($("#filename").val()) {
+            if (confirm("삭제하시겠습니까?")) {
+                $(".file_img_wrap img").attr('src', '');
+                $("#filename").val("");
+                alert('삭제되었습니다.');
+            }
+        }
+
+    });
+
+
+    $(".search").on("click", function() {
+        $("#pop_on").val("Y");
+        //$(this).find("[name=pop_on]").val("Y");
+        $(".popup").addClass("view");
+    });
+    $(".popup .close01").on("click", function() {
+        $("#pop_on").val("N");
+        //$(this).find("[name=pop_on]").val("N");
+        $(".popup").removeClass("view");
+    });
+
+
+    function go_member(m_idx, m_id, m_name) {
+        $("input[name=m_idx]").val(m_idx);
+        $("input[name=m_id]").val(m_id);
+        $("input[name=m_name]").val(m_name);
+        $("#pop_on").val("N");
+        $(".popup").removeClass("view");
+        // $("body").removeClass('pop_on');
+        // $('.pop_company_wrap').bPopup().close();
+    }
+
+    function srch_submit(){
+        //alert("a");
+        $("#pop_on").val("Y");
+        var frm = document.frm;
+        frm.submit();
+    }
+
+</script>
+<style type="text/css">
+    .file_img_wrap label img {
+        max-width: 400px;
+    }
+
+</style>

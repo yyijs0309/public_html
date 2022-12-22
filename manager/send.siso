@@ -1,0 +1,15 @@
+<?php
+//require $_SERVER['DOCUMENT_ROOT'].'/lib/global.php';
+//require_once __DIR__.'/vendor/autoload.php';
+
+require_once __DIR__.'/vendor/autoload.php';
+
+//\Telnyx\Telnyx::setApiKey('KEY0172EFE711C0F1DED0A718DABB505FD8_tBmppW9dLMVMvgCH7t1VtI');
+\Telnyx\Telnyx::setApiKey('KEY0172EFE711C0F1DED0A718DABB505FD8_tBmppW9dLMVMvgCH7t1VtI');
+
+$your_telnyx_number = '+13115552368';
+$destination_number = '+8201093212814';
+
+$new_message = \Telnyx\Message::Create(['from' => $your_telnyx_number, 'to' => $destination_number, 'text' => 'Hello, world!']);
+
+?>

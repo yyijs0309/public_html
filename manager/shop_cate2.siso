@@ -1,0 +1,65 @@
+<?php
+require $_SERVER['DOCUMENT_ROOT'].'/lib/global.php';
+
+$auth	=	$thisConnAuth != '' ?  $thisConnAuth : 'root';
+auth_limit($auth);
+//auth_limit($thisConnAuth != '' ?  $thisConnAuth : 'root');
+
+
+$_WHERE	=	" WHERE 1 ";
+$_TAGS	=	"&BCODE=".$BCODE;
+
+if($_ANDWHERE)
+    $_WHERE	.=	$_ANDWHERE;
+//echo "word:".$_REQUEST['word'];exit;
+if($_REQUEST['word']	!=	''){
+    //$_WHERE	.=	" AND ( REPLACE(m_hp, '-', '') like '%".str_replace('-', '', $_REQUEST['word'])."%' or m_id like '%".setOutput($_REQUEST['word'])."%' or m_name like '%".setOutput($_REQUEST['word'])."%' )";
+    $_WHERE	.=	" AND ( REPLACE(scc_cate_name, '-', '') like '%".str_replace('-', '', $_REQUEST['word'])."%')";
+    $_TAGS	.=	'&word='.$_REQUEST['word'];
+}
+
+$_TAGS .= '&options='.$_REQUEST['options'];
+
+$_TABLE			=	'_SHOP_CATE2';
+$_ORDER			=	'ORDER BY scc_regdate desc';
+
+
+$onePageCount	=	20;
+$pagenum		=	$_REQUEST['pagenum'] ? $_REQUEST['pagenum'] : 1;
+$offset			=	($pagenum-1) * $onePageCount;
+$total			=	getValue($_TABLE, $_WHERE, 'CNT', 'COUNT(*) AS CNT');
+$no				=	$total	 -	($pagenum-1) * $onePageCount;
+
+$sql	=
+    "
+    SELECT
+        *
+    FROM
+        ".$_TABLE.$_WHERE.$_ORDER."
+    limit ".$offset.", ".$onePageCount
+;
+//echo "sql:" . $sql; exit;
+$rs		=	query($sql);
+if(rows() > 0){
+    for($i=0; $row = assoc($rs); $i++){
+        $row['num']		=	$no--;
+        $list[]			=	$row;
+    }
+}
+
+if($total > 0)
+    $toalPageCn	=	ceil($total/$onePageCount);
+else
+    $toalPageCn	=	1;
+$paging		=	disPgCount($toalPageCn, $pagenum, $_TAGS, 1);
+
+$_TITLE = "하위 카테고리";
+$_TITLE_SUB = "";
+$_SITE_DESCRIPTION = "하위 카테고리 관리 페이지입니다.";
+
+getSkinSet('_'.str_replace('root', 'adm', $auth).'/', 'form', $PUSANKJS['filename'], 'main', true);
+
+//exit($PSKIN['view_layout']);
+include($PSKIN['view_layout']);
+mysqli_close($DBINFO);
+?>

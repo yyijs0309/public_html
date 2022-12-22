@@ -1,0 +1,51 @@
+<?php
+/*#################################################################################################
+#########	생성일 : 2020-05-11
+#########	만든이 : 황동화
+#########	연락처 :
+#########	이메일 :
+#################################################################################################*/
+require $_SERVER['DOCUMENT_ROOT'].'/lib/global.php';
+auth_limit('root');
+
+require $_SERVER['DOCUMENT_ROOT'].'/lib/global.php';
+
+$auth	=	$thisConnAuth != '' ?  $thisConnAuth : 'root';
+auth_limit($auth);
+
+//변수처리
+$cate = $_REQUEST['cate'];
+$search_order = $_REQUEST['search_order'];  //검색타입
+$word = setOutput($_REQUEST['word']);   //검색 텍스트
+$searchidArr = "c_name##s_service_name";  //검색할 검색어 컬럼명
+$grid_order = $_REQUEST['grid_order'];
+
+//검색어 조건
+$_WHERE = searchboxArr($search_order,$searchidArr,$word);
+if($cate != 'all' && $cate != ''){
+    $_WHERE .= " AND s_service_state = '".$cate."' ";
+}
+$_TABLE	=	'_SERVICE S';
+$_JOIN	=	' LEFT OUTER JOIN _COMPANY C ON C.c_idx = S.s_cidx ';
+$_ORDER	=	"ORDER BY S.s_regdate DESC ";
+
+$onePageCount = 20;
+$pagenum = $_REQUEST['pagenum'] ? $_REQUEST['pagenum'] : 1;
+
+$total = getValue($_TABLE.$_JOIN, $_WHERE, 'CNT', 'COUNT(*) AS CNT',false);
+$no = $total - ($pagenum-1) * $onePageCount;
+
+$list = selectBoard($_TABLE.$_JOIN,$_WHERE,$_ORDER,'S.*, C.*',$no,false);
+
+if($total > 0)
+    $toalPageCn	=	ceil($total/$onePageCount);
+else
+    $toalPageCn	=	1;
+$paging		=	disPgCount($toalPageCn, $pagenum, $_TAGS, 1);
+
+// $getSiteSkin['di_skin'] ='mall'; 
+getSkinSet('_adm/', 'form', $PUSANKJS['filename'], 'main', true);
+include($PSKIN['view_layout']);
+mysqli_close($DBINFO);
+?>
+

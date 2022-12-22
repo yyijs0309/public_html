@@ -1,0 +1,103 @@
+<?
+require $_SERVER['DOCUMENT_ROOT'].'/lib/global.php';
+$thisDateTime	=	date('Y-m-d H:i:s');
+$hourTime		=	date('Y-m-d H', strtotime($thisDateTime));
+$dayTime		=	date('Y-m-d', strtotime($thisDateTime));
+$monthTime		=	date('Y-m', strtotime($thisDateTime));
+$yearTime		=	date('Y', strtotime($thisDateTime));
+
+$visitCnt		=	1;
+
+$isWeb			=	$connectMachine	==	'WEB' ? 1 : 0;
+$isMobile		=	$connectMachine	==	'MOBILE' ? 1 : 0;
+$isApp			=	$connectMachine	==	'APP' ? 1 : 0;
+
+$traffic		=	getVisitFn('MADE', str_replace('WEB@', 'MOBILEAPP@', $agent));
+$os				=	getVisitFn('OS', str_replace('WEB@', 'MOBILEAPP@', $agent));
+//echo $os;exit;
+
+
+$isAndroid		=	strstr($os, 'Android') ? 1 : 0;
+$isIos			=	strstr($os, 'Mac') ? 1 : 0;
+$isWindows		=	strstr($os, 'Windows') ? 1 : 0;
+$isLinux		=	strstr($os, 'Linux') ? 1 : 0;
+$isRobot		=	strstr($os, 'Robot') ? 1 : 0;
+$isEtc			=	(!strstr($os, 'Android') && !strstr($os, 'Mac') && !strstr($os, 'Windows') && !strstr($os, 'Linux') && ! strstr($os, 'Robot')) ? 1 : 0;
+
+$expire			=	strtotime(date('Y-m-d').' 23:59:59');
+//exit($_SERVER['REMOTE_ADDR']);
+//exit($_COOKIE['TRAFFICCHECKING']);
+//echoAr( preg_replace('/.*([^\.]{1,})((\.co)?\.[a-z0-9]{2,})$/Uis', '\\1\\2', $_SERVER['HTTP_HOST']) );
+//echoAr($_COOKIE);
+if($_COOKIE['DBMAKERTRAFFICCHECKING5'] != $_SERVER['REMOTE_ADDR']){
+	//exit('wwww');
+	setCookie('DBMAKERTRAFFICCHECKING5',$_SERVER['REMOTE_ADDR'], $expire, '/',  preg_replace('/.*([^\.]{1,})((\.co)?\.[a-z0-9]{2,})$/Uis', '\\1\\2', $_SERVER['HTTP_HOST']));
+	//$locationInfo	=	locationInfoFn();
+
+	query("
+		insert into 
+			_TRAFFIC 
+		set
+			at_ip			=	'".$_SERVER['REMOTE_ADDR']."'
+			,at_domain		=	'".$getSiteSkin['di_idx']."'
+			,agent			=	'".addslashes($agent)."'
+			,at_site		=	'".addslashes(base64_decode($_GET['local']))."'
+			,at_type		=	'".addslashes($connectMachine)."'
+			
+			/*
+			,at_user_idx	=	'".(int)$_PARTNER_IDX."'
+			,at_user_id		=	'".$_PARTNER_ID."'
+			*/
+			
+			,at_made		=	'".trim(addslashes(getVisitFn('MADE', str_replace('WEB@', 'MOBILEAPP@', $agent))))."'
+			,at_br			=	'".trim(addslashes(getVisitFn('BR', str_replace('WEB@', 'MOBILEAPP@', $agent))))."'
+			,at_os			=	'".trim(addslashes(getVisitFn('OS', str_replace('WEB@', 'MOBILEAPP@', $agent))))."'
+
+			,at_countrycode	=	'".trim(addslashes($locationInfo['countryCode']))."'
+			,at_countryname	=	'".trim(addslashes($locationInfo['countryName']))."'
+			,at_regionname	=	'".trim(addslashes($locationInfo['regionName']))."'
+			,at_cityname	=	'".trim(addslashes($locationInfo['cityName']))."'
+			,at_latitude	=	'".trim(addslashes($locationInfo['latitude']))."'
+			,at_longitude	=	'".trim(addslashes($locationInfo['longitude']))."'
+			,at_regdate		=	'".$thisDateTime."'
+
+			
+	");
+	
+	setCookie('TRAFFICIDX', insert_id(), $expire, '/', '.'.preg_replace('/.*([^\.]{1,})((\.co)?\.[a-z0-9]{2,})$/Uis', '\\1\\2', $_SERVER['HTTP_HOST']));
+	query("delete from _TRAFFIC  where agent like 'WEB@Dalvik/%' ");
+
+
+		
+	$ck	=	getValue("_STATISTICS", " where s_date = curdate() and s_domain_idx = '".(int)$getSiteSkin['di_idx']."' ", 's_idx', 's_idx');
+	if($ck){
+		query("update _STATISTICS set s_visit_cnt = s_visit_cnt+1, s_visit_cnt2 = s_visit_cnt2+1 where s_idx = '".$ck."'  ");
+	}else{
+		query("insert into _STATISTICS set s_visit_cnt = '1', s_visit_cnt2 = '1', s_date = now(), s_domain_idx = '".(int)$getSiteSkin['di_idx']."'");
+	}
+
+	
+}else{
+	//exit('eee');
+	
+	query("
+		update  
+			_TRAFFIC 
+		set
+			at_visit_cnt	=	at_visit_cnt+1
+			,at_modidate	=	'".$thisDateTime."'
+		where 
+			at_idx			=	'".$_COOKIE['TRAFFICIDX']."'
+	");
+
+	$ck	=	getValue("_STATISTICS", " where s_date = curdate() and s_domain_idx = '".(int)$getSiteSkin['di_idx']."'  ", 's_idx', 's_idx');
+	if($ck){
+		query("update _STATISTICS set s_visit_cnt2 = s_visit_cnt2+1 where s_idx = '".$ck."'  ");
+	}else{
+		query("insert into _STATISTICS set s_visit_cnt = '1', s_visit_cnt2 = '1', s_date = now(), s_domain_idx = '".(int)$getSiteSkin['di_idx']."' ");
+	}
+}
+
+
+mysqli_close($DBINFO);
+?>

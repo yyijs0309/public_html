@@ -1,0 +1,293 @@
+<?php
+require $_SERVER['DOCUMENT_ROOT'].'/lib/global.php';
+if($dbControl	==	'duplicationPartnerIDCK'){
+	if(trim($_POST['p_id'])	==	'') exit('{"result":"N","message":"아이디를 입력하시기 바랍니다.","url":""}');
+	//5~20자의 영문 소문자, 숫자와 특수기호(_),(-)만 사용 가능합니다.
+
+	//if(!ctype_alnum(trim($_POST['USERID']))) exit('{"result":"N","message":"영문, 숫자만 입력가능합니다.","url":""}');
+	if(preg_match("/[^0-9a-z_-]+/i", trim($_POST['p_id']))) exit('{"result":"N","message":"영문, 숫자와 특수기호(_),(-)만 입력가능합니다.","url":""}');
+	if(strlen($_POST['p_id']) > 20 || strlen($_POST['p_id']) < 5) exit('{"result":"N","message":"5~20자의 영문 소문자, 숫자와 특수기호(_),(-)만 사용 가능합니다.","url":""}');
+	
+	reserveUserID(trim($_POST['p_id']));
+
+	$ID	=	getValue('_PARTNER', "where 1 and p_id = '".trim($_POST['p_id'])."'  ", 'p_id', 'p_id', false);
+	if($ID){
+		exit('{"result":"N","message":"동일한 아이디가 존재합니다.","url":""}');
+	}else{
+		exit('{"result":"Y","message":"사용가능한 아이디 입니다.","url":""}');
+	}
+}
+
+if($dbControl	==	'partnerEMAILConfirm'){
+	if(trim($_POST['p_email'])	==	'') exit('{"result":"N","message":"이메일을 입력하시기 바랍니다.","url":""}');
+	email_valid(trim($_POST['p_email']));
+	//reserveUserEMAIL(trim($_POST['USEREMAIL']));
+
+	$EMAIL	=	getValue('_PARTNER', "where 1 and p_email = '".trim($_POST['p_email'])."' ", 'p_email', 'p_email');
+	if($EMAIL){
+		exit('{"result":"N","message":"동일한 이메일이 존재합니다.","url":""}');
+	}else{
+		exit('{"result":"Y","message":"사용가능한 이메일 입니다.","url":""}');
+	}
+}
+
+if($dbControl	==	'duplicationMemberIDCK'){
+	if(trim($_POST['m_id'])	==	'') exit('{"result":"N","message":"아이디를 입력하시기 바랍니다.","url":""}');
+	//5~20자의 영문 소문자, 숫자와 특수기호(_),(-)만 사용 가능합니다.
+
+	//if(!ctype_alnum(trim($_POST['USERID']))) exit('{"result":"N","message":"영문, 숫자만 입력가능합니다.","url":""}');
+	if(preg_match("/[^0-9a-z_-]+/i", trim($_POST['m_id']))) exit('{"result":"N","message":"영문, 숫자와 특수기호(_),(-)만 입력가능합니다.","url":""}');
+	if(strlen($_POST['m_id']) > 20 || strlen($_POST['m_id']) < 5) exit('{"result":"N","message":"5~20자의 영문 소문자, 숫자와 특수기호(_),(-)만 사용 가능합니다.","url":""}');
+	
+	reserveUserID(trim($_POST['m_id']));
+
+	//$ID	=	getValue('_MEMBER', "where 1 and m_id = '".trim($_POST['m_id'])."' and m_site = '".$getSiteSkin['di_idx']."' /*and m_class = '".trim(addslashes(setSqlFilter($_POST['CLASS'])))."'*/  ", 'm_id', 'm_id', false);
+    $ID	=	getValue('_MEMBER', "where 1 and m_id = '".trim($_POST['m_id'])."' ", 'm_id', 'm_id', false);
+	if($ID){
+		exit('{"result":"N","message":"동일한 아이디가 존재합니다.","url":""}');
+	}else{
+		exit('{"result":"Y","message":"사용가능한 아이디 입니다.","url":""}');
+	}
+}
+
+if($dbControl	==	'recomMemberIDCK'){
+    if(trim($_POST['m_recommed_id'])	==	'') exit('{"result":"N","message":"추천인 아이디를 입력하시기 바랍니다.","url":""}');
+
+    $ID	=	getValue('_MEMBER', "where 1 and m_id = '".trim($_POST['m_recommed_id'])."' ", 'm_id', 'm_id', false);
+    if($ID){
+        exit('{"result":"Y","message":"추천인 아이디를 확인하였습니다.","url":""}');
+    }else{
+        exit('{"result":"N","message":"입력하신 아이디를 찾을 수 없습니다.","url":""}');
+    }
+}
+
+/*
+if($dbControl	==	'memberEMAILConfirm'){
+	if(trim($_POST['m_email'])	==	'') exit('{"result":"N","message":"이메일을 입력하시기 바랍니다.","url":""}');
+	email_valid(trim($_POST['m_email']));
+	//reserveUserEMAIL(trim($_POST['USEREMAIL']));
+
+	$EMAIL	=	getValue('_MEMBER', "where 1 and m_email = '".trim($_POST['m_email'])."' ", 'm_email', 'm_email');
+	if($EMAIL){
+		exit('{"result":"N","message":"동일한 이메일이 존재합니다.","url":""}');
+	}else{
+		exit('{"result":"Y","message":"사용가능한 이메일 입니다.","url":""}');
+	}
+}
+*/
+
+if($dbControl	==	'memberEMAILConfirm'){
+	if(trim($_POST['m_email'])	==	'') exit('{"result":"N","message":"이메일을 입력하시기 바랍니다.","url":""}');
+	email_valid(trim($_POST['m_email']));
+	//reserveUserEMAIL(trim($_POST['USEREMAIL']));
+
+	//$EMAIL	=	getValue('_MEMBER', "where 1 and m_email = '".trim($_POST['m_email'])."' and m_site = '".$getSiteSkin['di_idx']."'  ", 'm_email', 'm_email');
+    $EMAIL	=	getValue('_MEMBER', "where 1 and m_email = '".trim($_POST['m_email'])."'  ", 'm_email', 'm_email');
+	if($EMAIL){
+		//exit('{"result":"N","message":"동일한 이메일이 존재합니다.","url":""}');
+		exit('{"result":"N","message":"동일한 이메일이 존재합니다.","url":""}');
+	}else{
+        $rand_num	=	'';
+        for ($i=0; $i<6; $i++) $rand_num .= mt_rand(1,9);
+
+        setSession('_AUTO_MEMBER_OTP_PARAM', $rand_num);
+
+        $_WHERE	=	"";
+        $sql	=	"
+		INSERT INTO 
+			_CERTIFICATION_NUMBER
+		SET 
+			b_email			=	'".$_POST['m_email']."'			
+			, b_otp			=	'".$rand_num."'			
+			, b_regdate		=	now()
+	    ";
+        $rs		=	query($sql);
+        $domain = $getSiteSkin['di_domain'];
+
+	    //메일전송
+        $content = "
+                 <!DOCTYPE html>
+			<html lang=\"en\">
+			<head>
+				<meta charset=\"UTF-8\">
+				<title>sendmail</title> 
+			</head>
+			<body style=\"font-family: 'Noto Sans KR', sans-serif;padding: 0; margin: 0;\">
+				<div class=\"mail_box\"  style=\"margin:0 auto; max-width:720px; padding:25px 0 45px;background:#f1eee8; width:100%;\">
+					<div class=\"wrap\" style=\"padding:0 60px;\">
+						<div class=\"top\">
+							<h1 style=\"text-align:center;margin:0\">
+								<img src=\"http://".$domain."/Form/_guest/basic/images/logo01.png\" alt=\"monkey_vpn\">
+							</h1>
+							<div style=\"text-align:center;font-size:22px;color:#242834;font-weight:600;padding-bottom:30px;border-bottom:1px solid rgba(44,20,6,0.1);\">회원가입 인증하기</div>
+						</div>
+						<div class=\"middle\" style=\"padding:50px 0 40px; font-size:32px;letter-spacing: -0.05em;font-weight: 500;color:#282e47;text-align:center;\">
+							<div>
+								안녕하세요 회원님
+							</div>
+							<div>
+								아래의 <span style=\"font-weight:600;color:#f31d00;\">인증번호를 입력창</span>에 입력해주세요
+							</div>
+						</div>
+						<div style=\"text-align: center; background:#fff;padding:30px 0 40px;font-weight: 600;\">
+							<div style=\"font-size:16px;color:#242834;padding-bottom:10px;letter-spacing: -0.025em;\" >이메일 인증번호 6자리</div>
+							<div style=\"color:#f31d00; ;font-size: 50px;letter-spacing: 0.05em;\">
+									".$rand_num."
+							</div>
+						</div>                            
+					</div>
+				</div>
+			</body>
+		</html>
+            ";
+
+        $sendMail	=	sendMail('회원가입 인증메일' ,$content, $_POST['m_email'], '회원가입 인증메일', true);
+
+		exit('{"result":"Y","message":"사용가능한 이메일 입니다.\n해당 메일로 인증번호를 전송하였습니다.","url":""}');
+	}
+}
+
+if($dbControl	==	'memberEMAILConfirmModify'){
+	//exit('www');
+	if(trim($_POST['m_email'])	==	'') exit('{"result":"N","message":"이메일을 입력하시기 바랍니다.","url":""}');
+	email_valid(trim($_POST['m_email']));
+	//reserveUserEMAIL(trim($_POST['USEREMAIL']));
+
+	$EMAIL	=	getValue('_MEMBER', "where 1 and m_email = '".trim($_POST['m_email'])."' and m_site = '".$getSiteSkin['di_idx']."'  ", 'm_email, m_idx', 'ar');
+	if($EMAIL['m_idx']){
+		
+		if($memberInfo['m_idx']	==	$EMAIL['m_idx']){
+			exit('{"result":"N","message":"기존 이메일이랑 동일합니다.","url":"'.$returnURL.'"}');
+		}else{
+			exit('{"result":"N","message":"해당 이메일은 이미 등록된 이메일주소입니다.\n이메일 주소를 다시 한번 확인하시거나, 다른 이메일주소를 등록하시기 바랍니다.","url":"'.$returnURL.'"}');
+		}
+
+		//exit('{"result":"N","message":"동일한 이메일이 존재합니다.","url":""}');
+		//exit('{"result":"N","message":"동일한 이메일이 존재합니다.\n마케팅몬스터는 통합 아이디로 하나의 아이디로 모든 프로그램 로그인이 가능합니다.\n감사합니다.","url":""}');
+	}else{
+		exit('{"result":"Y","message":"사용가능한 이메일 입니다.","url":""}');
+	}
+}
+
+//인증번호 체크 2020923 by donghwa
+if($dbControl == 'setOTPMemberCheck'){
+
+    $EMAIL = $_REQUEST['m_email'];
+    $OPT = $_REQUEST['m_OTP'];
+    $sql	=
+        "
+		SELECT 
+			*
+		FROM 
+			_CERTIFICATION_NUMBER
+		WHERE b_email = '".$EMAIL."' AND b_otp = '".$OPT."'	
+		  AND TIMESTAMPDIFF(MINUTE, b_regdate , NOW()) < 3	  
+		";
+    $rs		=	query($sql);
+    if(rows() > 0){
+        $list	=	Array();
+        for($i=0; $row = assoc($rs); $i++){
+            $list[]			=	$row;
+        }
+    }
+    $m_OTP = $list[0]['b_otp'];
+    if($m_OTP	!=	$OPT) exit('{"result":"N","message":"인증번호를 잘못 입력하였습니다.\n정확히 입력하시기 바랍니다."}');
+    exit('{"result":"Y","message":"인증번호가 성공적으로 입력되었습니다.\n다른정보를 계속 입력하시기 바랍니다. "}');
+}
+
+if($dbControl	==	'findID'){
+
+    if(trim($_POST['email'])	==	'') exit('{"result":"N","message":"이메일을 입력하시기 바랍니다.","url":""}');
+
+    $id = getValue("_MEMBER","WHERE m_email='".$_POST['email']."'","m_id","m_id");
+    $domain = $getSiteSkin['di_domain'];
+
+    if($id != ""){
+        //메일전송
+        $content = "
+                 <!DOCTYPE html>
+			<html lang=\"en\">
+			<head>
+				<meta charset=\"UTF-8\">
+				<title>sendmail</title> 
+			</head>
+			<body style=\"font-family: 'Noto Sans KR', sans-serif;padding: 0; margin: 0;\">
+				<div class=\"mail_box\"  style=\"margin:0 auto; max-width:720px; padding:25px 0 45px;background:#f1eee8; width:100%;\">
+					<div class=\"wrap\" style=\"padding:0 60px;\">
+						<div class=\"top\">
+							<h1 style=\"text-align:center;margin:0\">
+								<img src=\"http://".$domain."/Form/_guest/basic/images/logo01.png\" alt=\"monkey_vpn\">
+							</h1>
+							<div style=\"text-align:center;font-size:22px;color:#242834;font-weight:600;padding-bottom:30px;border-bottom:1px solid rgba(44,20,6,0.1);\">아이디 찾기</div>
+						</div>
+						<div class=\"middle\" style=\"padding:50px 0 40px; font-size:32px;letter-spacing: -0.05em;font-weight: 500;color:#282e47;text-align:center;\">
+							<div>
+								안녕하세요 회원님!
+							</div>
+							<div>
+								회원님의 아이디는 <span style=\"font-weight:600;color:#f31d00;\">".$id."</span> 입니다.
+							</div>
+						</div>
+					</div>
+				</div>
+			</body>
+		</html>
+            ";
+
+        $sendMail	=	sendMail('아이디 찾기' ,$content, $_POST['email'], '아이디 찾기', true);
+
+        useExit('{"result":"Y","message":"입력하신 메일로 아이디를 전송하였습니다.","url":"idpwfind_01.siso"}');
+    }else{
+        useExit('{"result":"N","message":"가입한 이메일이 아닙니다.\n다시 한번 확인후 입력하여 주세요.","url":""}');
+    }
+}
+
+if($dbControl	==	'findPW'){
+
+    if(trim($_POST['id'])	==	'') exit('{"result":"N","message":"아이디를 입력하시기 바랍니다.","url":""}');
+    if(trim($_POST['hp'])	==	'') exit('{"result":"N","message":"연락처를 입력하시기 바랍니다.","url":""}');
+    if(trim($_POST['email2'])	==	'') exit('{"result":"N","message":"이메일을 입력하시기 바랍니다.","url":""}');
+
+    $pw = getValue("_MEMBER","WHERE m_id='".$_POST['id']."' AND m_hp='".$_POST['hp']."' AND m_email='".$_POST['email2']."'","m_pass","m_pass",false);
+    $domain = $getSiteSkin['di_domain'];
+
+    if($pw != ""){
+        //메일전송
+        $content = "
+                 <!DOCTYPE html>
+			<html lang=\"en\">
+			<head>
+				<meta charset=\"UTF-8\">
+				<title>sendmail</title> 
+			</head>
+			<body style=\"font-family: 'Noto Sans KR', sans-serif;padding: 0; margin: 0;\">
+				<div class=\"mail_box\"  style=\"margin:0 auto; max-width:720px; padding:25px 0 45px;background:#f1eee8; width:100%;\">
+					<div class=\"wrap\" style=\"padding:0 60px;\">
+						<div class=\"top\">
+							<h1 style=\"text-align:center;margin:0\">
+								<img src=\"http://".$domain."/Form/_guest/basic/images/logo01.png\" alt=\"monkey_vpn\">
+							</h1>
+							<div style=\"text-align:center;font-size:22px;color:#242834;font-weight:600;padding-bottom:30px;border-bottom:1px solid rgba(44,20,6,0.1);\">비밀번호 찾기</div>
+						</div>
+						<div class=\"middle\" style=\"padding:50px 0 40px; font-size:32px;letter-spacing: -0.05em;font-weight: 500;color:#282e47;text-align:center;\">
+							<div>
+								안녕하세요 회원님!
+							</div>
+							<div>
+								회원님의 비밀번호는 <span style=\"font-weight:600;color:#f31d00;\">".$pw."</span> 입니다.
+							</div>
+						</div>
+					</div>
+				</div>
+			</body>
+		</html>
+            ";
+
+        $sendMail	=	sendMail('비밀번호 찾기' ,$content, $_POST['email2'], '비밀번호 찾기', true);
+
+        useExit('{"result":"Y","message":"입력하신 메일주소로 비밀번호를 전송하였습니다.","url":"idpwfind_02.siso"}');
+    }else{
+        useExit('{"result":"N","message":"사용자를 찾을수 없습니다.\n다시 한번 확인후 입력하여 주세요.","url":""}');
+    }
+}
+?>

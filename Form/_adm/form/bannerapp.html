@@ -1,0 +1,247 @@
+<style type="text/css">
+
+    .imagebtn {
+        max-width: 100px;
+        cursor: pointer;
+    }
+
+    .img-popup {
+        display:none;
+        max-width:90%;
+        text-align:center;
+        background-color:transparent;
+        box-shadow: none;
+        -webkit-box-shadow: none;
+        border: none;
+    }
+
+    .img-popup .title {
+        position:relative;
+        background-color:#222;
+        color:#fff;
+        padding: 10px;
+        font-size:18px
+    }
+
+    .img-popup .title .b-close {
+        cursor:pointer;
+        position:absolute;
+        right: 10px;
+        top: 5px;
+        font-size:25px
+    }
+
+    .img-view-popup .content {
+        padding: 10px
+    }
+
+    .img-popup .content img {
+        max-width:1000px
+    }
+
+    .table_st_02 .form_div_wrap .btn  {
+        border-radius: 100px;
+    }
+</style>
+<div class="con_head_wrap">
+    <div class="con_head">
+        <h1><?=$_TITLE_SUB ? $SITE_NAME.'-'.$_TITLE_SUB : $SITE_NAME.'-'.$_TITLE?></h1>
+    </div>
+</div>
+<div class="con_body_wrap">
+    <div class="con_body">
+        <div class="con_body_top_form_wrap">
+            <form method="post" name="saveFrmProcess" id="saveFrmProcess" action="" enctype="multipart/form-data">
+                <input type="hidden" name="dbControl" value="setDomainEdit2">
+                <input type="hidden" name="returnUrl" value="f5">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="cloud_box">
+                            <div class="table_form_all_wrap">
+                                <div class="table_form_top">
+                                    <h2>회사정보2</h2>
+                                </div>
+                                <div class="table_form_wrap">
+                                    <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table_st_02">
+                                        <tr>
+                                            <th scope="row">
+                                                배너이미지
+                                            </th>
+                                            <td>
+                                                <div class="file_img_all_wrap">
+                                                    <div class="file_img_wrap">
+                                                        <input type="file" name="di_banner_file" id="di_banner_file" class="form-control file_input" value="">
+                                                        <?php
+													    if(setOutput($list[0]['di_banner_file'])){ ?>
+                                                        <img src="<?=setOutput($list[0]['di_banner_file'])?>" alt="클릭시 확대가능합니다." title="클릭시 확대가능합니다." class="imagebtn">
+                                                        <?php
+													}
+													?>
+                                                    </div>
+                                                    <div class="file_btn_wrap">
+                                                        <label for="di_banner_file">
+                                                            <img src="/Form/_adm/images/common/file_img.jpg" onerror="this.src='/Form/_adm/images/common/file_img.jpg'">
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">
+                                                배너URL
+                                            </th>
+                                            <td>
+                                                <div class="form_div_wrap">
+                                                    <div class="input_box_100_wrap">
+                                                        <input type="text" name="di_banner_url" class="form-control" id="di_banner_url" value="<?=$list[0]['di_banner_url']?>" placeholder="">
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">
+                                                전경코드
+                                            </th>
+                                            <td>
+                                                <div class="form_div_wrap">
+                                                    <div class="input_box_100_wrap">
+                                                        <input type="text" name="di_etc_code" class="form-control" id="di_etc_code" value="<?=$list[0]['di_etc_code']?>" placeholder="">
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="table_bottom_btn_wrap">
+                                    <button type="button" class="btn btn-primary" id="saveBtn">수정</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="img-popup modal-content" id="popupDiv">
+    <div class="title">
+        상세보기
+        <span class="b-close" id="popCloseBtn">×</span>
+    </div>
+    <div class="content">
+        <img src="" class="p-img">
+    </div>
+</div>
+<script>
+    $(document).ready(function(){
+        $("#pstep2").addClass("active");
+
+        $('#saveBtn').click(function(){
+            //if(checkFormFn('di_word', '대표문구') == false) return;
+            //if(checkFormFn('di_ver', '앱버전') == false) return;
+            //if(checkFormFn('di_url', '이용약관') == false) return;
+            //if(checkFormFn('di_personal_information', '개인정보 취급방침') == false) return;
+
+
+            ajaxFormSave('saveFrmProcess', '/lib/control.siso');
+
+        });
+
+        $('.savezone').keypress(function (e) {
+            if(e.which == 13){
+                saveFn();
+                return false;
+            }
+        });
+
+        $('.modifyzone').keypress(function (e) {
+            if(e.which == 13){
+                //alert($(this).attr('modifycode'));return;
+                modifyFn($(this).attr('modifycode'));
+                return false;
+            }
+        });
+
+        $('#listSaveBtn').click(function(){
+            saveFn();
+        });
+    });
+
+    function controlSelect(id, val){
+        switch(val){
+            case 'MODIFY' :
+                var text	=	'수정을';
+                var addMsg	=	'';
+                break;
+
+            case 'DELETE' :
+                var text	=	'삭제를';
+                var addMsg	=	'\n한번 삭제한 데이터는 복구 불가능합니다.';
+                break;
+        }
+
+        if(val	!=	''){
+            if(confirm(text +' 진행하시겠습니까?'+addMsg)){
+                if(val	==	'MODIFY')
+                    modifyFn(id);
+                else if(val	==	'DELETE')
+                    setAjaxPostSend('/lib/control.siso', id, 'setAPPSettingDel', '<?php //=$_CLASS?>');
+            }
+            $('.control_select').val('');
+        }
+    }
+
+    function saveFn(){
+        if(checkFormFn('s_name', '이름') == false) return;
+        if(checkFormFn('s_class', '코드') == false) return;
+
+
+        ajaxFormSave('listsaveFrmProcess', '/lib/control.siso');
+    }
+
+    function modifyFn(id){
+        //alert(id);
+        //if(checkFormFn('c_name'+id, '카테고리명') == false) return;
+        if(checkFormFn('s_name'+id, '이름') == false) return;
+        if(checkFormFn('s_class'+id, '코드') == false) return;
+
+        ajaxFormSave('listsaveFrmProcess'+id, '/lib/control.siso');
+    }
+</script>
+
+
+<script type="text/javascript">
+    $(document).ready(function(){
+
+
+    });
+
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var thisBumo = $(input).closest('.file_img_all_wrap');
+                thisBumo.find(".file_img_wrap > img").attr('src', e.target.result);
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    $(".file_img_wrap .file_input").change(function() {
+        readURL(this);
+    });
+
+    $('.imagebtn').click (function(){
+        var ImageUrl = $(this).attr('src');
+        $('.p-img').attr('src', ImageUrl);
+        $('.img-popup').bPopup({
+            modalClose: true
+            , opacity: 0.8
+            , positionStyle: 'absolute'
+            , speed: 300
+            , transition: 'fadeIn'
+            , transitionClose: 'fadeOut'
+            , zIndex : 99997
+        });
+    });
+</script>

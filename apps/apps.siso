@@ -1,0 +1,59 @@
+<?php
+require $_SERVER['DOCUMENT_ROOT'].'/lib/global.php';
+
+$remoteZoneIs	=	'N';
+$_TITLE		=	'apps';
+$_TITLE_TYPE = apps;
+//$_TITLE_SUB	=	$_TITLE.' 페이지 입니다.';
+$_TITLE_SUB	=	'EPIHAIM';
+
+$BCODE	=	7;
+$getBoardAdmin	=	getValue('_BOARD_ADMIN', " where ba_idx = '".$BCODE."' ");
+$_WHERE	=	" WHERE 1 ";
+$_TAGS	=	"&BCODE=".$BCODE;
+if($_REQUEST['word']	!=	''){
+//    $_WHERE	.=	" AND ".$_REQUEST['keyword']." LIKE '%".$_REQUEST['word']."%' ";
+    $_WHERE	.=	" AND ( REPLACE(b_title, '-', '') like '%".str_replace('-', '', $_REQUEST['word'])."%')";
+    $_TAGS	.=	'&keyword='.$_REQUEST['keyword'];
+    $_TAGS	.=	'&word='.$_REQUEST['word'];
+}
+
+$_TABLE			=	'_BOARD_'.$getBoardAdmin['ba_table'];
+$_ORDER			=	'ORDER BY b_idx DESC';
+
+$onePageCount	=	20;
+$pagenum		=	$_REQUEST['pagenum'] ? $_REQUEST['pagenum'] : 1;
+$offset			=	($pagenum-1) * $onePageCount;
+$total			=	getValue($_TABLE, $_WHERE, 'CNT', 'COUNT(*) AS CNT');
+$no				=	$total	 -	($pagenum-1) * $onePageCount;
+
+$sql	=
+    "
+	SELECT 
+		*
+	FROM 
+		".$_TABLE.$_WHERE.$_ORDER."  
+	limit ".$offset.", ".$onePageCount;
+//echo $sql;exit;
+$rs		=	query($sql);
+if(rows() > 0){
+    for($i=0; $row = assoc($rs); $i++){
+        $row['num']		=	$no--;
+        $row['photo']	=	getValue('_BOARD_FILE', " where bf_board_idx = '".$row['b_idx']."' and bf_board_id = '".$BCODE."' order by bf_rank asc limit 1 ", 'photo', 'concat(bf_dir, bf_file) as photo');
+        $fileSql	=	"select * from   ";
+        $list[]			=	$row;
+    }
+}
+
+if($total > 0)
+    $toalPageCn	=	ceil($total/$onePageCount);
+else
+    $toalPageCn	=	1;
+
+$paging		=	disPgCount($toalPageCn, $pagenum, $_TAGS, 1);
+
+
+getSkinSet('_guest/', 'form/apps', $PUSANKJS['filename'], 'layer', true);
+include($PSKIN['view_layout']);
+mysqli_close($DBINFO);
+?>

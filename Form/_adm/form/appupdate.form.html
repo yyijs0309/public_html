@@ -1,0 +1,104 @@
+<div class="con_head_wrap">
+    <div class="con_head">
+        <h1><?=$_TITLE_SUB ? $SITE_NAME.'-'.$_TITLE_SUB : $SITE_NAME.'-'.$_TITLE?></h1>
+    </div>
+</div>
+<div class="con_body_wrap">
+    <div class="con_body">
+        <div class="con_body_top_form_wrap">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="cloud_box">
+                        <div class="table_form_all_wrap">
+                            <div class="table_form_top">
+                                <h2>업데이트 내용 입력</h2>
+                            </div>
+                            <form method="post" name="saveUpdateFrmProcess" id="saveUpdateFrmProcess" enctype="multipart/form-data">
+                                <?php
+									if($list[0]['a_idx'] == ''){
+								?>
+                                <input type="hidden" name="RETURNURL" value="appupdate.siso?pagenum=<?=$pagenum?>&search_order=<?=$search_order?>&word=<?=$word?>&options=<?=$options?>">
+                                <?php
+									}else{
+								?>
+                                <input type="hidden" name="RETURNURL" value="appupdate.siso?pagenum=<?=$pagenum?>&search_order=<?=$search_order?>&word=<?=$word?>&options=<?=$options?>">
+                                <?php
+									}
+								?>
+                                <input type="hidden" name="dbControl" value="<?=$list[0]['a_idx'] == '' ? 'setVPNUpdate' : 'setVPNUpdate'?>">
+                                <input type="hidden" name="CODE" value="<?=$list[0]['a_idx']?>">
+                                <!--								<input type="hidden" name="RETURNURL" value="<?=str_replace('.form', '', $PUSANKJS['filename'])?>">-->
+
+                                <div class="table_form_wrap">
+                                    <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table_st_02">
+                                        <tr>
+                                            <th scope="row">
+                                                <span>*</span>제목
+                                            </th>
+                                            <td>
+                                                <div class="form_div_wrap">
+                                                    <div class="input_box_100_wrap">
+                                                        <input type="text" name="di_app_ver" id="di_app_ver" class="form-control" placeholder="앱 버전을 입력해주세요." value="<?=$list[0]["di_app_ver"]?>" disabled>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">
+                                                <span>*</span>내용
+                                            </th>
+                                            <td>
+                                                <div class="form_div_wrap">
+                                                    <div class="input_box_100_wrap">
+                                                        <textarea class="form-control" name="di_update_contents" id="di_update_contents"><?=$list[0]["di_update_contents"]?></textarea>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="table_bottom_btn_wrap">
+                                    <button type="button" class="btn btn-primary" id="listSaveBtn">등록하기</button>
+                                    <button type="button" class="btn btn-default" onclick="javascript:history.back();">취소</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+
+    $(document).ready(function(){
+        if(("<?=$list[0]["b_cate"]?>" == "")){
+            $('input[name="b_cate"]').attr("checked", false);
+            $('#app_inmak').attr("checked", true);
+        }
+    });
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var thisBumo = $(input).closest('.banner_img_all_wrap');
+                thisBumo.find(".banner_img_wrap img").attr('src', e.target.result);
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    function saveFn(){
+        ajaxFormSave('saveUpdateFrmProcess', '/lib/control.siso');
+    }
+    $('#listSaveBtn').click(function(){
+        //if(checkFormFn('b_title', '제목') == false) return;
+        //if(checkFormFn('b_contents', '내용') == false) return;
+
+        saveFn();
+    });
+    // $(".banner_img_wrap .file_input").change(function() {
+    // 	readURL(this);
+    // });
+
+</script>
+

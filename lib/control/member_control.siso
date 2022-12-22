@@ -1,0 +1,91 @@
+<?php
+
+	//<editor-fold desc="모바일 사용자등록:setMobileMemberRegi">
+	if($dbControl == 'setMobileMemberRegi'){
+
+		//<editor-fold desc="param">
+		$m_hp               = $_SENDTYPE['hp'];                             //HP
+		$m_uniq			    = $_SENDTYPE["uniq"];							//기기고유값
+		$m_fcm			    = $_SENDTYPE["fcm"];							//푸시키
+		$m_conn			    = $_SENDTYPE["conn"];							//기기종류
+		$m_agent		    = $_SENDTYPE["agent"];							//휴대폰정보
+		//</editor-fold>
+
+		//<editor-fold desc="전화번호 차단처리">
+		$bhp_check   =   getValue("_BLACKLIST", "WHERE b_hp='".trim(addslashes(setSqlFilter(str_replace("-","",str_replace("+82", "0", $m_hp)))))."'","CNT","COUNT(*) CNT");
+		if($bhp_check > 0){useExit('{"result":"N","message":"접속할수 없습니다.관리자에게 문의하세요.","ErrCODE":"m_reg01"}');}
+		//</editor-fold>
+
+		$member_check   =   getValue("_MEMBER","WHERE m_hp='".trim(addslashes(setSqlFilter(str_replace("-","",str_replace("+82", "0", $m_hp)))))."'");
+		$fcm_check   =   getValue("_MEMBER","WHERE m_regi='".trim(addslashes(setSqlFilter($m_fcm)))."'");
+
+		autocommit(false);
+		$m_level = "user";
+		$m_auth_level = "01001000";
+
+		//<editor-fold desc="FCM중복처리">
+		if($fcm_check['m_idx'] != ""){
+			$fcm_sql	=	"
+				UPDATE
+					_MEMBER  
+				SET
+				    m_regi			    =	''
+				WHERE 
+					m_hp     	        =   '".trim(addslashes(setSqlFilter(str_replace("-","",str_replace("+82", "0", $fcm_check['m_hp'])))))."'        
+			";
+			$fcm_rs		=	query($fcm_sql);
+
+			if(!$fcm_rs){
+				mysqlrollback();
+				autocommit(true);
+				useExit('{"result":"N","message":"오류가 발생하였습니다.","ErrCODE":"m_reg03"}');
+			}
+		}
+		//</editor-fold>
+
+		if($member_check['m_idx'] == ''){
+			$sql	=	"
+				INSERT INTO 
+					_MEMBER  
+				SET
+				    m_hp				    =	'".trim(addslashes(setSqlFilter(str_replace("-","",str_replace("+82", "0", $m_hp)))))."'			    
+				    , m_auth_level          =   '".trim(addslashes(setSqlFilter($m_auth_level)))."'			    
+					, m_use_is              =   'Y'
+					, m_site			    =	1
+					, m_level			    =	'".trim(addslashes(setSqlFilter($m_level)))."'
+					, m_regi			    =	'".trim(addslashes(setSqlFilter($m_fcm)))."'
+	                , m_uniq			    =	'".trim(addslashes(setSqlFilter($m_uniq)))."'
+	                , m_agent			    =	'".trim(addslashes(setSqlFilter($m_agent)))."'
+	                , m_ip				    =	'".$connectIP."'
+	                , m_conn			    =	'".trim(addslashes(setSqlFilter($m_conn)))."'
+					, m_regdate             =   now()			
+			";
+			//		echoAr($sql);
+			$rs		=	query($sql);
+			$thisKey=	insert_id();
+		}else{
+			$sql	=	"
+				UPDATE
+					_MEMBER  
+				SET
+				    m_regi			    =	'".trim(addslashes(setSqlFilter($m_fcm)))."'
+				WHERE 
+					m_hp     	        =   '".trim(addslashes(setSqlFilter(str_replace("-","",str_replace("+82", "0", $m_hp)))))."'        
+			";
+			$rs		=	query($sql);
+		}
+
+		if(!$rs){
+			mysqlrollback();
+			autocommit(true);
+			useExit('{"result":"N","message":"오류가 발생하였습니다.","ErrCODE":"m_reg02"}');
+		}
+
+		mysqlcommit();
+		autocommit(true);
+
+		useExit('{"result":"Y","message":"완료"}');
+	}
+	//</editor-fold>
+
+?>

@@ -1,0 +1,254 @@
+<style type="text/css">
+  .input_box_100_wrap iframe {
+    width: 100%!important;
+    min-height: 300px!important;
+  }
+</style>
+
+<script type="text/javascript" src="/Conn/edit/smartEdit_2_0/js/HuskyEZCreator.js" charset="utf-8"></script>
+<div class="con_head_wrap">
+  <div class="con_head">
+    <h1><?=$_TITLE_SUB ? $SITE_NAME.'-'.$_TITLE_SUB : $SITE_NAME.'-'.$_TITLE?></h1>
+  </div>
+</div>
+<div class="con_body_wrap">
+  <div class="con_body">
+    <div class="con_body_top_form_wrap">
+      <div class="row">
+        <div class="col-xs-12">
+          <div class="cloud_box">
+            <div class="table_form_all_wrap">
+              <div class="table_form_top">
+                <h2>상품 정보</h2>
+              </div>
+              <form method="post" name="saveShopFrmProcess" id="saveShopFrmProcess" enctype="multipart/form-data">
+                <input type="hidden" name="RETURNURL" value="shop.siso?pagenum=<?=$pagenum?>&search_order=<?=$search_order?>&search_order2=<?=$search_order2?>&word=<?=$word?>&cate=<?=$cate?>">
+                <input type="hidden" name="dbControl" value="<?=$row['b_idx'] == '' ? 'setShopBoardSend' : 'setShopBoardModify'?>">
+                <input type="hidden" name="CODE" value="<?=$row['b_idx']?>">
+                <input type="hidden" name="BCODE" value="14">
+                <div class="clearfix visible-block">
+                  <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane active" id="lang_kr">
+                      <div class="table_form_wrap">
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table_st_02">
+                        <tr>
+                            <th scope="row">
+                                <span>*</span>베스트상품
+                            </th>
+                            <td>
+                                <div class="form_div_wrap">
+                                    <div class="radio_chk_st_wrap">
+                                        <input type="checkbox" name="b_best_yn" id="b_best_yn" value="Y" <?=($row["b_best_yn"] == 'Y' ) ? 'checked' : '' ?>>
+                                        <label for="b_best_yn"><span>베스트상품</span></label>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                          <tr>
+                            <th scope="row">
+                              <span>*</span>제목
+                            </th>
+                            <td>
+                              <div class="form_div_wrap">
+                                <div class="input_box_100_wrap">
+                                  <input type="text" name="b_title" id="b_title" class="form-control" placeholder="제목을 입력해주세요." value="<?=$row['b_title']?>">
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                            <tr>
+                                <th scope="row">
+                                    <span>*</span>상위 카테고리
+                                </th>
+                                <td>
+                                    <div class="form_div_wrap">
+                                        <div class="search_box_wrap">
+                                            <select class="form-control" name="sc_cate_name" id="sc_cate_name">
+                                                <?php for($i=0; $i < count($list) ; $i++){ ?>
+                                                <option value="<?=setOutput($list[$i]['sc_idx']) ?>" <?php if($row['b_sc_idx'] == $list[$i]['sc_idx'] ) echo 'selected' ?>><?=setOutput($list[$i]['sc_cate_name']) ?></option>
+                                                <?php  } ?>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">
+                                    <span>*</span>하위 카테고리
+                                </th>
+                                <td>
+                                    <div class="form_div_wrap">
+                                        <div class="search_box_wrap">
+                                            <select class="form-control" name="scc_cate_name" id="scc_cate_name">
+                                                <?php for($i=0; $i < count($list_2) ; $i++){ ?>
+                                                <option value="<?=setOutput($list_2[$i]['scc_idx']) ?>" <?php if($row['b_scc_idx'] == $list_2[$i]['scc_idx'] ) echo 'selected' ?>><?=setOutput($list_2[$i]['scc_cate_name']) ?></option>
+                                                <?php  } ?>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">
+                                     <span>*</span>판매금액
+                                </th>
+                                <td>
+                                    <div class="form_div_wrap">
+                                        <div class="input_box_100_wrap">
+                                            <input type="text" name="b_price" id="b_price" class="form-control" placeholder="금액을 입력해주세요." value="<?=$row['b_price']?>" onKeyup="this.value=this.value.replace(/[^0-9]/g,'');"/>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <th scope="row">
+                              <span>*</span>리스트명
+                            </th>
+                            <td>
+                              <div class="form_div_wrap">
+                                <div class="input_box_100_wrap">
+                                  <input type="text" name="b_list_name" id="b_list_name" class="form-control" placeholder="리스트명을 입력해주세요." value="<?=$row['b_list_name']?>">
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr>
+                            <th scope="row">
+                              <span>*</span>내용
+                            </th>
+                            <td>
+                              <div class="form_div_wrap">
+                                <div class="input_box_100_wrap">
+                                  <textarea name="b_contents" id="b_contents"  class="form-control" rows="10"><?=trim(stripslashes($row["b_contents"]))?></textarea>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+						  <tr>
+							<th colspan="2">
+								<p class="red">* 파일첨부 : 5MB 이하로 등록 부탁드립니다. </p>
+								<p class="red">&nbsp;&nbsp;(확장자는 jpeg / png / gif 로만 가능)</p>
+							</th>
+						  </tr>
+                          <tr>
+                              <th scope="row">
+                                  <span>*</span>메인썸네일
+                              </th>
+                              <td>
+                                  <div>
+									  <div class="file_img_all_wrap">
+									  	<div class="file_btn_wrap">
+											<label for="b_img_url">
+												<img src="/Form/_adm/images/common/file_img.jpg" onerror="this.src='/Form/_adm/images/common/file_img.jpg'">
+											</label>
+										</div>
+										<div class="file_img_wrap">
+											<input type="file" name="b_img_url" id="b_img_url" class="form-control file_input" value="<?=$row['b_img_url']?>">
+											<input type="text" id="b_img_url2" value="<?=$row['b_img_url']?>" hidden>
+											<img src="<?=$row['b_img_url']?>" alt="클릭시 확대가능합니다." title="클릭시 확대가능합니다." class="imagebtn" onerror="this.src='/Form/_adm/images/noimg.png'">
+										</div>										
+									</div>
+                                  </div>
+                              </td>
+                          </tr>
+                        </table>
+                      </div>
+                    </div>
+                    <?php  if(trim($getBoardAdmin['ba_file_is'])    ==  'Y'){ ?>
+                    <?php  for($f=1; $f <= trim($getBoardAdmin['ba_file_cnt']); $f++){ ?>
+                    <div class="table_form_wrap">
+                      <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table_st_02">
+                        <tr>
+                          <th scope="row" style="border-top: none;">
+                            <span>*</span>첨부파일 #<?=$f?>
+                          </th>
+                          <td style="border-top: none;">
+							<div class="file_img_all_wrap">
+								<div class="file_btn_wrap">
+									<label for="bf_file_<?=$f?>">
+										<img src="/Form/_adm/images/common/file_img.jpg" onerror="this.src='/Form/_adm/images/common/file_img.jpg'">
+									</label>
+									<button type="button" class="btn btn-delete" onclick="boardDelFn('/lib/control.siso', '<?=$file[$f-1]['bf_idx']?>', 'setBoardFileOneDel', '<?=$file[$f-1]['bf_idx']?>')">삭제</button>
+								</div>
+								<div class="file_img_wrap">
+									<input type="file" name="bf_file_<?=$f?>" id="bf_file_<?=$f?>" class="form-control file_input" value="<?=$file[$f-1]['bf_dir']?>/<?=$file[$f-1]['bf_file']?>">
+									 <input type="hidden" name="bf_idx[<?=$f?>]" id="bf_idx_<?=$f?>" value="<?=$file[$f-1]['bf_idx']?>">
+									<input type="text" id="bf_file2_<?=$f?>" value="<?=$file[$f-1]['bf_dir']?>/<?=$file[$f-1]['bf_file']?>" hidden>
+									<img src="<?=$file[$f-1]['bf_dir']?>/<?=$file[$f-1]['bf_file']?>" alt="클릭시 확대가능합니다." title="클릭시 확대가능합니다." class="imagebtn" onerror="this.src='/Form/_adm/images/noimg.png'">									
+								</div>										
+							</div>
+                          </td>
+                        </tr>
+                      </table>
+                    </div>
+                    <?php  } ?>
+                    <?php  } ?>
+                  </div>
+                </div>
+            <div class="table_bottom_btn_wrap">
+                <?php  if($row["b_idx"] == ''){ ?>
+                <button type="button" class="btn btn-primary" id="listSaveBtn">등록하기</button>
+                <?php  }else{ ?>
+                <button type="button" class="btn btn-primary" id="listSaveBtn">수정하기</button>
+                <?php  } ?>
+              <button type="button" class="btn btn-default" onclick="javascript:history.back();">취소</button>
+            </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script type="text/javascript">
+
+  $(document).ready(function(){
+
+    $('#listSaveBtn').click(function(){
+      if(checkFormFn('b_title', '제목') == false) return;
+      if(checkFormFn('b_contents', '내용') == false) return;
+      if(checkFormFn('sc_cate_name', '상위카테고리') == false) return;
+      if(checkFormFn('b_price', '판매금액') == false) return;
+      if(checkFormFn('b_list_name', '리스트명') == false) return;
+      saveFn();
+    });
+
+  });
+
+  function readURL(input) {
+    if (input.files && input.files[0]) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var thisBumo = $(input).closest('.banner_img_all_wrap');
+        thisBumo.find(".banner_img_wrap img").attr('src', e.target.result);
+      }
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+
+  function saveFn(){
+    ajaxFormSave('saveShopFrmProcess', '/lib/control.siso');
+  }
+
+  function boardDelFn(path, code, control, val){
+    if(confirm('삭제하시겠습니까?\n한번 삭제한 데이터는 복구 불가능합니다.')){
+      setAjaxPostSend(path, code, control, val);
+    }
+  }
+
+  $(function(){
+      var so = $("b_cate").val();
+      if(so == 'b_cate'){
+          $(".search_order2").show();
+      }
+      $("b_cate").change(function(){
+          var so = $("b_cate").val();
+          if(so == 'b_cate'){
+              $(".search_order2").show();
+          }else {
+              $(".search_order2").hide();
+          }
+      });
+  });
+</script>

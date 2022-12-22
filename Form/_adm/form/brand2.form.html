@@ -1,0 +1,132 @@
+<style type="text/css">
+    .input_box_100_wrap iframe {
+        width: 100%!important;
+        min-height: 300px!important;
+    }
+    .form_div_wrap > div.input_box_wrap {
+        width: auto;
+        float: none;
+        max-width: 550px;
+    }
+</style>
+
+<script type="text/javascript" src="/Conn/edit/smartEdit_2_0/js/HuskyEZCreator.js" charset="utf-8"></script>
+<div class="con_head_wrap">
+    <div class="con_head">
+        <h1><?=$_TITLE_SUB ? $SITE_NAME.'-'.$_TITLE_SUB : $SITE_NAME.'-'.$_TITLE?></h1>
+    </div>
+</div>
+<div class="con_body_wrap">
+    <div class="con_body">
+        <div class="con_body_top_form_wrap">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="cloud_box">
+                        <div class="table_form_all_wrap">
+                            <div class="table_form_top">
+                                <h2>스토리 내용 입력</h2>
+                            </div>
+                            <form method="post" name="saveBrandProcess" id="saveBrandProcess" enctype="multipart/form-data">
+                                <input type="hidden" name="retrunUrl" value="<?=str_replace('.form', '', $PUSANKJS['filename'])?>">
+                                <input type="hidden" name="dbControl" value="<?=$row['b_idx'] == '' ? 'setBrandInsert_Story' : 'setBrandUpdate_Story'?>">
+                                <input type="hidden" name="CODE" value="<?=$row['b_idx']?>">
+                                <input type="hidden" name="BCODE" value="16">
+                                <div class="clearfix visible-block"></div>
+                                <div class="tab-content">
+                                    <div role="tabpanel" class="tab-pane active" id="lang_kr">
+                                        <div class="table_form_wrap">
+                                            <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table_st_02">
+                                                <!--                                                <?php if($row['b_idx']==''){ ?>-->
+                                                <!--                                                <tr>-->
+                                                <!--                                                    <th scope="row">-->
+                                                <!--                                                        <span>*</span>푸시-->
+                                                <!--                                                    </th>-->
+                                                <!--                                                    <td>-->
+                                                <!--                                                        <div class="form_div_wrap">-->
+                                                <!--                                                            <div class="input_box_50_wrap">-->
+                                                <!--																<div class="radio_chk_st_wrap">-->
+                                                <!--																	<input type="checkbox" name="push_check" id="push_check" value="Y">-->
+                                                <!--																	<label for="push_check">-->
+                                                <!--																		<span>푸시전송</span>-->
+                                                <!--																	</label>-->
+                                                <!--																</div>-->
+                                                <!--                                                                &lt;!&ndash; <input type="checkbox" id="" name="contact" value="">-->
+                                                <!--                                                                <label>푸시전송</label> &ndash;&gt;-->
+                                                <!--                                                                &lt;!&ndash;																	<input type="reset" value="Reset">&ndash;&gt;-->
+                                                <!--                                                            </div>-->
+                                                <!--                                                        </div>-->
+                                                <!--                                                    </td>-->
+                                                <!--                                                </tr>-->
+                                                <!--                                                <?php } ?>-->
+                                                <!--                                                <tr>-->
+                                                <!--                                                    <th scope="row">-->
+                                                <!--                                                        <span>*</span>제목-->
+                                                <!--                                                    </th>-->
+                                                <!--                                                    <td>-->
+                                                <!--                                                        <div class="form_div_wrap">-->
+                                                <!--                                                            <div class="input_box_100_wrap">-->
+                                                <!--                                                                <input type="text" name="b_title" id="b_title" class="form-control" placeholder="이벤트 제목을 입력해주세요." value="<?=$row["b_title"]?>">-->
+                                                <!--                                                            </div>-->
+                                                <!--                                                        </div>-->
+                                                <!--                                                    </td>-->
+                                                <!--                                                </tr>-->
+                                                <tr>
+                                                    <th scope="row">
+                                                        <span>*</span>내용
+                                                    </th>
+                                                    <td>
+                                                        <div class="form_div_wrap">
+                                                            <div class="input_box_100_wrap">
+                                                                <textarea name="b_contents" id="b_contents"  class="form-control" rows="10"><?=trim(stripslashes($row["b_contents"]))?></textarea>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="table_bottom_btn_wrap">
+                                        <?php  if($row["b_idx"] == ''){ ?>
+                                        <button type="button" class="btn btn-primary" id="listSaveBtn">등록하기</button>
+                                        <?php  }else{ ?>
+                                        <button type="button" class="btn btn-primary" id="listSaveBtn">수정하기</button>
+                                        <?php  } ?>
+                                        <button type="button" class="btn btn-default" onclick="javascript:history.back();">취소</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    $(document).ready(function(){
+
+        $('#listSaveBtn').click(function(){
+            // if(checkFormFn('b_title', '제목') == false) return;
+            if(checkFormFn('b_contents', '내용') == false) return;
+            saveFn();
+        });
+
+    });
+
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var thisBumo = $(input).closest('.banner_img_all_wrap');
+                thisBumo.find(".banner_img_wrap img").attr('src', e.target.result);
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function saveFn(){
+        ajaxFormSave('saveBrandProcess', '/lib/control.siso');
+    }
+</script>

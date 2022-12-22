@@ -1,0 +1,88 @@
+<?php
+require $_SERVER['DOCUMENT_ROOT'].'/lib/global.php';
+$or			=	$_GET['or'];
+$file		=	$_GET['file'];
+if(is_file($_SERVER['DOCUMENT_ROOT'].$_GET['file'])){
+    $filesize	=	filesize($_SERVER['DOCUMENT_ROOT'].$_GET['file']);
+}else{
+    exit('NO FILE');
+}
+
+
+if(preg_match("/^utf/i", 'utf-8'))
+	$orginal = urlencode($or);
+else	
+	$orginal = $or;
+
+if(!function_exists('mime_content_type_simple')) {
+   function mime_content_type_simple($filename) {
+	   $idx = strtolower(end( explode( '.', $filename )) );
+	   $mimet = array(    
+		   'ai' =>'application/postscript',
+		   'aif' =>'audio/x-aiff',
+		   'aifc' =>'audio/x-aiff',
+		   'xyz' =>'chemical/x-xyz',
+		   'zip' =>'application/zip',
+		   'xls' =>'application/vnd.ms-excel',
+		   'ppt' =>'application/mspowerpoint',
+		   'doc' =>'application/msword',
+		   'htm' =>'text/html',
+		   'html' =>'text/html',
+		   'eml' =>'message/rfc822',
+		   'txt' =>'text/plain',
+		   'pdf' =>'application/pdf',
+		   'jpg' =>'image/jpeg',
+		   'gif' =>'image/gif',
+		   'png' =>'image/png',
+		   'dwg' =>'application/acad',
+		   'dxf' =>'application/dxf',
+		   'swf' =>'application/x-shockwave-flash'
+	   );
+
+	   if (isset( $mimet[$idx] )) {
+		   return $mimet[$idx];
+	   } else {
+		   return 'application/octet-stream';
+	   }
+   }
+}
+$c_type = mime_content_type_simple($orginal);
+//$filesize = filesize($_SERVER['DOCUMENT_ROOT'].$file);
+//echo $filesize;exit;
+
+if($filesize === NULL){
+	$length = strlen($contents);
+}else{
+	$length = $filesize;
+}
+
+//echo 'length : '.$length;exit;
+if(strstr($_SERVER['HTTP_USER_AGENT'],"MSIE 5.5")){
+	header("Content-Type: doesn/matter\r\n");
+	header("Content-Disposition: filename=\"$orginal\"\r\n\r\n");
+	header("Content-Length: ".$length."\r\n");
+	header("Content-Transfer-Encoding: binary\r\n");
+}else{
+	header("Content-Type: $c_type\r\n");
+	header("Content-Disposition: attachment; filename=\"$orginal\"\r\n\r\n");
+	header("Content-Length: ".$length."\r\n");
+	header("Content-Transfer-Encoding: binary\r\n");
+}	// if()
+
+$files = $_SERVER['DOCUMENT_ROOT'].$file;
+//echo $files;exit;
+if(is_file($files)){	//파일이 존재하는가 check
+	$fp = fopen($files, 'rb');
+	
+	if(!fpassthru($fp)){
+		fclose($fp);
+		exit(true);
+	}else{
+		exit('NO.');
+	}
+	exit(true);
+}else{	 //파일이 미존재시
+	exit('NO FILE');
+}
+///$down	=	download($file, $filetype1, $save_dir_pds, $or);
+?>

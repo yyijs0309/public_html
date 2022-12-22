@@ -1,0 +1,187 @@
+<div class="con_head_wrap">
+    <div class="con_head">
+        <h1><?=$_TITLE_SUB ? $SITE_NAME.'-'.$_TITLE_SUB : $SITE_NAME.'-'.$_TITLE?></h1>
+    </div>
+</div>
+<div class="con_body_wrap">
+    <div class="con_body">
+        <div class="con_body_top_form_wrap">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="cloud_box">
+                        <div class="table_form_all_wrap">
+                            <div class="table_form_top">
+                                <h2>게시판 내용 입력</h2>
+                            </div>
+                            <form method="post" name="saveFreeFrmProcess" id="saveFreeFrmProcess" enctype="multipart/form-data">
+                                <input type="hidden" name="dbControl" value="<?=$row["b_idx"] == '' ? 'setBoardSend_new' : 'setBoardModify'?>">
+                                <input type="hidden" name="CODE" value="<?=$row["b_idx"]?>">
+                                <input type="hidden" name="BCODE" value="<?=$BCODE?>">
+                                <input type="hidden" name="b_class" value="KR">
+                                <?php
+									if($row['b_idx'] == ''){
+								?>
+                                <input type="hidden" name="RETURNURL" value="review.siso?pagenum=<?=$pagenum?>&search_order=<?=$search_order?>&word=<?=$word?>&cate=<?=$cate?>&options=<?=$options?>&date_from=<?=$date_from?>&date_to=<?=$date_to?>">
+                                <?php
+									}else{
+								?>
+                                <input type="hidden" name="RETURNURL" value="review.siso?pagenum=<?=$pagenum?>&search_order=<?=$search_order?>&word=<?=$word?>&cate=<?=$cate?>&options=<?=$options?>&date_from=<?=$date_from?>&date_to=<?=$date_to?>">
+                                <?php
+									}
+								?>
+
+
+                                <div class="table_form_wrap">
+                                    <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table_st_02">
+                                        <tr>
+                                            <th scope="row">
+                                                <span>*</span>작성일
+                                            </th>
+                                            <td>
+                                                <div class="form_div_wrap">
+                                                    <div class="input_box_100_wrap">
+                                                        <input type="text" name="b_regdate" id="b_regdate" class="form-control" value="<?=$row["b_regdate"] ? $row["b_regdate"] : date('Y-m-d')?>" readonly>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">
+                                                <span>*</span>작성자
+                                            </th>
+                                            <td>
+                                                <div class="form_div_wrap">
+                                                    <div class="input_box_100_wrap">
+                                                        <input type="text" name="b_name" id="b_name" class="form-control" value="<?=$row["b_name"] ? $row["b_name"] :trim(addslashes(setSqlFilter($partnerInfo['p_name'] ? $partnerInfo['p_name'] : $memberInfo['m_name'])))?>" >
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">
+                                                <span>*</span>제목
+                                            </th>
+                                            <td>
+                                                <div class="form_div_wrap">
+                                                    <div class="input_box_100_wrap">
+                                                        <input type="text" name="b_title" id="b_title" class="form-control" placeholder="게시물 제목을 입력해주세요." value="<?=$row["b_title"]?>">
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">
+                                                <span>*</span>내용
+                                            </th>
+                                            <td>
+                                                <div class="form_div_wrap">
+                                                    <div class="input_box_100_wrap">
+                                                        <!--													<textarea class="form-control" name="b_contents" id="b_contents"><?=$row["b_contents"]?></textarea>-->
+                                                        <textarea name="b_contents" id="b_contents"  class="form-control" rows="10"><?=stripslashes($row["b_contents"] ? $row["b_contents"] : ($getBoardAdmin['ba_style'].($getBoardAdmin['ba_sign'] ? ('<p><br><br>'.$getBoardAdmin['ba_sign']) : '')))?></textarea>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <?php  if($getBoardAdmin['ba_reply_is']	==	'A' && $row["b_title"] != ''){ ?>
+                                        <tr>
+                                            <th scope="row">
+                                                답변
+                                            </th>
+                                            <td>
+                                                <div class="form_div_wrap">
+                                                    <div class="input_box_100_wrap">
+                                                        <textarea name="b_reply" id="b_reply"  class="form-control tinymce" rows="10"><?=stripslashes($row["b_reply"] ? $row["b_reply"] : ($getBoardAdmin['ba_style'].($getBoardAdmin['ba_sign'] ? ('<p><br><br>'.$getBoardAdmin['ba_sign']) : '')))?></textarea>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <?php  } ?>
+
+                                        <?php  if(trim($getBoardAdmin['ba_file_is'])	==	'Y'){ ?>
+                                        <?php  for($f=1; $f <= trim($getBoardAdmin['ba_file_cnt']); $f++){ ?>
+                                        <tr>
+                                            <th scope="row">
+                                                내용 이미지 등록
+                                            </th>
+                                            <td>
+                                                <div class="banner_img_all_wrap">
+                                                    <div class="banner_img_wrap">
+                                                        <input type="hidden" name="bf_idx[<?=$f?>]" id="bf_idx_<?=$f?>" value="<?=$file[$f-1]['bf_idx']?>">
+                                                        <input type="file" name="bf_file_<?=$f?>" id="bf_file_<?=$f?>" value="" class="form-control">
+                                                        <?php  if($file[$f-1]['bf_file']){ ?>
+
+                                                        <div class="pre_file">
+                                                            ※기존 파일 :
+                                                            <a href='<?=$file[$f-1]['bf_dir']?>/<?=$file[$f-1]['bf_file']?>' target="_blank"><?=$file[$f-1]['bf_file_org']?></a>
+<!--                                                            <button type="button" class="btn btn-delete">삭제</button>-->
+                                                            <button type="button" class="btn btn-delete" onclick="boardDelFn('/lib/control.siso', '<?=$file[$f-1]['bf_idx']?>', 'setBoardFileOneDel', '<?=$file[$f-1]['bf_idx']?>')">삭제</button>
+                                                        </div>
+                                                        <?php  } ?>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <?php  } ?>
+                                        <?php  } ?>
+                                    </table>
+                                </div>
+                                <div class="table_bottom_btn_wrap">
+                                    <button type="button" class="btn btn-primary" id="listSaveBtn">등록하기</button>
+                                    <button type="button" class="btn btn-default" onclick="javascript:history.back();">취소</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+
+    $(document).ready(function(){
+        if(("<?=$row["b_cate"]?>" == "")){
+            $('input[name="b_cate"]').attr("checked", false);
+            $('#board_free').attr("checked", true);
+        }
+    });
+
+
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var thisBumo = $(input).closest('.banner_img_all_wrap');
+                thisBumo.find(".banner_img_wrap img").attr('src', e.target.result);
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    function saveFn(){
+        ajaxFormSave('saveFreeFrmProcess', '/lib/control.siso');
+    }
+    $('#listSaveBtn').click(function(){
+        if(checkFormFn('b_title', '제목') == false) return;
+        if(checkFormFn('b_contents', '내용') == false) return;
+
+        saveFn();
+    });
+
+    function boardDelFn(path, code, control, val){
+        if(confirm('삭제하시겠습니까?\n한번 삭제한 데이터는 복구 불가능합니다.')){
+            setAjaxPostSend(path, code, control, val);
+        }
+    }
+
+</script>
+<style type="text/css">
+    .banner_img_wrap input {
+        display: inline-block;
+        width: auto;
+        vertical-align: bottom;
+    }
+    .pre_file {
+        padding: 5px 0
+    }
+</style>
+

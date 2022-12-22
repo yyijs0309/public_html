@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="http://iprodev.github.io/PHP-XML-Sitemap-Generator/xml-sitemap.xsl"?>
+<!-- Created with iProDev PHP XML Sitemap Generator 1.0 http://iprodev.com -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+  <url>
+    <loc>https://terratest.co.kr/</loc>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://terratest.co.kr/apps/apps.siso</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://terratest.co.kr/apps</loc>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://terratest.co.kr/UPLOAD/BOARD/APP/2887714546_2TFmcdqn_LIMETV_v4.7.00_apkpure.com.apk</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>

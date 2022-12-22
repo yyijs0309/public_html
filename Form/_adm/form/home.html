@@ -1,0 +1,69 @@
+<script type="text/javascript">
+	getNotificationPermission();
+</script>
+<div class="con_head_wrap">
+	<div class="con_head">
+		<h1><?=$_TITLE_SUB ? $SITE_NAME.'-'.$_TITLE_SUB : $SITE_NAME.'-'.$_TITLE?></h1>
+	</div>
+</div>
+<?php
+	if($memberInfo['m_auth_level'] != '01000400'){
+?>
+<div class="con_body_wrap">
+	<div class="con_body">
+		<div class="con_body_top_info_wrap">
+			<div class="row">
+				<div class="col-sm-6 col-lg-3">
+					<div class="cloud_box">
+						<div class="plate_box plate_box_01">
+							<div class="plate_box_label">
+								총가입자
+								<a href="/manager/member.siso?BCODE=&keyword=m_id&word=&cate=all" class="plate_box_target" title="바로가기">
+									바로가기
+								</a>
+							</div>
+							<!--							<div class="plate_box_stock">-->
+							<!--								<span class="plate_box_stock_label">-->
+							<!--									전일 대비-->
+							<!--								</span>-->
+							<!--								<span class="stock_down">6</span>-->
+							<!--							</div>-->
+							<div class="plate_box_info">
+								<b><?=$memberalllist[0]['COUNT']?></b><span>명</span>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-sm-6 col-lg-3">
+					<div class="cloud_box">
+						<div class="plate_box plate_box_02">
+							<div class="plate_box_label">
+								신규가입자
+								<a href="/manager/member.siso?BCODE=&keyword=m_id&word=&cate=todayjoin" class="plate_box_target" title="바로가기">
+									바로가기
+								</a>
+							</div>
+							<!--							<div class="plate_box_stock">-->
+							<!--								<span class="plate_box_stock_label">-->
+							<!--									전일 대비-->
+							<!--								</span>-->
+							<!--								<span class="stock_up">38</span>-->
+							<!--							</div>-->
+							<div class="plate_box_info">
+								<b><?=$membertodaylist[0]['COUNT']?></b><span>명</span>
+							</div>
+						</div>
+					</div>
+				</div>
+
+
+			</div>
+		</div>
+
+
+	</div>
+</div>
+<?php
+	}
+?>
+

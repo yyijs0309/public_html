@@ -1,0 +1,30 @@
+<?php
+	require $_SERVER['DOCUMENT_ROOT'].'/lib/global.php';
+
+	$auth	=	$thisConnAuth != '' ?  $thisConnAuth : 'root';
+	menu_auth_limit($MCODE,$auth);
+
+	$BCODE = "16";
+	$getBoardAdmin	=	getValue('_BOARD_ADMIN',"WHERE ba_idx = '".$BCODE."' ");
+
+	$_where	=   " WHERE 1 ";
+	$_where .=  " AND b_idx = '".$_REQUEST['CODE']."' ";
+	$_table =   "_BOARD_".$getBoardAdmin['ba_table'];
+
+	if($CODE!=""){
+		$row    =   getValue("_BOARD_BRAND2","WHERE b_idx=".$CODE." ");
+		if($row['b_idx'] == ""){useExit('{"result":"N","message":"게시물을 확인하지 못하였습니다."}');}
+
+
+	}
+
+	$_TITLE = "브랜드 스토리 작성";
+	$_TITLE_SUB = "";
+	$_SITE_DESCRIPTION = "브랜드 스토리 작성페이지입니다.";
+
+	getSkinSet('_'.str_replace('root', 'adm', $auth).'/', 'form', $PUSANKJS['filename'], 'main', true);
+
+	//exit($PSKIN['view_layout']);
+	include($PSKIN['view_layout']);
+	mysqli_close($DBINFO);
+?>

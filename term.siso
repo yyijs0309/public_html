@@ -1,0 +1,21 @@
+<?php
+	require $_SERVER['DOCUMENT_ROOT'].'/lib/global.php'; 
+	//echoAr($getSiteSkin);
+?>
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>개인정보 취급방침</title>
+</head>
+<body>
+	<form>
+	  <fieldset>
+		<legend style="font-weight:bold; font-size:20px; text-align:center;">개인정보취급방침</legend>
+개인정보취급방침<br>
+<br>
+<?=str_replace(array('{sitename}', '{domain}', '{money}'), array($getSiteSkin['di_site_name'], 'http://'.$connUrlDomain, number_format($getSiteSkin['di_sve_price']/1.1)), str_replace("\n", "<br>", setOutput(getValue('_DOMAIN_INFO', "where di_idx = '1' ", 'di_personal_information', 'di_personal_information'))))?>
+	  </fieldset>
+	</form>
+</body>
+</html>

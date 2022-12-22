@@ -1,0 +1,2443 @@
+    <?php
+
+    require $_SERVER['DOCUMENT_ROOT'].'/lib/global.php';
+    use ElephantIO\Client as Elephant;
+
+    //<editor-fold desc="관리자로그인:setLoginCk">
+    if($dbControl	==	'setLoginCk'){
+
+        $_LEVELS	=	$_REQUEST['setLevel'];
+
+        $locationUrl	=	_ADMIN_URL;
+
+        if($_LEVELS	==	'user'){
+            $locationUrl	=	_USER_URL;
+        }
+
+        $_ID	=	$_POST['p_id'];
+        $_PW	=	$_POST['p_pass'];
+
+        $ambr		=	getValue('_MEMBER', "WHERE m_pass='".trim(addslashes(setSqlFilter($_PW)))."' AND m_id='".$_ID."' AND (m_level='".$_LEVELS."' OR m_level='super' ) AND m_use_is='Y'", 'ar', 'm_idx, m_level, m_id, m_pass, m_auth_level',false);
+
+        if($ambr	!=	''){
+
+            $MEMIDX		=	$ambr['m_idx'];
+            $AUTHLEVEL  =   $ambr['m_auth_level'];
+
+            $_SET_LEVEL	=	9;
+            if($ambr['m_level']	==	'super')
+                $_SET_LEVEL	=	10;
+
+            if($ambr['m_level']	==	'user')
+                $_SET_LEVEL	=	1;
+
+            setSession('_IDX', $MEMIDX);
+            setSession('_LEVEL', $_SET_LEVEL);
+            setSession('_AUTH_LEVEL', $AUTHLEVEL);
+            setCookie('_LEVEL', $_SET_LEVEL, time()+2678400, '/', 'home.siso');
+
+            useExit('{"result":"Y","message":"'.$MEMIDX.'","url":"'.$locationUrl.'"}');
+        }else{
+            useExit('{"result":"N","message":"=======잘못된 정보입니다=======\n'.$securityTxtMent.'아이디와 비밀번호를 다시 확인해주세요.\n\n\n이 문제는 다음과 같은 원인이 있을수도 있습니다.\n- 대소문자 구분을 잘못한 경우.\n- 한/영이 변경된 경우.\n- 회원 탈퇴한 경우.\n- 관리자가 상태를 변경한 경우.\n- 입금 확인이 되지 않았을 경우."}');
+        }
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="공용게시판 파일 삭제:setBoardFileOneDel">
+    if($_POST['dbControl'] == 'setBoardFileOneDel'){
+
+        if($CODE==""){useExit('{"result":"N","message":"CODE값이 없습니다."}');}
+
+        $row	=	getValue('_BOARD_FILE', "WHERE bf_idx=".$CODE." ");
+        if($row['bf_file']==""){useExit('{"result":"N","message":"file을 확인하지 못하였습니다."}');}
+
+        $rs	=	query("DELETE FROM _BOARD_FILE WHERE bf_idx=".$row['bf_idx']." ");
+
+        if($rs){
+            @unlink($_SERVER['DOCUMENT_ROOT'].'/'.$row['bf_dir'].'/'.$row['bf_file']);
+
+            useExit('{"result":"Y","message":"성공적으로 삭제 완료되었습니다.","url":"f5"}');
+        }else{
+            useExit('{"result":"N","message":"일시적 오류입니다.","url":""}');
+        }
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="메뉴추가:setMenuInsert">
+    if($dbControl == 'setMenuInsert'){
+
+        //변수등록
+        $m_menu_id               = $_POST['m_menu_id'];               //메뉴id
+        $m_menu_name             = $_POST['m_menu_name'];             //메뉴명
+        $m_menu_order            = $_POST['m_menu_order'];            //메뉴출력순서
+        $m_menu_url              = $_POST['m_menu_url'];              //메뉴url
+        $m_menu_file             = $_POST['m_menu_file'];             //메뉴file
+        $m_menu_class            = $_POST['m_menu_class'];            //메뉴class
+        $m_menu_state            = $_POST['m_menu_state'];            //메뉴state
+
+        $m_menu_folder           = $_POST['m_menu_folder'];           //상위폴더여부
+        $m_menu_main_name        = $_POST['m_menu_main_name'];        //폴더명
+        $m_menu_main_id          = $_POST['m_menu_main_id'];          //상위메뉴ID
+        $m_menu_depth            = $_POST['m_menu_depth'];            //메뉴depth
+
+        //메뉴id중복체크
+        $menu_check = getValue('_MENU','where m_menu_id="'.$m_menu_id.'"','ar','*');
+        if(count($menu_check) > 0){
+            useExit('{"result":"N","message":"메뉴ID가 중복입니다.","url":""}');
+        }
+
+        $sql	=	"
+            INSERT INTO 
+                _MENU
+            SET 
+                m_menu_id				=	'".trim(addslashes(setSqlFilter($m_menu_id)))."'
+                , m_menu_name			=	'".trim(addslashes(setSqlFilter($m_menu_name)))."'
+                , m_menu_order			=	'".trim(addslashes(setSqlFilter($m_menu_order)))."'
+                , m_menu_url			=	'".trim(addslashes(setSqlFilter($m_menu_url)))."'
+                , m_menu_file			=	'".trim(addslashes(setSqlFilter($m_menu_file)))."'
+                , m_menu_class			=	'".trim(addslashes(setSqlFilter($m_menu_class)))."'
+                , m_menu_state			=	'".trim(addslashes(setSqlFilter($m_menu_state)))."'
+                
+                , m_menu_folder			=	'".trim(addslashes(setSqlFilter($m_menu_folder)))."'
+                , m_menu_main_name		=	'".trim(addslashes(setSqlFilter($m_menu_main_name)))."'
+                , m_menu_main_id		=	'".trim(addslashes(setSqlFilter($m_menu_main_id)))."'
+                , m_menu_depth		    =	'".trim(addslashes(setSqlFilter($m_menu_depth)))."'			
+                
+                , m_regidx			    =	'".trim(addslashes(setSqlFilter($memberInfo['m_idx'])))."'
+                , m_regdate			    =	now()
+        ";
+        $rs		=	query($sql);
+        $thisKey=	insert_id();
+
+        $authsql = "select * from _AUTH ";
+        $authrs = query($authsql);
+
+        for($i=0;$row=assoc($authrs);$i++){
+            $list[] = $row;
+            if($list[$i]['a_idx'] == '1'){
+                $ma_state = 'Y';        //슈퍼관리자는 기본권한 모두 획득
+            }else{
+                $ma_state = 'N';
+            }
+
+            $column = "ma_a_idx##".$list[$i]['a_idx'].",ma_m_idx##".$thisKey.",ma_state##'".$ma_state."'";
+            $column .= ",ma_regidx##".$memberInfo['m_idx'].",ma_regdate##now()";
+            $menuauthrs = insTransactionSingle("_MENU_AUTH",$column);
+        }
+
+        if($rs == 1){
+            useExit('{"result":"Y","message":"성공적으로 등록 완료되었습니다.","url":"'.$retrunUrl.'"}');
+        }else{
+            useExit('{"result":"N","message":"일시적 오류입니다.","url":""}');
+        }
+    }
+    //</editor-fold>
+    //<editor-fold desc="메뉴수정:setMenuUpdate">
+    if($dbControl == 'setMenuUpdate'){
+        //변수등록
+        $m_menu_id               = $_POST['m_menu_id'];               //메뉴id
+        $m_menu_name             = $_POST['m_menu_name'];             //메뉴명
+        $m_menu_order            = $_POST['m_menu_order'];            //메뉴출력순서
+        $m_menu_url              = $_POST['m_menu_url'];              //메뉴url
+        $m_menu_file             = $_POST['m_menu_file'];             //메뉴file
+        $m_menu_class            = $_POST['m_menu_class'];            //메뉴class
+        $m_menu_state            = $_POST['m_menu_state'];            //메뉴state
+
+        $m_menu_folder           = $_POST['m_menu_folder'];           //상위폴더여부
+        $m_menu_main_name        = $_POST['m_menu_main_name'];        //폴더명
+        $m_menu_main_id          = $_POST['m_menu_main_id'];          //상위메뉴ID
+        $m_menu_depth            = $_POST['m_menu_depth'];            //메뉴depth
+
+        $column = "m_menu_name##'".$m_menu_name."',m_menu_order##'".$m_menu_order."'";
+        $column .= ",m_menu_url##'".$m_menu_url."',m_menu_file##'".$m_menu_file."',m_menu_class##'".$m_menu_class."',m_menu_state##'".$m_menu_state."'";
+        $column .= ",m_menu_folder##'".$m_menu_folder."',m_menu_main_name##'".$m_menu_main_name."',m_menu_main_id##'".$m_menu_main_id."',m_menu_depth##'".$m_menu_depth."'";
+        $column .= ",m_editidx##".$memberInfo['m_idx'].",m_editdate##now()";
+        $where = " where idx = " . $_POST['CODE'];
+        $rs = updTransactionSingle("_MENU",$column,$where);
+
+        if($rs == 1){
+            useExit('{"result":"Y","message":"성공적으로 수정이 완료되었습니다.","url":"'.$retrunUrl.'"}');
+        }else{
+            useExit('{"result":"N","message":"일시적 오류입니다.","url":""}');
+        }
+    }
+    //</editor-fold>
+    //<editor-fold desc="메뉴삭제:setMenuDelete">
+    if($dbControl == 'setMenuDelete'){
+        $rs		=	query("delete from _MENU where idx = '".$_POST['CODE']."' ");
+        if($rs == 1){
+            $authrs		=	query("delete from _MENU_AUTH where ma_m_idx = '".$_POST['CODE']."' ");
+            useExit('{"result":"Y","message":"성공적으로 삭제 되었습니다.","url":"f5"}');
+        }else{
+            useExit('{"result":"N","message":"일시적 오류입니다.","url":""}');
+        }
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="공지사항등록:setNoticeBoardSend">
+    if($_POST['dbControl'] == 'setNoticeBoardSend'){
+
+        $getBoardAdmin	=	getValue('_BOARD_ADMIN', " where ba_idx = '".$BCODE."' ");
+
+        $_WHERE	=	"";
+        $sql	=	"
+                INSERT INTO 
+                    _BOARD_".$getBoardAdmin['ba_table']." 
+                SET 
+                    b_cate				=	'".trim(addslashes(setSqlFilter($_POST['b_cate'])))."'
+                    , b_site			=	'".setSqlFilter($getSiteSkin['di_idx'])."'
+                    , b_title			=	'".trim(addslashes(setSqlFilter($_POST['b_title'])))."'
+                    , b_title_en		=	'".trim(addslashes(setSqlFilter($_POST['b_title_en'])))."'
+                    , b_title_cn		=	'".trim(addslashes(setSqlFilter($_POST['b_title_cn'])))."'
+                    , b_title_jp		=	'".trim(addslashes(setSqlFilter($_POST['b_title_jp'])))."'
+                    , b_contents		=	'".trim(addslashes(setSqlFilter($_POST['b_contents'])))."'
+                    , b_contents_en		=	'".trim(addslashes(setSqlFilter($_POST['b_contents_en'])))."'
+                    , b_contents_cn		=	'".trim(addslashes(setSqlFilter($_POST['b_contents_cn'])))."'
+                    , b_contents_jp		=	'".trim(addslashes(setSqlFilter($_POST['b_contents_jp'])))."'
+                    , b_reply			=	'".trim(addslashes(setSqlFilter($_POST['b_reply'])))."'
+                    , b_user_idx		=	'".trim(addslashes(setSqlFilter($partnerInfo['p_idx'] ? $partnerInfo['p_idx'] : $memberInfo['m_idx'])))."'
+                    , b_name			=	'".trim(addslashes(setSqlFilter($_POST['b_name'] ? $_POST['b_name'] : $memberInfo['m_name'])))."'
+                    , b_hits			=	1
+                    , b_notice_is		=	'".trim(addslashes(setSqlFilter($_POST['b_notice_is'] == 'Y' ? 'Y' : 'N')))."'
+                    , b_secret_is		=	'".trim(addslashes(setSqlFilter($_POST['b_secret_is'] == 'Y' ? 'Y' : 'N')))."'
+                    , b_user_level		=	'".trim(addslashes(setSqlFilter($partnerInfo['p_idx'] != '' ? 'PARTNER' : 'ADMIN')))."'
+                    , b_ip				=	'".$connectIP."'
+                    , b_agent			=	'".$agent."'
+                    , b_tag				=	'".$b_tag."'
+                    , b_class			=	'".trim(addslashes(setSqlFilter($_POST['b_class'])))."'
+        
+                    , b_add1			=	'".trim(addslashes(setSqlFilter($_POST['b_add1'])))."'
+                    , b_add2			=	'".trim(addslashes(setSqlFilter($_POST['b_add2'])))."'
+                    , b_add3			=	'".trim(addslashes(setSqlFilter($_POST['b_add3'])))."'
+                    , b_add4			=	'".trim(addslashes(setSqlFilter($_POST['b_add4'])))."'
+                    , b_add5			=	'".trim(addslashes(setSqlFilter($_POST['b_add5'])))."'
+                    , b_add6			=	'".trim(addslashes(setSqlFilter($_POST['b_add6'])))."'
+                    , b_add7			=	'".trim(addslashes(setSqlFilter($_POST['b_add7'])))."'
+                    , b_add8			=	'".trim(addslashes(setSqlFilter($_POST['b_add8'])))."'
+                    , b_add9			=	'".trim(addslashes(setSqlFilter($_POST['b_add9'])))."'
+                    , b_add10			=	'".trim(addslashes(setSqlFilter($_POST['b_add10'])))."'
+                    , b_regdate			=	now()
+            ";
+        $rs		=	query($sql);
+        $thisKey=	insert_id();
+
+        query("UPDATE _BOARD_".$getBoardAdmin['ba_table']."  SET b_parent = '".$thisKey."' WHERE b_idx = '".$thisKey."' ");
+
+        //<editor-fold desc="파일">
+        $FILEINFO	=	array();
+        $_WHERE		=	'';
+        $_DIR		=	'BOARD';
+        $_DIR_DELIM	=	$getBoardAdmin['ba_table'];
+
+        for($f=1; $f <= trim($getBoardAdmin['ba_file_cnt']); $f++){
+
+            $_FILENUM	=	1;
+            $_FILENAME	=	'bf_file_'.$f;
+            if($_FILES[$_FILENAME]['name'] != ''){
+                $FILEINFO['_UPLOADFILE']=	setImgResize($_FILENAME, $_DIR, $_DIR_DELIM);
+
+                $FILEINFO['_DIR']		=	'/UPLOAD/'.$_DIR.'/'.$_DIR_DELIM.'/';
+                $FILEINFO['_FILE']		=	$FILEINFO['_UPLOADFILE'];
+                $FILEINFO['_FILE_ORG']	=	$_FILES[$_FILENAME]['name'];
+                $FILEINFO['_FILE_SIZE']	=	$_FILES[$_FILENAME]['size'];
+
+                $filesql	=	"
+                    INSERT INTO 
+                        _BOARD_FILE 
+                    SET 
+                        bf_board_id		=	'".$BCODE."'
+                        , bf_board_idx	=	'".$thisKey."'
+                        , bf_dir		=	'".$FILEINFO['_DIR']."'
+                        , bf_file		=	'".$FILEINFO['_FILE']."'
+                        , bf_file_org	=	'".$FILEINFO['_FILE_ORG']."'
+                        , bf_file_size	=	'".$FILEINFO['_FILE_SIZE']."'
+                        , bf_contents	=	''
+                        , bf_download	=	0
+                        , bf_rank		=	'".$f."'
+                        , bf_regdate	=	now()
+                ";
+                $filers		=	query($filesql);
+                $_FILENUM++;
+            }
+        }
+        //</editor-fold>
+
+        if($_POST['RETURNURLCONTROL']){
+            $REUTN	=	$_POST['RETURNURLCONTROL'];
+        }else{
+            $REUTN	=	$_POST['RETURNURL'];
+        }
+
+        //<editor-fold desc="토픽푸시">
+        if($_POST['push_check'] == "Y"){
+            $contents_str = mb_substr(trim($_POST['b_contents']),0,50);
+            $receiveId          =   "/topics/".$getBoardAdmin['ba_pushtype'];
+            $message_string = array(
+                'title' => trim($_POST["b_title"]),
+                'idx'=>trim($thisKey),
+                'type' => trim($getBoardAdmin['ba_pushtype']),
+                'body'  => $contents_str
+            );
+            $aa	=	fcm_topic_push($message_string, $getSiteSkin['push_key'], $receiveId);
+        }
+        //</editor-fold>
+
+        $fcm_jsonList = array('result'=>'Y', 'message'=>'성공적으로 등록 완료되었습니다.','url'=>$REUTN);
+        $fcm_json = json_encode( $fcm_jsonList);
+
+        if($rs){
+            useExit($fcm_json);
+        }else{
+            useExit('{"result":"N","message":"일시적 오류입니다.","url":""}');
+        }
+    }
+    //</editor-fold>
+    //<editor-fold desc="공지사항수정:setNoticeBoardModify">
+    if($_POST['dbControl'] == 'setNoticeBoardModify'){
+
+        $getBoardAdmin	=	getValue('_BOARD_ADMIN', " where ba_idx = '".$BCODE."' ");
+
+        $sql	=	"
+                UPDATE  
+                    _BOARD_".$getBoardAdmin['ba_table']." 
+                SET 
+                    b_cate				=	'".trim(addslashes(setSqlFilter($_POST['b_cate'])))."'
+                    , b_site			=	'".setSqlFilter($getSiteSkin['di_idx'])."'
+                    , b_title			=	'".trim(addslashes(setSqlFilter($_POST['b_title'])))."'
+                    , b_title_en		=	'".trim(addslashes(setSqlFilter($_POST['b_title_en'])))."'
+                    , b_title_cn		=	'".trim(addslashes(setSqlFilter($_POST['b_title_cn'])))."'
+                    , b_title_jp		=	'".trim(addslashes(setSqlFilter($_POST['b_title_jp'])))."'
+                    , b_contents		=	'".trim(addslashes(setSqlFilter($_POST['b_contents'])))."'
+                    , b_contents_en		=	'".trim(addslashes(setSqlFilter($_POST['b_contents_en'])))."'
+                    , b_contents_cn		=	'".trim(addslashes(setSqlFilter($_POST['b_contents_cn'])))."'
+                    , b_contents_jp		=	'".trim(addslashes(setSqlFilter($_POST['b_contents_jp'])))."'
+                    , b_reply			=	'".trim(addslashes(setSqlFilter($_POST['b_reply'])))."'
+                    , b_notice_is		=	'".trim(addslashes(setSqlFilter($_POST['b_notice_is'] == 'Y' ? 'Y' : 'N')))."'
+                    , b_secret_is		=	'".trim(addslashes(setSqlFilter($_POST['b_secret_is'] == 'Y' ? 'Y' : 'N')))."'
+                    , b_name			=	'".trim(addslashes(setSqlFilter($_POST['b_name'] ? $_POST['b_name'] : $memberInfo['m_name'])))."'
+                    , b_class			=	'".trim(addslashes(setSqlFilter($_POST['b_class'])))."'
+                    , b_add1			=	'".trim(addslashes(setSqlFilter($_POST['b_add1'])))."'
+                    , b_add2			=	'".trim(addslashes(setSqlFilter($_POST['b_add2'])))."'
+                    , b_add3			=	'".trim(addslashes(setSqlFilter($_POST['b_add3'])))."'
+                    , b_add4			=	'".trim(addslashes(setSqlFilter($_POST['b_add4'])))."'
+                    , b_add5			=	'".trim(addslashes(setSqlFilter($_POST['b_add5'])))."'
+                    , b_add6			=	'".trim(addslashes(setSqlFilter($_POST['b_add6'])))."'
+                    , b_add7			=	'".trim(addslashes(setSqlFilter($_POST['b_add7'])))."'
+                    , b_add8			=	'".trim(addslashes(setSqlFilter($_POST['b_add8'])))."'
+                    , b_add9			=	'".trim(addslashes(setSqlFilter($_POST['b_add9'])))."'
+                    , b_add10			=	'".trim(addslashes(setSqlFilter($_POST['b_add10'])))."'
+                    , b_ip				=	'".$connectIP."'
+                    , b_agent			=	'".$agent."'
+                    , b_tag				=	'".$b_tag."'
+                    , b_modidate		=	now()
+                WHERE 
+                    b_idx				=	'".$CODE."'
+            ";
+        $rs		=	query($sql);
+        $thisKey=	$CODE;
+
+
+        $FILEINFO	=	array();
+        $_WHERE		=	'';
+        $_DIR		=	'BOARD';
+        $_DIR_DELIM	=	$getBoardAdmin['ba_table'];
+        for($f=1; $f <= trim($getBoardAdmin['ba_file_cnt']); $f++){
+            $_FILENUM	=	1;
+            $_FILENAME	=	'bf_file_'.$f;
+            if($_FILES[$_FILENAME]['name'] != ''){
+                $getFileInfo	=	getValue('_BOARD_FILE', " where bf_idx = '".$bf_idx[$f]."' ", 'ar', 'bf_dir, bf_file');
+                @unlink($_SERVER['DOCUMENT_ROOT'].'/'.$getFileInfo['bf_dir'].'/'.$getFileInfo['bf_file']);
+
+                $FILEINFO['_UPLOADFILE']=	setImgResize($_FILENAME, $_DIR, $_DIR_DELIM);
+
+                $FILEINFO['_DIR']		=	'/UPLOAD/'.$_DIR.'/'.$_DIR_DELIM.'/';
+                $FILEINFO['_FILE']		=	$FILEINFO['_UPLOADFILE'];
+                $FILEINFO['_FILE_ORG']	=	$_FILES[$_FILENAME]['name'];
+                $FILEINFO['_FILE_SIZE']	=	$_FILES[$_FILENAME]['size'];
+
+                if($getFileInfo['bf_file']	!=	''){
+                    $filesql	=	"
+                        UPDATE  
+                            _BOARD_FILE 
+                        SET 
+                            bf_dir			=	'".$FILEINFO['_DIR']."'
+                            , bf_file		=	'".$FILEINFO['_FILE']."'
+                            , bf_file_org	=	'".$FILEINFO['_FILE_ORG']."'
+                            , bf_file_size	=	'".$FILEINFO['_FILE_SIZE']."'
+                            , bf_contents	=	''
+                            , bf_download	=	0
+                            , bf_regdate	=	now()
+                        WHERE 
+                            bf_idx			=	'".$bf_idx[$f]."' 
+                    ";
+                }else{
+                    $filesql	=	"
+                        INSERT INTO 
+                            _BOARD_FILE 
+                        SET 
+                            bf_board_id		=	'".$BCODE."'
+                            , bf_board_idx	=	'".$thisKey."'
+                            , bf_dir		=	'".$FILEINFO['_DIR']."'
+                            , bf_file		=	'".$FILEINFO['_FILE']."'
+                            , bf_file_org	=	'".$FILEINFO['_FILE_ORG']."'
+                            , bf_file_size	=	'".$FILEINFO['_FILE_SIZE']."'
+                            , bf_contents	=	''
+                            , bf_download	=	0
+                            , bf_rank		=	'".$f."'
+                            , bf_regdate	=	now()
+                    ";
+                }
+                $filers		=	query($filesql);
+                $_FILENUM++;
+            }
+        }
+
+        if($rs){
+            useExit('{"result":"Y","message":"성공적으로 수정 완료되었습니다.","url":"'.($_POST['RETURNURL']).'"}');
+        }else{
+            useExit('{"result":"N","message":"일시적 오류입니다.","url":""}');
+        }
+    }
+    //</editor-fold>
+    //<editor-fold desc="이벤트등록:setEventBoardSend">
+    if($_POST['dbControl'] == 'setEventBoardSend'){
+
+        $getBoardAdmin	=	getValue('_BOARD_ADMIN', " where ba_idx = '".$BCODE."' ");
+
+        $_WHERE	=	"";
+        $sql	=	"
+                INSERT INTO 
+                    _BOARD_".$getBoardAdmin['ba_table']." 
+                SET 
+                    b_cate				=	'".trim(addslashes(setSqlFilter($_POST['b_cate'])))."'
+                    , b_site			=	'".setSqlFilter($getSiteSkin['di_idx'])."'
+                    , b_title			=	'".trim(addslashes(setSqlFilter($_POST['b_title'])))."'
+                    , b_title_en		=	'".trim(addslashes(setSqlFilter($_POST['b_title_en'])))."'
+                    , b_title_cn		=	'".trim(addslashes(setSqlFilter($_POST['b_title_cn'])))."'
+                    , b_title_jp		=	'".trim(addslashes(setSqlFilter($_POST['b_title_jp'])))."'
+                    , b_contents		=	'".trim(addslashes(setSqlFilter($_POST['b_contents'])))."'
+                    , b_contents_en		=	'".trim(addslashes(setSqlFilter($_POST['b_contents_en'])))."'
+                    , b_contents_cn		=	'".trim(addslashes(setSqlFilter($_POST['b_contents_cn'])))."'
+                    , b_contents_jp		=	'".trim(addslashes(setSqlFilter($_POST['b_contents_jp'])))."'
+                    , b_reply			=	'".trim(addslashes(setSqlFilter($_POST['b_reply'])))."'
+                    , b_user_idx		=	'".trim(addslashes(setSqlFilter($partnerInfo['p_idx'] ? $partnerInfo['p_idx'] : $memberInfo['m_idx'])))."'
+                    , b_name			=	'".trim(addslashes(setSqlFilter($_POST['b_name'] ? $_POST['b_name'] : $memberInfo['m_name'])))."'
+                    , b_hits			=	1
+                    , b_notice_is		=	'".trim(addslashes(setSqlFilter($_POST['b_notice_is'] == 'Y' ? 'Y' : 'N')))."'
+                    , b_secret_is		=	'".trim(addslashes(setSqlFilter($_POST['b_secret_is'] == 'Y' ? 'Y' : 'N')))."'
+                    , b_user_level		=	'".trim(addslashes(setSqlFilter($partnerInfo['p_idx'] != '' ? 'PARTNER' : 'ADMIN')))."'
+                    , b_ip				=	'".$connectIP."'
+                    , b_agent			=	'".$agent."'
+                    , b_tag				=	'".$b_tag."'
+                    , b_class			=	'".trim(addslashes(setSqlFilter($_POST['b_class'])))."'
+        
+                    , b_add1			=	'".trim(addslashes(setSqlFilter($_POST['b_add1'])))."'
+                    , b_add2			=	'".trim(addslashes(setSqlFilter($_POST['b_add2'])))."'
+                    , b_add3			=	'".trim(addslashes(setSqlFilter($_POST['b_add3'])))."'
+                    , b_add4			=	'".trim(addslashes(setSqlFilter($_POST['b_add4'])))."'
+                    , b_add5			=	'".trim(addslashes(setSqlFilter($_POST['b_add5'])))."'
+                    , b_add6			=	'".trim(addslashes(setSqlFilter($_POST['b_add6'])))."'
+                    , b_add7			=	'".trim(addslashes(setSqlFilter($_POST['b_add7'])))."'
+                    , b_add8			=	'".trim(addslashes(setSqlFilter($_POST['b_add8'])))."'
+                    , b_add9			=	'".trim(addslashes(setSqlFilter($_POST['b_add9'])))."'
+                    , b_add10			=	'".trim(addslashes(setSqlFilter($_POST['b_add10'])))."'
+                    , b_regdate			=	now()
+            ";
+        $rs		=	query($sql);
+        $thisKey=	insert_id();
+        query("update _BOARD_".$getBoardAdmin['ba_table']."  set b_parent = '".$thisKey."' where b_idx = '".$thisKey."' ");
+
+        $FILEINFO	=	array();
+        $_WHERE		=	'';
+        $_DIR		=	'BOARD';
+        $_DIR_DELIM	=	$getBoardAdmin['ba_table'];
+
+        for($f=1; $f <= trim($getBoardAdmin['ba_file_cnt']); $f++){
+
+            $_FILENUM	=	1;
+            $_FILENAME	=	'bf_file_'.$f;
+            if($_FILES[$_FILENAME]['name'] != ''){
+                $FILEINFO['_UPLOADFILE']=	setImgResize($_FILENAME, $_DIR, $_DIR_DELIM);
+
+                $FILEINFO['_DIR']		=	'/UPLOAD/'.$_DIR.'/'.$_DIR_DELIM.'/';
+                $FILEINFO['_FILE']		=	$FILEINFO['_UPLOADFILE'];
+                $FILEINFO['_FILE_ORG']	=	$_FILES[$_FILENAME]['name'];
+                $FILEINFO['_FILE_SIZE']	=	$_FILES[$_FILENAME]['size'];
+
+                $filesql	=	"
+                    INSERT INTO 
+                        _BOARD_FILE 
+                    SET 
+                        bf_board_id		=	'".$BCODE."'
+                        , bf_board_idx	=	'".$thisKey."'
+                        , bf_dir		=	'".$FILEINFO['_DIR']."'
+                        , bf_file		=	'".$FILEINFO['_FILE']."'
+                        , bf_file_org	=	'".$FILEINFO['_FILE_ORG']."'
+                        , bf_file_size	=	'".$FILEINFO['_FILE_SIZE']."'
+                        , bf_contents	=	''
+                        , bf_download	=	0
+                        , bf_rank		=	'".$f."'
+                        , bf_regdate	=	now()
+                ";
+                $filers		=	query($filesql);
+                $_FILENUM++;
+            }
+        }
+
+        if($_POST['RETURNURLCONTROL']){
+            $REUTN	=	$_POST['RETURNURLCONTROL'];
+        }else{
+            $REUTN	=	$_POST['RETURNURL'];
+        }
+
+        //<editor-fold desc="토픽푸시">
+        if($_POST['push_check'] == "Y"){
+            $contents_str = mb_substr(trim($_POST['b_contents']),0,50);
+            $receiveId          =   "/topics/".$getBoardAdmin['ba_pushtype'];
+            $message_string = array(
+                'title' => trim($_POST["b_title"]),
+                'idx'=>trim($thisKey),
+                'type' => trim($getBoardAdmin['ba_pushtype']),
+                'body'  => $contents_str
+            );
+            $aa	=	fcm_topic_push($message_string, $getSiteSkin['push_key'], $receiveId);
+        }
+        //</editor-fold>
+
+        $fcm_jsonList = array('result'=>'Y', 'message'=>'성공적으로 등록 완료되었습니다.','url'=>$REUTN);
+        $fcm_json = json_encode( $fcm_jsonList);
+
+        if($rs){
+            useExit($fcm_json);
+        }else{
+            useExit('{"result":"N","message":"일시적 오류입니다.","url":""}');
+        }
+    }
+    //</editor-fold>
+    //<editor-fold desc="이벤트수정:setEventBoardModify">
+    if($_POST['dbControl'] == 'setEventBoardModify'){
+
+        $getBoardAdmin	=	getValue('_BOARD_ADMIN', " where ba_idx = '".$BCODE."' ");
+
+        $sql	=	"
+                UPDATE  
+                    _BOARD_".$getBoardAdmin['ba_table']." 
+                SET 
+                    b_cate				=	'".trim(addslashes(setSqlFilter($_POST['b_cate'])))."'
+                    , b_site			=	'".setSqlFilter($getSiteSkin['di_idx'])."'
+                    , b_title			=	'".trim(addslashes(setSqlFilter($_POST['b_title'])))."'
+                    , b_title_en		=	'".trim(addslashes(setSqlFilter($_POST['b_title_en'])))."'
+                    , b_title_cn		=	'".trim(addslashes(setSqlFilter($_POST['b_title_cn'])))."'
+                    , b_title_jp		=	'".trim(addslashes(setSqlFilter($_POST['b_title_jp'])))."'
+                    , b_contents		=	'".trim(addslashes(setSqlFilter($_POST['b_contents'])))."'
+                    , b_contents_en		=	'".trim(addslashes(setSqlFilter($_POST['b_contents_en'])))."'
+                    , b_contents_cn		=	'".trim(addslashes(setSqlFilter($_POST['b_contents_cn'])))."'
+                    , b_contents_jp		=	'".trim(addslashes(setSqlFilter($_POST['b_contents_jp'])))."'
+                    , b_reply			=	'".trim(addslashes(setSqlFilter($_POST['b_reply'])))."'
+                    , b_notice_is		=	'".trim(addslashes(setSqlFilter($_POST['b_notice_is'] == 'Y' ? 'Y' : 'N')))."'
+                    , b_secret_is		=	'".trim(addslashes(setSqlFilter($_POST['b_secret_is'] == 'Y' ? 'Y' : 'N')))."'
+                    , b_name			=	'".trim(addslashes(setSqlFilter($_POST['b_name'] ? $_POST['b_name'] : $memberInfo['m_name'])))."'
+                    , b_class			=	'".trim(addslashes(setSqlFilter($_POST['b_class'])))."'
+                    , b_add1			=	'".trim(addslashes(setSqlFilter($_POST['b_add1'])))."'
+                    , b_add2			=	'".trim(addslashes(setSqlFilter($_POST['b_add2'])))."'
+                    , b_add3			=	'".trim(addslashes(setSqlFilter($_POST['b_add3'])))."'
+                    , b_add4			=	'".trim(addslashes(setSqlFilter($_POST['b_add4'])))."'
+                    , b_add5			=	'".trim(addslashes(setSqlFilter($_POST['b_add5'])))."'
+                    , b_add6			=	'".trim(addslashes(setSqlFilter($_POST['b_add6'])))."'
+                    , b_add7			=	'".trim(addslashes(setSqlFilter($_POST['b_add7'])))."'
+                    , b_add8			=	'".trim(addslashes(setSqlFilter($_POST['b_add8'])))."'
+                    , b_add9			=	'".trim(addslashes(setSqlFilter($_POST['b_add9'])))."'
+                    , b_add10			=	'".trim(addslashes(setSqlFilter($_POST['b_add10'])))."'
+                    , b_ip				=	'".$connectIP."'
+                    , b_agent			=	'".$agent."'
+                    , b_tag				=	'".$b_tag."'
+                    , b_modidate		=	now()
+                WHERE 
+                    b_idx				=	'".$CODE."'
+            ";
+        $rs		=	query($sql);
+        $thisKey=	$CODE;
+
+
+        $FILEINFO	=	array();
+        $_WHERE		=	'';
+        $_DIR		=	'BOARD';
+        $_DIR_DELIM	=	$getBoardAdmin['ba_table'];
+        for($f=1; $f <= trim($getBoardAdmin['ba_file_cnt']); $f++){
+            $_FILENUM	=	1;
+            $_FILENAME	=	'bf_file_'.$f;
+            if($_FILES[$_FILENAME]['name'] != ''){
+                $getFileInfo	=	getValue('_BOARD_FILE', " where bf_idx = '".$bf_idx[$f]."' ", 'ar', 'bf_dir, bf_file');
+                @unlink($_SERVER['DOCUMENT_ROOT'].'/'.$getFileInfo['bf_dir'].'/'.$getFileInfo['bf_file']);
+
+                $FILEINFO['_UPLOADFILE']=	setImgResize($_FILENAME, $_DIR, $_DIR_DELIM);
+
+                $FILEINFO['_DIR']		=	'/UPLOAD/'.$_DIR.'/'.$_DIR_DELIM.'/';
+                $FILEINFO['_FILE']		=	$FILEINFO['_UPLOADFILE'];
+                $FILEINFO['_FILE_ORG']	=	$_FILES[$_FILENAME]['name'];
+                $FILEINFO['_FILE_SIZE']	=	$_FILES[$_FILENAME]['size'];
+
+                if($getFileInfo['bf_file']	!=	''){
+                    $filesql	=	"
+                        UPDATE  
+                            _BOARD_FILE 
+                        SET 
+                            bf_dir			=	'".$FILEINFO['_DIR']."'
+                            , bf_file		=	'".$FILEINFO['_FILE']."'
+                            , bf_file_org	=	'".$FILEINFO['_FILE_ORG']."'
+                            , bf_file_size	=	'".$FILEINFO['_FILE_SIZE']."'
+                            , bf_contents	=	''
+                            , bf_download	=	0
+                            , bf_regdate	=	now()
+                        WHERE 
+                            bf_idx			=	'".$bf_idx[$f]."' 
+                    ";
+                }else{
+                    $filesql	=	"
+                        INSERT INTO 
+                            _BOARD_FILE 
+                        SET 
+                            bf_board_id		=	'".$BCODE."'
+                            , bf_board_idx	=	'".$thisKey."'
+                            , bf_dir		=	'".$FILEINFO['_DIR']."'
+                            , bf_file		=	'".$FILEINFO['_FILE']."'
+                            , bf_file_org	=	'".$FILEINFO['_FILE_ORG']."'
+                            , bf_file_size	=	'".$FILEINFO['_FILE_SIZE']."'
+                            , bf_contents	=	''
+                            , bf_download	=	0
+                            , bf_rank		=	'".$f."'
+                            , bf_regdate	=	now()
+                    ";
+                }
+                $filers		=	query($filesql);
+                $_FILENUM++;
+            }
+        }
+
+        if($rs){
+            useExit('{"result":"Y","message":"성공적으로 수정 완료되었습니다.","url":"'.($_POST['RETURNURL']).'"}');
+        }else{
+            useExit('{"result":"N","message":"일시적 오류입니다.","url":""}');
+        }
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="상품등록:setShopBoardSend">
+    if($_POST['dbControl'] == 'setShopBoardSend'){
+
+        if($_POST['b_best_yn'] == "Y"){
+            $best_yn="Y";
+        }else{
+            $best_yn="N";
+        }
+
+        $getBoardAdmin	=	getValue('_BOARD_ADMIN', " where ba_idx = '".$BCODE."' ");
+
+        $thumFile = photoUploadNew('b_img_url', $_DIR, 'ar', '', false);
+
+        $_WHERE	    =	"";
+        if($thumFile['_WHERE'] != ""){
+            $_WHERE		.=	$thumFile['_WHERE'];
+            $_WHERE		.=	$thumFile['_ORGNAME'];
+        }
+
+        $sql	=	"
+                INSERT INTO 
+                    _BOARD_".$getBoardAdmin['ba_table']." 
+                SET 
+                     b_title			=	'".trim(addslashes(setSqlFilter($_POST['b_title'])))."'
+                    , b_best_yn		    =	'".trim(addslashes(setSqlFilter($best_yn)))."'
+                    , b_contents		=	'".trim(addslashes(setSqlFilter($_POST['b_contents'])))."'
+                    , b_cate	    	=	'".trim(addslashes(setSqlFilter($_POST['b_cate'])))."'
+                    , b_list_name	    =	'".trim(addslashes(setSqlFilter($_POST['b_list_name'])))."'
+                    , b_sc_idx	        =	'".trim(addslashes(setSqlFilter($_POST['sc_cate_name'])))."'
+                    , b_scc_idx	        =	'".trim(addslashes(setSqlFilter($_POST['scc_cate_name'])))."'
+                    , b_price	        =	'".trim(addslashes(setSqlFilter($_POST['b_price'])))."'
+                    , b_price_org	    =	'".trim(addslashes(setSqlFilter($_POST['b_price_org'])))."'
+                    , b_regdate			=	now()
+                    
+                " . $_WHERE . "	
+            ";
+
+        $rs		=	query($sql);
+        $thisKey=	insert_id();
+        query("update _BOARD_".$getBoardAdmin['ba_table']."  set b_parent = '".$thisKey."' where b_idx = '".$thisKey."' ");
+
+        $FILEINFO	=	array();
+        $_DIR		=	'BOARD';
+        $_DIR_DELIM	=	$getBoardAdmin['ba_table'];
+
+        for($f=1; $f <= trim($getBoardAdmin['ba_file_cnt']); $f++){
+
+            $_FILENUM	=	1;
+            $_FILENAME	=	'bf_file_'.$f;
+            if($_FILES[$_FILENAME]['name'] != ''){
+                $FILEINFO['_UPLOADFILE']=	setImgResize($_FILENAME, $_DIR, $_DIR_DELIM);
+
+                $FILEINFO['_DIR']		=	'/UPLOAD/'.$_DIR.'/'.$_DIR_DELIM.'/';
+                $FILEINFO['_FILE']		=	$FILEINFO['_UPLOADFILE'];
+                $FILEINFO['_FILE_ORG']	=	$_FILES[$_FILENAME]['name'];
+                $FILEINFO['_FILE_SIZE']	=	$_FILES[$_FILENAME]['size'];
+
+                $filesql	=	"
+                    INSERT INTO 
+                        _BOARD_FILE 
+                    SET 
+                        bf_board_id		=	'".$BCODE."'
+                        , bf_board_idx	=	'".$thisKey."'
+                        , bf_dir		=	'".$FILEINFO['_DIR']."'
+                        , bf_file		=	'".$FILEINFO['_FILE']."'
+                        , bf_file_org	=	'".$FILEINFO['_FILE_ORG']."'
+                        , bf_file_size	=	'".$FILEINFO['_FILE_SIZE']."'
+                        , bf_contents	=	''
+                        , bf_download	=	0
+                        , bf_rank		=	'".$f."'
+                        , bf_regdate	=	now()
+                ";
+                $filers		=	query($filesql);
+                $_FILENUM++;
+            }
+        }
+
+        if($_POST['RETURNURLCONTROL']){
+            $REUTN	=	$_POST['RETURNURLCONTROL'];
+        }else{
+            $REUTN	=	$_POST['RETURNURL'];
+        }
+
+
+        $fcm_jsonList = array('result'=>'Y', 'message'=>'성공적으로 등록 완료되었습니다.','url'=>$REUTN);
+        $fcm_json = json_encode( $fcm_jsonList);
+
+        if($rs){
+            useExit($fcm_json);
+        }else{
+            useExit('{"result":"N","message":"일시적 오류입니다.","url":""}');
+        }
+    }
+    //</editor-fold>
+    //<editor-fold desc="상품수정:setShopBoardModify">
+    if($_POST['dbControl'] == 'setShopBoardModify'){
+
+        if($_POST['b_best_yn'] == "Y"){
+            $best_yn="Y";
+        }else{
+            $best_yn="N";
+        }
+
+        $getBoardAdmin	=	getValue('_BOARD_ADMIN', " where ba_idx = '".$BCODE."' ");
+        $thumFile       =   photoUploadNew('b_img_url', $_DIR, 'ar', '', false);
+
+        $_WHERE	    =	"";
+        if($thumFile['_WHERE'] != ""){
+            $_WHERE		.=	$thumFile['_WHERE'];
+            $_WHERE		.=	$thumFile['_ORGNAME'];
+        }
+        $sql	=	"
+                UPDATE  
+                    _BOARD_".$getBoardAdmin['ba_table']." 
+                SET 
+                     b_title			=	'".trim(addslashes(setSqlFilter($_POST['b_title'])))."'
+                    , b_best_yn		    =	'".trim(addslashes(setSqlFilter($best_yn)))."'
+                    , b_contents		=	'".trim(addslashes(setSqlFilter($_POST['b_contents'])))."'
+                    , b_list_name	    =	'".trim(addslashes(setSqlFilter($_POST['b_list_name'])))."'
+                    , b_cate	    	=	'".trim(addslashes(setSqlFilter($_POST['b_cate'])))."'
+                    , b_sc_idx	        =	'".trim(addslashes(setSqlFilter($_POST['sc_cate_name'])))."'
+                    , b_scc_idx	        =	'".trim(addslashes(setSqlFilter($_POST['scc_cate_name'])))."'
+                    , b_price	        =	'".trim(addslashes(setSqlFilter($_POST['b_price'])))."'
+                    , b_price_org	    =	'".trim(addslashes(setSqlFilter($_POST['b_price_org'])))."'
+                    
+                ".$_WHERE."
+                    
+                WHERE 
+                    b_idx				=	'".$CODE."'
+            ";
+
+        $rs		=	query($sql);
+        $thisKey=	$CODE;
+
+
+        $FILEINFO	=	array();
+        $_WHERE		=	'';
+        $_DIR		=	'BOARD';
+        $_DIR_DELIM	=	$getBoardAdmin['ba_table'];
+        for($f=1; $f <= trim($getBoardAdmin['ba_file_cnt']); $f++){
+            $_FILENUM	=	1;
+            $_FILENAME	=	'bf_file_'.$f;
+            if($_FILES[$_FILENAME]['name'] != ''){
+                $getFileInfo	=	getValue('_BOARD_FILE', " where bf_idx = '".$bf_idx[$f]."' ", 'ar', 'bf_dir, bf_file');
+                @unlink($_SERVER['DOCUMENT_ROOT'].'/'.$getFileInfo['bf_dir'].'/'.$getFileInfo['bf_file']);
+
+                $FILEINFO['_UPLOADFILE']=	setImgResize($_FILENAME, $_DIR, $_DIR_DELIM);
+
+                $FILEINFO['_DIR']		=	'/UPLOAD/'.$_DIR.'/'.$_DIR_DELIM.'/';
+                $FILEINFO['_FILE']		=	$FILEINFO['_UPLOADFILE'];
+                $FILEINFO['_FILE_ORG']	=	$_FILES[$_FILENAME]['name'];
+                $FILEINFO['_FILE_SIZE']	=	$_FILES[$_FILENAME]['size'];
+
+                if($getFileInfo['bf_file']	!=	''){
+                    $filesql	=	"
+                        UPDATE  
+                            _BOARD_FILE 
+                        SET 
+                            bf_dir			=	'".$FILEINFO['_DIR']."'
+                            , bf_file		=	'".$FILEINFO['_FILE']."'
+                            , bf_file_org	=	'".$FILEINFO['_FILE_ORG']."'
+                            , bf_file_size	=	'".$FILEINFO['_FILE_SIZE']."'
+                            , bf_contents	=	''
+                            , bf_download	=	0
+                            , bf_regdate	=	now()
+                        WHERE 
+                            bf_idx			=	'".$bf_idx[$f]."' 
+                    ";
+                }else{
+                    $filesql	=	"
+                        INSERT INTO 
+                            _BOARD_FILE 
+                        SET 
+                            bf_board_id		=	'".$BCODE."'
+                            , bf_board_idx	=	'".$thisKey."'
+                            , bf_dir		=	'".$FILEINFO['_DIR']."'
+                            , bf_file		=	'".$FILEINFO['_FILE']."'
+                            , bf_file_org	=	'".$FILEINFO['_FILE_ORG']."'
+                            , bf_file_size	=	'".$FILEINFO['_FILE_SIZE']."'
+                            , bf_contents	=	''
+                            , bf_download	=	0
+                            , bf_rank		=	'".$f."'
+                            , bf_regdate	=	now()
+                    ";
+                }
+                $filers		=	query($filesql);
+                $_FILENUM++;
+            }
+        }
+
+        if($rs){
+            useExit('{"result":"Y","message":"성공적으로 수정 완료되었습니다.","url":"'.($_POST['RETURNURL']).'"}');
+        }else{
+            useExit('{"result":"N","message":"일시적 오류입니다.","url":""}');
+        }
+    }
+    //</editor-fold>+
+    //<editor-fold desc="상품최신순서수정:setShopOrderModify">
+    if($_POST['dbControl'] == 'setShopOrderModify'){
+
+        //<editor-fold desc="validation">
+        if($v == ""){useExit('{"result":"N","message":"value 값이 없습니다.","url":""}');}
+        if($CODE == ""){useExit('{"result":"N","message":"code 값이 없습니다.","url":""}');}
+        //</editor-fold>
+
+        $getBoardAdmin	=	getValue('_BOARD_ADMIN', " WHERE ba_idx=".$v);
+
+        $sql	=	"
+                UPDATE  
+                    _BOARD_".$getBoardAdmin['ba_table']." 
+                SET 
+                     b_regdate 		=	now()
+                    
+                WHERE 
+                    b_idx			=	".$CODE."
+            ";
+        $rs		=	query($sql);
+
+        if($rs){
+            useExit('{"result":"Y","message":"성공적으로 수정 완료되었습니다.","url":"f5"}');
+        }else{
+            useExit('{"result":"N","message":"일시적 오류입니다.","url":""}');
+        }
+    }
+    //</editor-fold>+
+    //<editor-fold desc="관리자 공용게시판 파일 삭제:setBoardFileOneDel">
+    if($_POST['dbControl'] == 'setBoardFileOneDel'){
+
+        $row	=	getValue('_BOARD_FILE', " where bf_idx = '".$CODE."' ");
+        //echoAr($row);
+        @unlink($_SERVER['DOCUMENT_ROOT'].'/'.$row['bf_dir'].'/'.$row['bf_file']);
+        $rs	=	query("delete from _BOARD_FILE where bf_idx = '".$row['bf_idx']."' ");
+
+        if($rs){
+            useExit('{"result":"Y","message":"성공적으로 삭제 완료되었습니다.","url":"f5"}');
+        }else{
+            useExit('{"result":"N","message":"일시적 오류입니다.","url":""}');
+        }
+    }
+    //</editor-fold>
+
+
+    //<editor-fold desc="설정수정:setDomainEdit">
+    if($dbControl	==	'setDomainEdit'){
+        $_DIR		=	'DOMAIN_INFO';
+        $_TB		=	'_'.$_DIR;
+        $di_app_ver = getValue('_DOMAIN_INFO',' where 1 ','ar','*');
+
+        $sql	=	"
+                UPDATE
+                    ".$_TB."
+                SET
+                    di_terms					=	'".trim(addslashes($_POST['di_terms']))."'
+                    , di_personal_information	=	'".trim(addslashes($_POST['di_personal_information']))."'
+                    , di_company_name			=	'".trim(addslashes($_POST['di_company_name']))."'
+                    , di_license				=	'".trim(addslashes($_POST['di_license']))."'
+                    , di_ceo_name				=	'".trim(addslashes($_POST['di_ceo_name']))."'
+                    , di_kakao_plus             =	'".trim(addslashes($_POST['di_kakao_plus']))."'
+                    , di_kakao_talk             =	'".trim(addslashes($_POST['di_kakao_talk']))."'
+                    , di_call					=	'".trim(addslashes($_POST['di_call']))."'
+                    
+                                        
+            ";
+        $rs		=	query($sql);
+
+        if($rs){
+            useExit('{"result":"Y","message":"성공적으로 수정하였습니다.","url":"f5"}');
+        }else{
+            useExit('{"result":"N","message":"일시적 오류입니다.","url":""}');
+        }
+    }
+    //</editor-fold>
+    //<editor-fold desc="설정2수정:setDomainEdit2">
+    if($dbControl	==	'setDomainEdit2'){
+        $_DIR		=	'DOMAIN_INFO';
+        $_TB		=	'_'.$_DIR;
+
+        $_WHERE		.=	photoUploadNew('di_banner_file', $_DIR, '_WHERE', '', false);
+
+        $sql	=	"
+            UPDATE
+                ".$_TB."
+            SET
+                di_banner_url					=	'".trim(addslashes($_POST['di_banner_url']))."'	
+               ,di_etc_code					    =	'".trim(addslashes($_POST['di_etc_code']))."'			
+                ".$_WHERE."
+        ";
+        $rs		=	query($sql);
+
+        useExit('{"result":"Y","message":"성공적으로 수정하였습니다.","url":"'.$returnUrl.'"}');
+    }
+    //</editor-fold>
+    //<editor-fold desc="설정3수정:setDomainEdit3">
+    if($dbControl	==	'setDomainEdit3'){
+        $_DIR		=	'DOMAIN_INFO';
+        $_TB		=	'_'.$_DIR;
+        $di_app_ver = getValue('_DOMAIN_INFO',' where 1 ','ar','*');
+
+        // 결제 QR코드 업로드
+        //$_WHERE		.=	photoUploadNew('alipay', $_DIR, '_WHERE', '', false);
+        //$_WHERE		.=	photoUploadNew('wechat', $_DIR, '_WHERE', '', false);
+
+        //홈페이지 실행파일 업로드
+        $_WHERE		.=	apkUploadNew('m_aos_apk_file', $_DIR, '_WHERE', '', false);
+        $_WHERE		.=	apkUploadNew('m_ios_apk_file', $_DIR, '_WHERE', '', false);
+        $_WHERE		.=	apkUploadNew('m_mac_file', $_DIR, '_WHERE', '', false);
+        $_WHERE		.=	apkUploadNew('m_window_file', $_DIR, '_WHERE', '', false);
+        $_WHERE		.=	apkUploadNew('m_window_updatefile', $_DIR, '_WHERE', '', false);
+
+        $sql	=	"
+            UPDATE
+                ".$_TB."
+            SET
+                di_app_ver				=	'".trim(addslashes($_POST['di_app_ver']))."'
+                , di_aos_check              =   '".trim(addslashes($_POST['di_aos_check']))."'
+                , di_update_contents		=	'".trim(addslashes($_POST['di_update_contents']))."'
+                , di_app_ver2				=	'".trim(addslashes($_POST['di_app_ver2']))."'
+                , di_build_num              =   '".trim(addslashes($_POST['di_build_num']))."'
+                , di_ios_check              =   '".trim(addslashes($_POST['di_ios_check']))."'
+                , di_update_contents2		=	'".trim(addslashes($_POST['di_update_contents2']))."'
+                , di_pc_ver				    =	'".trim(addslashes($_POST['di_pc_ver']))."'
+                , di_update_contents3		=	'".trim(addslashes($_POST['di_update_contents3']))."'
+                ".$_WHERE."
+        ";
+        $rs		=	query($sql);
+
+        if($di_app_ver['di_app_ver'] != $_POST['di_app_ver']){
+            $sql_apphistory1	=	"
+                INSERT INTO
+                    _APP_HISTORY
+                SET
+                    di_app_ver				=	'".trim(addslashes($_POST['di_app_ver']))."'
+                    , di_update_contents		=	'".trim(addslashes($_POST['di_update_contents']))."'
+                    , a_cate				=	'AOS'
+                    , a_regdate		=	NOW()
+            ";
+            $rs_apphistory1		=	query($sql_apphistory1);
+        }
+        if($di_app_ver['di_app_ver2'] != $_POST['di_app_ver2']){
+            $sql_apphistory2	=	"
+                INSERT INTO
+                    _APP_HISTORY
+                SET
+                    di_app_ver				=	'".trim(addslashes($_POST['di_app_ver2']))."'
+                    , di_update_contents		=	'".trim(addslashes($_POST['di_update_contents2']))."'
+                    , a_cate				=	'IOS'
+                    , a_regdate		=	NOW()
+            ";
+            $rs_apphistory2		=	query($sql_apphistory2);
+        }
+        if($di_app_ver['di_pc_ver'] != $_POST['di_pc_ver']){
+            $sql_apphistory3	=	"
+                INSERT INTO
+                    _APP_HISTORY
+                SET
+                    di_app_ver				=	'".trim(addslashes($_POST['di_pc_ver']))."'
+                    , di_update_contents		=	'".trim(addslashes($_POST['di_update_contents3']))."'
+                    , a_cate				=	'PC'
+                    , a_regdate		=	NOW()
+            ";
+            $rs_apphistory3		=	query($sql_apphistory3);
+        }
+        useExit('{"result":"Y","message":"성공적으로 수정하였습니다.","url":"'.$returnUrl.'"}');
+    }
+    //</editor-fold>
+    //<editor-fold desc="홈페이지통합로그아웃:setMemberLogOut">
+    if($dbControl	==	'setMemberLogOut'){
+        setSession('_IDX', '');
+        setSession('_LEVEL', '');
+        setSession('_AUTH_LEVEL', '');
+        useExit('{"result":"Y","message":"정상적으로 로그아웃되었습니다.", "code":"", "url":"f5"}');
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="약관&개인정보처리방침:getTerm">
+    if($dbControl	==	'getTerm'){
+        $ar	=	array('di_terms'=>stripslashes($getSiteSkin['di_terms']), 'di_personal_information'=>stripslashes($getSiteSkin['di_personal_information']), 'di_ad_class'=>stripslashes($getSiteSkin['di_ad_class']));
+        useExit(json_encode(str_replace(array('{sitename}', '{domain}', '{money}'), array($getSiteSkin['di_company_name'], 'http://'.$connUrlDomain, number_format($getSiteSkin['di_sve_price']/1.1)), $ar)));
+    }
+    //</editor-fold>
+    //<editor-fold desc="권한관리수정:saveAuth">
+    if($dbControl == 'saveAuth'){
+        $chkidx = $_REQUEST["chkidx"];
+        $v_chkidxArr = explode(',', $chkidx);
+        $v_chkidxArrCnt = count($v_chkidxArr);
+        $cnt = 0;
+        $aidx = $_REQUEST["aidx"];
+
+        $maidx = $_REQUEST["maidx"];
+        $v_maidxArr = explode(',', $maidx);
+        $v_maidxArrCnt = count($v_maidxArr);
+        //    echo "maidx:".$maidx; exit;
+
+        //print_r($v_maidxArr); exit;
+        //print_r($v_chkidxArr); exit;
+
+        for($i=0; $i<$v_maidxArrCnt;$i++){
+            $column = "ma_state##'".$v_chkidxArr[$i]."'";
+            $where = " where ma_idx = ".$v_maidxArr[$i];
+            $rs = updTransactionSingle("_MENU_AUTH",$column,$where);
+
+            $cnt++;
+        }
+        //    $sql = "select * from _MENU_AUTH where ma_a_idx = ".$aidx." ";
+        //    $rs = query($sql);
+        //    for($i=0;$row = assoc($rs);$i++){
+        //
+        //        $column = "ma_state##'".$ma_state."'";
+        //        $where = " where ma_idx = ".$row['ma_idx'];
+        //        $rs = updTransactionSingle("_MENU_AUTH",$column,$where);
+        //    }
+
+        if($rs == 1){
+            useExit('{"result":"Y","message":"성공적으로 수정 완료되었습니다.","url":"'.($_POST['retrunUrl']).'"}');
+        }else{
+            useExit('{"result":"N","message":"일시적 오류입니다.","message":"'.$rs.'"}');
+        }
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="공용게시판등록:setBoardSend">
+    if($_POST['dbControl'] == 'setBoardSend'){
+        $getBoardAdmin	=	getValue('_BOARD_ADMIN', " where ba_idx = '".$BCODE."' ");
+
+        $_WHERE	=	"";
+        $sql	=	"
+                INSERT INTO 
+                    _BOARD_".$getBoardAdmin['ba_table']." 
+                SET 
+                    b_cate				=	'".trim(addslashes(setSqlFilter($_POST['b_cate'])))."'
+                    , b_site			=	'".setSqlFilter($getSiteSkin['di_idx'])."'
+                    , b_title			=	'".trim(addslashes(setSqlFilter($_POST['b_title'])))."'
+                    , b_contents		=	'".trim(addslashes(setSqlFilter($_POST['b_contents'])))."'
+                    , b_reply			=	'".trim(addslashes(setSqlFilter($_POST['b_reply'])))."'
+                    , b_user_idx		=	'".trim(addslashes(setSqlFilter($partnerInfo['p_idx'] ? $partnerInfo['p_idx'] : $memberInfo['m_idx'])))."'
+                    , b_name			=	'".trim(addslashes(setSqlFilter($_POST['b_name'] ? $_POST['b_name'] : $memberInfo['m_name'])))."'
+                    , b_hits			=	1
+                    , b_notice_is		=	'".trim(addslashes(setSqlFilter($_POST['b_notice_is'] == 'Y' ? 'Y' : 'N')))."'
+                    , b_secret_is		=	'".trim(addslashes(setSqlFilter($_POST['b_secret_is'] == 'Y' ? 'Y' : 'N')))."'
+                    , b_user_level		=	'".trim(addslashes(setSqlFilter($partnerInfo['p_idx'] != '' ? 'PARTNER' : 'ADMIN')))."'
+                    , b_ip				=	'".$connectIP."'
+                    , b_agent			=	'".$agent."'
+                    , b_tag				=	'".$b_tag."'
+                    , b_class			=	'".trim(addslashes(setSqlFilter($_POST['b_class'])))."'
+        
+                    , b_add1			=	'".trim(addslashes(setSqlFilter($_POST['b_add1'])))."'
+                    , b_add2			=	'".trim(addslashes(setSqlFilter($_POST['b_add2'])))."'
+                    , b_add3			=	'".trim(addslashes(setSqlFilter($_POST['b_add3'])))."'
+                    , b_add4			=	'".trim(addslashes(setSqlFilter($_POST['b_add4'])))."'
+                    , b_add5			=	'".trim(addslashes(setSqlFilter($_POST['b_add5'])))."'
+                    , b_add6			=	'".trim(addslashes(setSqlFilter($_POST['b_add6'])))."'
+                    , b_add7			=	'".trim(addslashes(setSqlFilter($_POST['b_add7'])))."'
+                    , b_add8			=	'".trim(addslashes(setSqlFilter($_POST['b_add8'])))."'
+                    , b_add9			=	'".trim(addslashes(setSqlFilter($_POST['b_add9'])))."'
+                    , b_add10			=	'".trim(addslashes(setSqlFilter($_POST['b_add10'])))."'
+                    , b_regdate			=	now()
+            ";
+        $rs		=	query($sql);
+        $thisKey=	insert_id();
+        query("update _BOARD_".$getBoardAdmin['ba_table']."  set b_parent = '".$thisKey."' where b_idx = '".$thisKey."' ");
+
+        $FILEINFO	=	array();
+        $_WHERE		=	'';
+        $_DIR		=	'BOARD';
+        $_DIR_DELIM	=	$getBoardAdmin['ba_table'];
+        for($f=1; $f <= trim($getBoardAdmin['ba_file_cnt']); $f++){
+            $_FILENUM	=	1;
+            $_FILENAME	=	'bf_file_'.$f;
+            if($_FILES[$_FILENAME]['name'] != ''){
+                $FILEINFO['_UPLOADFILE']=	fileUpload($_FILENAME, $_DIR, $_DIR_DELIM);
+
+                $FILEINFO['_DIR']		=	'/UPLOAD/'.$_DIR.'/'.$_DIR_DELIM.'/';
+                $FILEINFO['_FILE']		=	$FILEINFO['_UPLOADFILE'];
+                $FILEINFO['_FILE_ORG']	=	$_FILES[$_FILENAME]['name'];
+                $FILEINFO['_FILE_SIZE']	=	$_FILES[$_FILENAME]['size'];
+
+
+                $filesql	=	"
+                        INSERT INTO 
+                            _BOARD_FILE 
+                        SET 
+                            bf_board_id		=	'".$BCODE."'
+                            , bf_board_idx	=	'".$thisKey."'
+                            , bf_dir		=	'".$FILEINFO['_DIR']."'
+                            , bf_file		=	'".$FILEINFO['_FILE']."'
+                            , bf_file_org	=	'".$FILEINFO['_FILE_ORG']."'
+                            , bf_file_size	=	'".$FILEINFO['_FILE_SIZE']."'
+                            , bf_contents	=	''
+                            , bf_download	=	0
+                            , bf_rank		=	'".$f."'
+                            , bf_regdate	=	now()
+                    ";
+                $filers		=	query($filesql);
+                $_FILENUM++;
+            }
+        }
+
+        if($rs){
+            if($_POST['RETURNURLCONTROL']){
+                $REUTN	=	$_POST['RETURNURLCONTROL'];
+            }else{
+                $REUTN	=	$_POST['RETURNURL'].'?BCODE='.$BCODE;
+            }
+            useExit('{"result":"Y","message":"성공적으로 등록 완료되었습니다.","url":"'.$REUTN.'"}');
+        }else{
+            useExit('{"result":"N","message":"일시적 오류입니다.","url":""}');
+        }
+    }
+    //</editor-fold>
+    //<editor-fold desc="공용게시판수정:setBoardModify">
+    if($_POST['dbControl'] == 'setBoardModify'){
+
+        $getBoardAdmin	=	getValue('_BOARD_ADMIN', " where ba_idx = '".$BCODE."' ");
+
+        $sql	=	"
+                UPDATE  
+                    _BOARD_".$getBoardAdmin['ba_table']." 
+                SET 
+                    b_cate				=	'".trim(addslashes(setSqlFilter($_POST['b_cate'])))."'
+                    , b_site			=	'".setSqlFilter($getSiteSkin['di_idx'])."'
+                    , b_title			=	'".trim(addslashes(setSqlFilter($_POST['b_title'])))."'
+                    , b_contents		=	'".trim(addslashes(setSqlFilter($_POST['b_contents'])))."'			
+                    , b_notice_is		=	'".trim(addslashes(setSqlFilter($_POST['b_notice_is'] == 'Y' ? 'Y' : 'N')))."'
+                    , b_secret_is		=	'".trim(addslashes(setSqlFilter($_POST['b_secret_is'] == 'Y' ? 'Y' : 'N')))."'
+                    , b_name			=	'".trim(addslashes(setSqlFilter($_POST['b_name'] ? $_POST['b_name'] : $memberInfo['m_name'])))."'
+                    , b_class			=	'".trim(addslashes(setSqlFilter($_POST['b_class'])))."'
+                    , b_add1			=	'".trim(addslashes(setSqlFilter($_POST['b_add1'])))."'
+                    , b_add2			=	'".trim(addslashes(setSqlFilter($_POST['b_add2'])))."'
+                    , b_add3			=	'".trim(addslashes(setSqlFilter($_POST['b_add3'])))."'
+                    , b_add4			=	'".trim(addslashes(setSqlFilter($_POST['b_add4'])))."'
+                    , b_add5			=	'".trim(addslashes(setSqlFilter($_POST['b_add5'])))."'
+                    , b_add6			=	'".trim(addslashes(setSqlFilter($_POST['b_add6'])))."'
+                    , b_add7			=	'".trim(addslashes(setSqlFilter($_POST['b_add7'])))."'
+                    , b_add8			=	'".trim(addslashes(setSqlFilter($_POST['b_add8'])))."'
+                    , b_add9			=	'".trim(addslashes(setSqlFilter($_POST['b_add9'])))."'
+                    , b_add10			=	'".trim(addslashes(setSqlFilter($_POST['b_add10'])))."'
+                    , b_ip				=	'".$connectIP."'
+                    , b_agent			=	'".$agent."'
+                    , b_tag				=	'".$b_tag."'
+                    , b_modidate		=	now() 
+                    ".$_WHERE."
+                WHERE 
+                    b_idx				=	'".$CODE."'
+            ";
+        //	echo "sql:".$sql; exit;
+        $rs		=	query($sql);
+        $thisKey=	$CODE;
+
+
+        $FILEINFO	=	array();
+        $_WHERE		=	'';
+        $_DIR		=	'BOARD';
+        $_DIR_DELIM	=	$getBoardAdmin['ba_table'];
+        for($f=1; $f <= trim($getBoardAdmin['ba_file_cnt']); $f++){
+            $_FILENUM	=	1;
+            $_FILENAME	=	'bf_file_'.$f;
+            if($_FILES[$_FILENAME]['name'] != ''){
+                $getFileInfo	=	getValue('_BOARD_FILE', " where bf_idx = '".$bf_idx[$f]."' ", 'ar', 'bf_dir, bf_file');
+                @unlink($_SERVER['DOCUMENT_ROOT'].'/'.$getFileInfo['bf_dir'].'/'.$getFileInfo['bf_file']);
+
+                $FILEINFO['_UPLOADFILE']=	fileUpload($_FILENAME, $_DIR, $_DIR_DELIM);
+
+                $FILEINFO['_DIR']		=	'/UPLOAD/'.$_DIR.'/'.$_DIR_DELIM.'/';
+                $FILEINFO['_FILE']		=	$FILEINFO['_UPLOADFILE'];
+                $FILEINFO['_FILE_ORG']	=	$_FILES[$_FILENAME]['name'];
+                $FILEINFO['_FILE_SIZE']	=	$_FILES[$_FILENAME]['size'];
+
+                if($getFileInfo['bf_file']	!=	''){
+                    $filesql	=	"
+                            UPDATE  
+                                _BOARD_FILE 
+                            SET 
+                                bf_dir			=	'".$FILEINFO['_DIR']."'
+                                , bf_file		=	'".$FILEINFO['_FILE']."'
+                                , bf_file_org	=	'".$FILEINFO['_FILE_ORG']."'
+                                , bf_file_size	=	'".$FILEINFO['_FILE_SIZE']."'
+                                , bf_contents	=	''
+                                , bf_download	=	0
+                                , bf_regdate	=	now()
+                            WHERE 
+                                bf_idx			=	'".$bf_idx[$f]."' 
+                        ";
+                }else{
+                    $filesql	=	"
+                            INSERT INTO 
+                                _BOARD_FILE 
+                            SET 
+                                bf_board_id		=	'".$BCODE."'
+                                , bf_board_idx	=	'".$thisKey."'
+                                , bf_dir		=	'".$FILEINFO['_DIR']."'
+                                , bf_file		=	'".$FILEINFO['_FILE']."'
+                                , bf_file_org	=	'".$FILEINFO['_FILE_ORG']."'
+                                , bf_file_size	=	'".$FILEINFO['_FILE_SIZE']."'
+                                , bf_contents	=	''
+                                , bf_download	=	0
+                                , bf_rank		=	'".$f."'
+                                , bf_regdate	=	now()
+                        ";
+                }
+                $filers		=	query($filesql);
+                $_FILENUM++;
+            }
+        }
+
+        if($rs){
+            useExit('{"result":"Y","message":"성공적으로 등록 완료되었습니다.","url":"'.($_POST['RETURNURL'].'?BCODE='.$BCODE).'"}');
+        }else{
+            useExit('{"result":"N","message":"일시적 오류입니다.","url":""}');
+        }
+    }
+    //</editor-fold>
+    //<editor-fold desc="공용게시판삭제:setBoardDel">
+    if($_POST['dbControl'] == 'setBoardDel'){
+        $getBoardAdmin	=	getValue('_BOARD_ADMIN', " where ba_idx = '".$v."' ");
+
+        $fileSql	=	"select * from _BOARD_FILE where bf_board_idx = '".$CODE."' and bf_board_id = '".$getBoardAdmin['ba_idx']."' ";
+        $fileRs		=	query($fileSql);
+        if(rows() > 0){
+            for($f=0; $fileRow = assoc($fileRs); $f++){
+                @unlink($_SERVER['DOCUMENT_ROOT'].'/'.$fileRow['bf_dir'].'/'.$fileRow['bf_file']);
+                query("delete from _BOARD_FILE where bf_idx = '".$fileRow['bf_idx']."' ");
+            }
+        }
+        $sql	=	"delete from _BOARD_".$getBoardAdmin['ba_table']." where b_idx = '".$CODE."' ";
+        $rs		=	query($sql);
+        if($rs){
+            useExit('{"result":"Y","message":"성공적으로 삭제 완료되었습니다.","url":"f5"}');
+        }else{
+            useExit('{"result":"N","message":"일시적 오류입니다.","url":""}');
+        }
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="FAQ게시판등록:setFAQBoardSend">
+    if($_POST['dbControl'] == 'setFAQBoardSend'){
+        $getBoardAdmin	=	getValue('_BOARD_ADMIN', " where ba_idx = '".$BCODE."' ");
+
+        $b_cate = $_POST['b_cate'];
+        if($b_cate == ''){
+            $b_cate = 'ALL';
+        }
+
+        $_WHERE	=	"";
+        $sql	=	"
+                INSERT INTO 
+                    _BOARD_".$getBoardAdmin['ba_table']." 
+                SET 
+                    b_cate				=	'".trim(addslashes(setSqlFilter($b_cate)))."'
+                    , b_site			=	'".setSqlFilter($getSiteSkin['di_idx'])."'
+                    , b_title			=	'".trim(addslashes(setSqlFilter($_POST['b_title'])))."'
+                    , b_title_en		=	'".trim(addslashes(setSqlFilter($_POST['b_title_en'])))."'
+                    , b_title_cn		=	'".trim(addslashes(setSqlFilter($_POST['b_title_cn'])))."'
+                    , b_title_jp		=	'".trim(addslashes(setSqlFilter($_POST['b_title_jp'])))."'
+                    , b_contents		=	'".trim(addslashes(setSqlFilter($_POST['b_contents'])))."'
+                    , b_contents_en		=	'".trim(addslashes(setSqlFilter($_POST['b_contents_en'])))."'
+                    , b_contents_cn		=	'".trim(addslashes(setSqlFilter($_POST['b_contents_cn'])))."'
+                    , b_contents_jp		=	'".trim(addslashes(setSqlFilter($_POST['b_contents_jp'])))."'
+                    , b_reply			=	'".trim(addslashes(setSqlFilter($_POST['b_reply'])))."'
+                    , b_reply_en		=	'".trim(addslashes(setSqlFilter($_POST['b_reply_en'])))."'
+                    , b_reply_cn		=	'".trim(addslashes(setSqlFilter($_POST['b_reply_cn'])))."'
+                    , b_reply_jp		=	'".trim(addslashes(setSqlFilter($_POST['b_reply_jp'])))."'
+                    , b_user_idx		=	'".trim(addslashes(setSqlFilter($partnerInfo['p_idx'] ? $partnerInfo['p_idx'] : $memberInfo['m_idx'])))."'
+                    , b_name			=	'".trim(addslashes(setSqlFilter($_POST['b_name'] ? $_POST['b_name'] : $memberInfo['m_name'])))."'
+                    , b_hits			=	1
+                    , b_notice_is		=	'".trim(addslashes(setSqlFilter($_POST['b_notice_is'] == 'Y' ? 'Y' : 'N')))."'
+                    , b_secret_is		=	'".trim(addslashes(setSqlFilter($_POST['b_secret_is'] == 'Y' ? 'Y' : 'N')))."'
+                    , b_user_level		=	'".trim(addslashes(setSqlFilter($partnerInfo['p_idx'] != '' ? 'PARTNER' : 'ADMIN')))."'
+                    , b_ip				=	'".$connectIP."'
+                    , b_agent			=	'".$agent."'
+                    , b_tag				=	'".$b_tag."'
+                    , b_class			=	'".trim(addslashes(setSqlFilter($_POST['b_class'])))."'
+        
+                    , b_add1			=	'".trim(addslashes(setSqlFilter($_POST['b_add1'])))."'
+                    , b_add2			=	'".trim(addslashes(setSqlFilter($_POST['b_add2'])))."'
+                    , b_add3			=	'".trim(addslashes(setSqlFilter($_POST['b_add3'])))."'
+                    , b_add4			=	'".trim(addslashes(setSqlFilter($_POST['b_add4'])))."'
+                    , b_add5			=	'".trim(addslashes(setSqlFilter($_POST['b_add5'])))."'
+                    , b_add6			=	'".trim(addslashes(setSqlFilter($_POST['b_add6'])))."'
+                    , b_add7			=	'".trim(addslashes(setSqlFilter($_POST['b_add7'])))."'
+                    , b_add8			=	'".trim(addslashes(setSqlFilter($_POST['b_add8'])))."'
+                    , b_add9			=	'".trim(addslashes(setSqlFilter($_POST['b_add9'])))."'
+                    , b_add10			=	'".trim(addslashes(setSqlFilter($_POST['b_add10'])))."'
+                    , b_regdate			=	now()
+            ";
+        $rs		=	query($sql);
+        $thisKey=	insert_id();
+        query("update _BOARD_".$getBoardAdmin['ba_table']."  set b_parent = '".$thisKey."' where b_idx = '".$thisKey."' ");
+
+        $FILEINFO	=	array();
+        $_WHERE		=	'';
+        $_DIR		=	'BOARD';
+        $_DIR_DELIM	=	$getBoardAdmin['ba_table'];
+        for($f=1; $f <= trim($getBoardAdmin['ba_file_cnt']); $f++){
+            $_FILENUM	=	1;
+            $_FILENAME	=	'bf_file_'.$f;
+            if($_FILES[$_FILENAME]['name'] != ''){
+                $FILEINFO['_UPLOADFILE']=	fileUpload($_FILENAME, $_DIR, $_DIR_DELIM);
+
+                $FILEINFO['_DIR']		=	'/UPLOAD/'.$_DIR.'/'.$_DIR_DELIM.'/';
+                $FILEINFO['_FILE']		=	$FILEINFO['_UPLOADFILE'];
+                $FILEINFO['_FILE_ORG']	=	$_FILES[$_FILENAME]['name'];
+                $FILEINFO['_FILE_SIZE']	=	$_FILES[$_FILENAME]['size'];
+
+
+                $filesql	=	"
+                        INSERT INTO 
+                            _BOARD_FILE 
+                        SET 
+                            bf_board_id		=	'".$BCODE."'
+                            , bf_board_idx	=	'".$thisKey."'
+                            , bf_dir		=	'".$FILEINFO['_DIR']."'
+                            , bf_file		=	'".$FILEINFO['_FILE']."'
+                            , bf_file_org	=	'".$FILEINFO['_FILE_ORG']."'
+                            , bf_file_size	=	'".$FILEINFO['_FILE_SIZE']."'
+                            , bf_contents	=	''
+                            , bf_download	=	0
+                            , bf_rank		=	'".$f."'
+                            , bf_regdate	=	now()
+                    ";
+                $filers		=	query($filesql);
+                $_FILENUM++;
+            }
+        }
+        if($rs){
+            if($_POST['RETURNURLCONTROL']){
+                $REUTN	=	$_POST['RETURNURLCONTROL'];
+            }else{
+                $REUTN	=	$_POST['RETURNURL'].'?BCODE='.$BCODE;
+            }
+            useExit('{"result":"Y","message":"성공적으로 등록 완료되었습니다.","url":"'.$REUTN.'"}');
+        }else{
+            useExit('{"result":"N","message":"일시적 오류입니다.","url":""}');
+        }
+    }
+    //</editor-fold>
+    //<editor-fold desc="FAQ게시판수정:setFAQBoardModify">
+    if($_POST['dbControl'] == 'setFAQBoardModify'){
+
+        $getBoardAdmin	=	getValue('_BOARD_ADMIN', " where ba_idx = '".$BCODE."' ");
+
+        $sql	=	"
+                UPDATE  
+                    _BOARD_".$getBoardAdmin['ba_table']." 
+                SET 
+                    b_cate				=	'".trim(addslashes(setSqlFilter($_POST['b_cate'])))."'
+                    , b_site			=	'".setSqlFilter($getSiteSkin['di_idx'])."'
+                    , b_title			=	'".trim(addslashes(setSqlFilter($_POST['b_title'])))."'
+                    , b_title_en		=	'".trim(addslashes(setSqlFilter($_POST['b_title_en'])))."'
+                    , b_title_cn		=	'".trim(addslashes(setSqlFilter($_POST['b_title_cn'])))."'
+                    , b_title_jp		=	'".trim(addslashes(setSqlFilter($_POST['b_title_jp'])))."'
+                    , b_contents		=	'".trim(addslashes(setSqlFilter($_POST['b_contents'])))."'
+                    , b_contents_en		=	'".trim(addslashes(setSqlFilter($_POST['b_contents_en'])))."'
+                    , b_contents_cn		=	'".trim(addslashes(setSqlFilter($_POST['b_contents_cn'])))."'
+                    , b_contents_jp		=	'".trim(addslashes(setSqlFilter($_POST['b_contents_jp'])))."'
+                    , b_reply			=	'".trim(addslashes(setSqlFilter($_POST['b_reply'])))."'
+                    , b_reply_en		=	'".trim(addslashes(setSqlFilter($_POST['b_reply_en'])))."'
+                    , b_reply_cn		=	'".trim(addslashes(setSqlFilter($_POST['b_reply_cn'])))."'
+                    , b_reply_jp		=	'".trim(addslashes(setSqlFilter($_POST['b_reply_jp'])))."'
+                    , b_notice_is		=	'".trim(addslashes(setSqlFilter($_POST['b_notice_is'] == 'Y' ? 'Y' : 'N')))."'
+                    , b_secret_is		=	'".trim(addslashes(setSqlFilter($_POST['b_secret_is'] == 'Y' ? 'Y' : 'N')))."'
+                    , b_name			=	'".trim(addslashes(setSqlFilter($_POST['b_name'] ? $_POST['b_name'] : $memberInfo['m_name'])))."'
+                    , b_class			=	'".trim(addslashes(setSqlFilter($_POST['b_class'])))."'
+                    , b_add1			=	'".trim(addslashes(setSqlFilter($_POST['b_add1'])))."'
+                    , b_add2			=	'".trim(addslashes(setSqlFilter($_POST['b_add2'])))."'
+                    , b_add3			=	'".trim(addslashes(setSqlFilter($_POST['b_add3'])))."'
+                    , b_add4			=	'".trim(addslashes(setSqlFilter($_POST['b_add4'])))."'
+                    , b_add5			=	'".trim(addslashes(setSqlFilter($_POST['b_add5'])))."'
+                    , b_add6			=	'".trim(addslashes(setSqlFilter($_POST['b_add6'])))."'
+                    , b_add7			=	'".trim(addslashes(setSqlFilter($_POST['b_add7'])))."'
+                    , b_add8			=	'".trim(addslashes(setSqlFilter($_POST['b_add8'])))."'
+                    , b_add9			=	'".trim(addslashes(setSqlFilter($_POST['b_add9'])))."'
+                    , b_add10			=	'".trim(addslashes(setSqlFilter($_POST['b_add10'])))."'
+                    , b_ip				=	'".$connectIP."'
+                    , b_agent			=	'".$agent."'
+                    , b_tag				=	'".$b_tag."'
+                    , b_modidate		=	now() 
+                    ".$_WHERE."
+                WHERE 
+                    b_idx				=	'".$CODE."'
+            ";
+        $rs		=	query($sql);
+        $thisKey=	$CODE;
+
+
+        $FILEINFO	=	array();
+        $_WHERE		=	'';
+        $_DIR		=	'BOARD';
+        $_DIR_DELIM	=	$getBoardAdmin['ba_table'];
+        for($f=1; $f <= trim($getBoardAdmin['ba_file_cnt']); $f++){
+            $_FILENUM	=	1;
+            $_FILENAME	=	'bf_file_'.$f;
+            if($_FILES[$_FILENAME]['name'] != ''){
+                $getFileInfo	=	getValue('_BOARD_FILE', " where bf_idx = '".$bf_idx[$f]."' ", 'ar', 'bf_dir, bf_file');
+                @unlink($_SERVER['DOCUMENT_ROOT'].'/'.$getFileInfo['bf_dir'].'/'.$getFileInfo['bf_file']);
+
+                $FILEINFO['_UPLOADFILE']=	fileUpload($_FILENAME, $_DIR, $_DIR_DELIM);
+
+                $FILEINFO['_DIR']		=	'/UPLOAD/'.$_DIR.'/'.$_DIR_DELIM.'/';
+                $FILEINFO['_FILE']		=	$FILEINFO['_UPLOADFILE'];
+                $FILEINFO['_FILE_ORG']	=	$_FILES[$_FILENAME]['name'];
+                $FILEINFO['_FILE_SIZE']	=	$_FILES[$_FILENAME]['size'];
+
+                if($getFileInfo['bf_file']	!=	''){
+                    $filesql	=	"
+                            UPDATE  
+                                _BOARD_FILE 
+                            SET 
+                                bf_dir			=	'".$FILEINFO['_DIR']."'
+                                , bf_file		=	'".$FILEINFO['_FILE']."'
+                                , bf_file_org	=	'".$FILEINFO['_FILE_ORG']."'
+                                , bf_file_size	=	'".$FILEINFO['_FILE_SIZE']."'
+                                , bf_contents	=	''
+                                , bf_download	=	0
+                                , bf_regdate	=	now()
+                            WHERE 
+                                bf_idx			=	'".$bf_idx[$f]."' 
+                        ";
+                }else{
+                    $filesql	=	"
+                            INSERT INTO 
+                                _BOARD_FILE 
+                            SET 
+                                bf_board_id		=	'".$BCODE."'
+                                , bf_board_idx	=	'".$thisKey."'
+                                , bf_dir		=	'".$FILEINFO['_DIR']."'
+                                , bf_file		=	'".$FILEINFO['_FILE']."'
+                                , bf_file_org	=	'".$FILEINFO['_FILE_ORG']."'
+                                , bf_file_size	=	'".$FILEINFO['_FILE_SIZE']."'
+                                , bf_contents	=	''
+                                , bf_download	=	0
+                                , bf_rank		=	'".$f."'
+                                , bf_regdate	=	now()
+                        ";
+                }
+                $filers		=	query($filesql);
+                $_FILENUM++;
+            }
+        }
+
+        if($rs){
+            useExit('{"result":"Y","message":"성공적으로 등록 완료되었습니다.","url":"'.($_POST['RETURNURL'].'?BCODE='.$BCODE).'"}');
+        }else{
+            useExit('{"result":"N","message":"일시적 오류입니다.","url":""}');
+        }
+    }
+    //</editor-fold>
+    //<editor-fold desc="문의게시판답글:setBoardReply">
+    if($dbControl	==	'setBoardReply'){
+        $v_ar	=	explode('@|@|@|', $v);
+        $getBoardAdmin	=	getValue('_BOARD_ADMIN', " where ba_idx = '".$v_ar[0]."' ");
+
+        $sql	=	"
+                UPDATE   
+                    _BOARD_".$getBoardAdmin['ba_table']." 
+                SET 
+                    b_reply			=	'".trim(addslashes(setSqlFilter($v_ar[1])))."'
+                    , b_reply_is	=	'Y'
+                    , b_reply_date	=	now()
+                WHERE 
+                    b_idx				=	'".$CODE."'
+            ";
+        $rs		=	query($sql);
+
+        //문의게시판일경우 답변 푸시
+        if($v_ar[0]=="4"){
+            //푸시 로직시작
+            $push	=	getRow("select b_user_idx,b_reply,b_idx, 'qna' as type from _BOARD_QNA  where b_idx ='".$CODE."' ");
+
+            $sql_member =   "SELECT md.m_idx as m_idx, md.md_idx as md_idx, md.m_regi as m_regi, md.m_uniq as m_uniq, md.m_conn as m_conn, 'qna' AS TYPE FROM _MEMBER m
+                                    LEFT OUTER JOIN _MEMBER_DEVICE md ON m.m_idx = md.m_idx
+                                    WHERE md.m_idx = ".$push['b_user_idx']." 
+                                     ";
+            $rs_member  =	query($sql_member);
+            $options = array(
+                'notification' => array(
+                    'title' => "epihaim",
+                    'badge' => 1,
+                    'sound' => 'ping.aiff',
+                    'body'  => "문의내용에 대한 답변이 작성되었습니다."
+                )
+            );
+            $test	=	Array();
+            for($i=0; $row = assoc($rs_member); $i++){
+                //        echo "conn:".$row['m_conn']; exit;
+                if($row['m_conn'] == 'IOS'){
+                    $test[]=ios_fcm_push($push, $row['m_regi'], $options);
+                }else{
+                    $test[]=fcm_push($push, $row['m_regi'], $options);
+                }
+            }
+            //푸시 종료
+
+            $fcm_jsonList = array('result'=>'Y', 'message'=>'성공적으로 등록 완료되었습니다..', 'fcm_result'=>$test, 'msg'=>$push, 'url'=>$REUTN);
+            $fcm_json = json_encode( $fcm_jsonList);
+        }
+
+
+        if($rs){
+            useExit('{"result":"Y","message":"성공적으로 답변 완료되었습니다.","url":"f5"}');
+        }else{
+            useExit('{"result":"N","message":"일시적 오류입니다.","url":""}');
+        }
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="사용자등록:setMemberRegi">
+    if($dbControl == 'setMemberRegi'){
+
+        //변수등록
+        $m_id               = $_POST['m_id'];               //ID
+        $m_pass             = $_POST['m_pass'];             //PW
+        $m_name             = $_POST['m_name'];             //사용자명
+        $m_email            = $_POST['m_email'];            //email
+
+        $m_auth_level       = $_POST['m_auth_level'];       //권한레벨
+        $m_class            = $_POST['m_class'];            //사용자 등급
+
+        $m_use              = $_POST['m_use'];              //사용상태
+        $m_memo             = $_POST['m_memo'];             //메모
+
+
+        //1.아이디 & 이메일 중복 체크
+        $_WHERE	=	'';
+        if(getValue('_MEMBER', " where m_id = '".trim(addslashes(setSqlFilter($m_id)))."' and m_site = '".$getSiteSkin['di_idx']."' ", 'm_idx', 'm_idx')){ useExit('{"result":"N","message":"`이미 등록`된 아이디 입니다.\n다른 아이디를 사용하시기 바랍니다.","url":""}'); }
+
+        if(trim($m_email)	!=	''){
+            email_valid($m_email);
+            if(getValue('_MEMBER', " where m_email = '".trim(addslashes(setSqlFilter($m_email)))."' and m_site = '".$getSiteSkin['di_idx']."' ", 'm_idx', 'm_idx')){
+                useExit('{"result":"N","message":"이미 등록된 이메일 입니다.\n다른 이메일을 사용하시기 바랍니다.","url":""}');
+            }
+        }
+
+        //2.m_member 등록
+        //사용자 등록시 관리자(관리자 & 상담원) 구분해야 함
+        //사용자 등급의 경우 user level 그외 관리자 레벨을 부여
+        $v_m_auth_level = substr($m_auth_level,-4);
+        $code_level = codename('0100',$v_m_auth_level,'C');
+
+        if($code_level[0]['code_cid'] == '1000'){
+            $m_level = "user";
+        }else{
+            $m_level = "root";
+        }
+
+        //사용자 권한체크
+        $admin_member = getValue("_MEMBER","WHERE m_idx = '".$memberInfo['m_idx']."' ","ar","*",false);
+
+        $sql	=	"
+                INSERT INTO 
+                    _MEMBER  
+                SET
+                    m_id				=	'".trim(addslashes(setSqlFilter($m_id)))."'
+                    , m_pass			=	'".trim(addslashes(setSqlFilter($m_pass)))."'
+                    , m_name			=	'".trim(addslashes(setSqlFilter($m_name)))."'
+                    , m_email			=	'".trim(addslashes(setSqlFilter($m_email)))."'
+                    , m_hp				=	'".trim(addslashes(setSqlFilter(str_replace("-","",str_replace("+82", "0", $m_hp)))))."'
+                    
+                    , m_auth_level      =   '".trim(addslashes(setSqlFilter($m_auth_level)))."'
+                    , m_class           =   '".trim(addslashes(setSqlFilter($m_class)))."'
+                    
+                    , m_use_is          =   '".$m_use."'
+                    , m_memo            =   '".trim(addslashes(setSqlFilter($m_memo)))."'
+                    , m_site			=	'".$getSiteSkin['di_idx']."'
+                    , m_regdate			=	now()
+                    , m_level			=	'".trim(addslashes(setSqlFilter($m_level)))."'
+                    , m_ip				=	'".$connectIP."'
+                    , m_conn			=	'".$connectMachine."'
+                    ".$_WHERE."			
+                    
+            ";
+        //    echo "sql:".$sql; exit;
+        $rs		=	query($sql);
+        $thisKey=	insert_id();
+
+        if($rs){
+            useExit('{"result":"Y","message":"성공적으로 등록하였습니다.","url":"'.$retrunUrl.'"}');
+        }else{
+            useExit('{"result":"N","message":"일시적 오류입니다.","url":""}');
+        }
+
+    }
+    //</editor-fold>
+    //<editor-fold desc="사용자수정:setMemberModify">
+    if($dbControl == 'setMemberModify'){
+
+        //변수등록
+        $m_id               = $_POST['m_id'];               //ID
+        $m_pass             = $_POST['m_pass'];             //PW
+        $m_name             = $_POST['m_name'];             //사용자명
+        //$m_email            = $_POST['m_email'];            //email
+        $m_hp               = $_POST['m_hp'];               //HP
+        $m_option1          = $_POST['m_option1'];          //메신저
+        $m_option2          = $_POST['m_option2'];          //메신저 ID
+        //    $m_option3          = $_POST['m_option3'];          //서비스 기기수
+        $m_auth_level       = $_POST['m_auth_level'];       //권한레벨
+        $m_class            = $_POST['m_class'];            //사용자 등급
+        $m_option4          = $_POST['m_option4'];          //결제 방법
+        $m_option5          = $_POST['m_option5'];          //제한 트래픽
+        $m_use              = $_POST['m_use'];              //사용상태
+        $m_memo             = $_POST['m_memo'];             //메모
+        //$m_last_login       = $_POST['m_last_login'];       //최종접속일
+        $m_pay_datetime     = $_POST['m_pay_datetime'];     //사용자 결제일자 & 서비스 시작일자
+        $m_expire_datetime  = $_POST['m_expire_datetime'];  //사용자 종료일자 & 서비스 종료일자
+
+        //    $m_manager          = $_POST['m_manager'];          //담당자
+        //    $m_pay1             = $_POST['m_pay1'];             //결재종류
+        //    $m_pay1_etc         = $_POST['m_pay1_etc'];         //
+        //    $m_pay2             = $_POST['m_pay2'];            //개월수
+        //    $m_pay2_etc         = $_POST['m_pay2_etc'];         //
+        //    $m_pay3             = $_POST['m_pay3'];             //기기수
+        //    $m_pay3_etc         = $_POST['m_pay3_etc'];         //
+        //    $m_pay4             = $_POST['m_pay4'];             //금액
+        //    $m_pay4_etc         = $_POST['m_pay4_etc'];         //
+        //    $m_pay4_type        = $_POST['m_pay4_type'];         //
+
+        $_WHERE	=	'';
+        if($m_pay_datetime != ""){
+            $_WHERE .= ", m_pay_datetime    =   '".trim(addslashes(setSqlFilter($m_pay_datetime)))."' ";
+        }
+        if($m_expire_datetime != ""){
+            $_WHERE .= ", m_expire_datetime =   '".trim(addslashes(setSqlFilter($m_expire_datetime)))."' ";
+        }
+
+        if($m_use == ''){
+            $m_use = 'Y';
+        }
+
+        //사용자 권한체크
+        $admin_member = getValue("_MEMBER","WHERE m_idx = '".$memberInfo['m_idx']."' ","ar","*",false);
+        //echo "admin:".$admin_member['m_auth_level']; exit;
+        //    if($admin_member['m_auth_level'] != '01000100' && $admin_member['m_auth_level'] != '01000001'){
+        //        if($m_option3 >= 4) {
+        //            useExit('{"result":"N","message":"최고관리자가 아닙니다.\n최고 관리자만 4개 이상의 기기를 등록할수 있습니다.","url":""}');
+        //        }
+        //    }
+
+        //if(getValue('_MEMBER', " where m_id = '".trim(addslashes(setSqlFilter($m_id)))."' and m_site = '".$getSiteSkin['di_idx']."' ", 'm_idx', 'm_idx')){ useExit('{"result":"N","message":"이미 등록된 아이디 입니다.\n다른 아이디를 사용하시기 바랍니다.","url":""}'); }
+
+        //useExit('email result : '.trim($m_email));
+        //    if(trim($m_email)	!=	''){
+        //        //useExit('email result : '.trim($m_email));
+        //        email_valid($m_email);
+        //        if(getValue('_MEMBER', " where m_email = '".trim(addslashes(setSqlFilter($m_email)))."' and m_site = '".$getSiteSkin['di_idx']."' ", 'm_idx', 'm_idx')){
+        //            useExit('{"result":"N","message":"이미 등록된 이메일 입니다.\n다른 이메일을 사용하시기 바랍니다.","url":""}');
+        //        }
+        //    }
+
+        $sql	=	"
+                UPDATE 
+                    _MEMBER  
+                SET
+                    m_pass			=	'".trim(addslashes(setSqlFilter($m_pass)))."'
+                    , m_name			=	'".trim(addslashes(setSqlFilter($m_name)))."'		    
+                    , m_hp				=	'".trim(addslashes(setSqlFilter(str_replace("-","",str_replace("+82", "0", $m_hp)))))."'		    		    
+                    , m_auth_level      =   '".trim(addslashes(setSqlFilter($m_auth_level)))."'
+                    , m_class           =   '".trim(addslashes(setSqlFilter($m_class)))."'		    		    
+                    , m_use_is          =   '".trim(addslashes(setSqlFilter($m_use)))."'
+                    , m_memo            =   '".trim(addslashes(setSqlFilter($m_memo)))."'			
+                    , m_editdate		=	now()
+                    , m_ip				=	'".$connectIP."'
+                    , m_conn			=	'".$connectMachine."'
+                    ".$_WHERE."
+                WHERE m_id              =   '".$m_id."'	
+            ";
+        //    echo "sql:".$sql; exit;
+        $rs		=	query($sql);
+
+        if($rs){
+            useExit('{"result":"Y","message":"성공적으로 수정하였습니다.","url":"'.$retrunUrl.'"}');
+        }else{
+            useExit('{"result":"N","message":"일시적 오류입니다.","url":""}');
+        }
+    }
+    //</editor-fold>
+    //<editor-fold desc="사용자삭제:setMemberDelete">
+    if($dbControl == 'setMemberDelete'){
+
+        $rs		=	query("delete from _MEMBER where m_idx = '".$_POST['CODE']."' ");
+
+        if($rs == 1){
+            useExit('{"result":"Y","message":"성공적으로 삭제 되었습니다.","url":"f5"}');
+        }else{
+            useExit('{"result":"N","message":"일시적 오류입니다.","url":""}');
+        }
+    }
+    //</editor-fold>
+    //<editor-fold desc="사용자사용정지:setUserStop">
+    if($_POST['dbControl'] == 'setUserStop'){
+        $m_idx = $_POST['CODE'];
+        $column = "m_use##'T',m_editdate##now()";
+        $where = " where m_idx = " . $m_idx;
+        $rs = updTransactionSingle("_MEMBER",$column,$where);
+
+        if($rs == 1){
+            //푸시 로직시작
+            $getDomain	=	getValue('_DOMAIN_INFO', " where 1 ");
+            $push	=	getRow("select '".$m_idx."' as m_idx, 'userstop' as type");
+            $sql_member =   "SELECT md.m_idx as m_idx, md.md_idx as md_idx, md.m_regi as m_regi, md.m_uniq as m_uniq, md.m_conn as m_conn, 'userstop' AS TYPE FROM _MEMBER m
+                                    LEFT OUTER JOIN _MEMBER_DEVICE md ON m.m_idx = md.m_idx
+                                    WHERE md.m_idx = ".$m_idx." 
+                                  ";
+            //        echoAr($push); exit;
+            $rs_member  =	query($sql_member);
+            //        $test	=	Array();
+            //        for($i=0; $row = assoc($rs_member); $i++){
+            //            $test[]=fcm_push($push, $getDomain['push_key'],$row['m_regi']);
+            //        }
+            $options = array(
+                'notification' => array(
+                    'title' => "TERRA PVN",
+                    'badge' => 1,
+                    'sound' => 'ping.aiff',
+                    'body'  => "시스템에 의하여 사용이 정지되었습니다. 관리자에게 문의하세요."
+                )
+            );
+            $test	=	Array();
+            for($i=0; $row = assoc($rs_member); $i++){
+                if($row['m_conn'] == 'IOS'){
+                    $test[]=ios_fcm_push($push, $row['m_regi'], $options);
+                }else{
+                    $test[]=fcm_push($push, $row['m_regi'], $options);
+                }
+
+            }
+            //푸시 종료
+
+            useExit('{"result":"Y","message":"성공적으로 수정 완료되었습니다.","url":"f5"}');
+        }else{
+            useExit('{"result":"N","message":"일시적 오류입니다.","message":""}');
+        }
+    }
+    //</editor-fold>
+    //<editor-fold desc="사용자사용정지해제:setUserStart">
+    if($_POST['dbControl'] == 'setUserStart'){
+        $column = "m_use##'Y',m_editdate##now()";
+        $where = " where m_idx = " . $_POST['CODE'];
+        $rs = updTransactionSingle("_MEMBER",$column,$where);
+
+        if($rs == 1){
+            useExit('{"result":"Y","message":"성공적으로 수정 완료되었습니다.","url":"f5"}');
+        }else{
+            useExit('{"result":"N","message":"일시적 오류입니다.","message":""}');
+        }
+    }
+    //</editor-fold>
+
+
+    //<editor-fold desc="게시판댓글입력:setBoardComment">
+    if($dbControl	==	'setBoardComment'){
+
+        $v_ar	=	explode('@|@|@|', $v);
+        //$getBoardAdmin	=	getValue('_BOARD_ADMIN', " where ba_idx = '".$v_ar[0]."' ");
+
+        //exit('{"result":"N","message":"시스템 문제로 일시적으로 댓글을 사용하실수 없습니다."}');
+
+        $sql	=	"
+                            INSERT INTO 
+                                _BOARD_COMMENT 
+                            SET bf_board_id		=	'".$v_ar[0]."'
+                                , bf_board_idx	=	'".$v_ar[1]."'
+                                , bf_rank		=	'0'						
+                                , b_user_idx	=	'".trim(addslashes(setSqlFilter($partnerInfo['p_idx'] ? $partnerInfo['p_idx'] : $memberInfo['m_idx'])))."'
+                                , comment	    =	'".$v_ar[2]."'						
+                                , b_regdate	=   now()
+                                , like_cnt      =   '0'
+                        ";
+
+        //echo "sql:".$sql; exit;
+        $rs		=	query($sql);
+
+        if($rs){
+            useExit('{"result":"Y","message":"성공적으로 댓글 등록이 완료되었습니다.","url":"f5"}');
+        }else{
+            useExit('{"result":"N","message":"일시적 오류입니다.","url":""}');
+        }
+    }
+    //</editor-fold>
+    //<editor-fold desc="게시판댓글삭제:delBoardComment">
+    if($dbControl	==	'delBoardComment'){
+        $v_ar	=	explode('@|@|@|', $v);
+
+        $getBoardAdmin	=	getValue('_BOARD_ADMIN', " where ba_idx = '".$v_ar[0]."' ");
+
+        $sql	=	"delete from _BOARD_COMMENT where b_idx = '".$v_ar[2]."' ";
+        //    echo "sql : " . $sql;exit;
+
+        $rs		=	query($sql);
+
+        if($rs){
+            useExit('{"result":"Y","message":"성공적으로 댓글 삭제가 완료되었습니다.","url":"f5"}');
+        }else{
+            useExit('{"result":"N","message":"일시적 오류입니다.","url":""}');
+        }
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="게시판글등록신규:setBoardSend_new">
+    if($_POST['dbControl'] == 'setBoardSend_new'){
+
+        //echo "aa:".$_POST['push_app']; exit;
+
+        $getBoardAdmin	=	getValue('_BOARD_ADMIN', " where ba_idx = '".$BCODE."' ");
+
+        $_WHERE	=	"";
+        $sql	=	"
+                INSERT INTO 
+                    _BOARD_".$getBoardAdmin['ba_table']." 
+                SET 
+                    b_cate				=	'".trim(addslashes(setSqlFilter($_POST['b_cate'])))."'
+                    , b_site			=	'".setSqlFilter($getSiteSkin['di_idx'])."'
+                    , b_title			=	'".trim(addslashes(setSqlFilter($_POST['b_title'])))."'
+                    , b_contents		=	'".trim(addslashes(setSqlFilter($_POST['b_contents'])))."'
+                    , b_reply			=	'".trim(addslashes(setSqlFilter($_POST['b_reply'])))."'
+                    , b_user_idx		=	'".trim(addslashes(setSqlFilter($partnerInfo['p_idx'] ? $partnerInfo['p_idx'] : $memberInfo['m_idx'])))."'
+                    , b_name			=	'".trim(addslashes(setSqlFilter($_POST['b_name'] ? $_POST['b_name'] : $memberInfo['m_name'])))."'
+                    , b_hits			=	1
+                    , b_notice_is		=	'".trim(addslashes(setSqlFilter($_POST['b_notice_is'] == 'Y' ? 'Y' : 'N')))."'
+                    , b_secret_is		=	'".trim(addslashes(setSqlFilter($_POST['b_secret_is'] == 'Y' ? 'Y' : 'N')))."'
+                    , b_user_level		=	'".trim(addslashes(setSqlFilter($partnerInfo['p_idx'] != '' ? 'PARTNER' : 'ADMIN')))."'
+                    , b_ip				=	'".$connectIP."'
+                    , b_agent			=	'".$agent."'
+                    , b_tag				=	'".$b_tag."'
+                    , b_class			=	'".trim(addslashes(setSqlFilter($_POST['b_class'])))."'
+        
+                    , b_add1			=	'".trim(addslashes(setSqlFilter($_POST['b_add1'])))."'
+                    , b_add2			=	'".trim(addslashes(setSqlFilter($_POST['b_add2'])))."'
+                    , b_add3			=	'".trim(addslashes(setSqlFilter($_POST['b_add3'])))."'
+                    , b_add4			=	'".trim(addslashes(setSqlFilter($_POST['b_add4'])))."'
+                    , b_add5			=	'".trim(addslashes(setSqlFilter($_POST['b_add5'])))."'
+                    , b_add6			=	'".trim(addslashes(setSqlFilter($_POST['b_add6'])))."'
+                    , b_add7			=	'".trim(addslashes(setSqlFilter($_POST['b_add7'])))."'
+                    , b_add8			=	'".trim(addslashes(setSqlFilter($_POST['b_add8'])))."'
+                    , b_add9			=	'".trim(addslashes(setSqlFilter($_POST['b_add9'])))."'
+                    , b_add10			=	'".trim(addslashes(setSqlFilter($_POST['b_add10'])))."'
+                    , b_regdate			=	now()
+            ";
+        //    echo "sql:".$sql; exit;
+        $rs		=	query($sql);
+        $thisKey=	insert_id();
+        query("update _BOARD_".$getBoardAdmin['ba_table']."  set b_parent = '".$thisKey."' where b_idx = '".$thisKey."' ");
+
+        $FILEINFO	=	array();
+        $_WHERE		=	'';
+        $_DIR		=	'BOARD';
+        $_DIR_DELIM	=	$getBoardAdmin['ba_table'];
+
+        for($f=1; $f <= trim($getBoardAdmin['ba_file_cnt']); $f++){
+
+            $_FILENUM	=	1;
+            $_FILENAME	=	'bf_file_'.$f;
+            if($_FILES[$_FILENAME]['name'] != ''){
+                //            $FILEINFO['_UPLOADFILE']=	fileUpload($_FILENAME, $_DIR, $_DIR_DELIM);
+                $FILEINFO['_UPLOADFILE'] = setImgResize($_FILENAME, $_DIR, $_DIR_DELIM);
+
+                $FILEINFO['_DIR']		=	'/UPLOAD/'.$_DIR.'/'.$_DIR_DELIM.'/';
+                $FILEINFO['_FILE']		=	$FILEINFO['_UPLOADFILE'];
+                $FILEINFO['_FILE_ORG']	=	$_FILES[$_FILENAME]['name'];
+                $FILEINFO['_FILE_SIZE']	=	$_FILES[$_FILENAME]['size'];
+
+
+                $filesql	=	"
+                        INSERT INTO 
+                            _BOARD_FILE 
+                        SET 
+                            bf_board_id		=	'".$BCODE."'
+                            , bf_board_idx	=	'".$thisKey."'
+                            , bf_dir		=	'".$FILEINFO['_DIR']."'
+                            , bf_file		=	'".$FILEINFO['_FILE']."'
+                            , bf_file_org	=	'".$FILEINFO['_FILE_ORG']."'
+                            , bf_file_size	=	'".$FILEINFO['_FILE_SIZE']."'
+                            , bf_contents	=	''
+                            , bf_download	=	0
+                            , bf_rank		=	'".$f."'
+                            , bf_regdate	=	now()
+                    ";
+                $filers		=	query($filesql);
+                $_FILENUM++;
+            }
+        }
+
+        if($_POST['RETURNURLCONTROL']){
+            $REUTN	=	$_POST['RETURNURLCONTROL'];
+        }else{
+            $REUTN	=	$_POST['RETURNURL'];
+        }
+
+        //    //푸시 로직시작
+        //    $getDomain	=	getValue('_DOMAIN_INFO', " where di_company_name = '".$_POST['b_cate']."' ");
+        //    $push	=	getRow("select b_idx, b_title, b_contents, 'notice' as type from _BOARD_NOTICE  where b_idx ='".$thisKey."' ");
+
+        if($_POST['push_app'] == 'push_app'){
+
+            //<editor-fold desc="토픽푸시">
+            //	    $contents = preg_replace("(\<(/?[^\>]+)\>)", "", trim($_POST['b_contents'])); // html 태그를 없애는 정규식
+            //	    if($BCODE==1){
+            //		    $contents_str = mb_substr(trim($contents),0,50);
+            //	    }else{
+            //		    $contents_str = $contents;
+            //	    }
+            //	    $receiveId          =   "/topics/".$getBoardAdmin['ba_pushtype'];
+            //	    $message_string = array(
+            //		    'title' => trim($_POST["b_title"]),
+            //		    'idx'=>trim($thisKey),
+            //		    'type' => trim($getBoardAdmin['ba_pushtype']),
+            //		    'body'  => $contents_str
+            //	    );
+            //	    $aa	=	fcm_topic_push($message_string, $getSiteSkin['push_key'], $receiveId);
+            //</editor-fold>
+
+
+            $sql_member =   "select * from _MEMBER where m_level = 'user' and m_regi <> '' and m_cate = '".$_POST['b_cate']."' and m_use = 'Y' ";
+            $rs_member  =	query($sql_member);
+            $test	=	Array();
+            for($i=0; $row = assoc($rs_member); $i++){
+                $test[]=fcm_push($push, $getDomain['di_fcm_key'],$row['m_regi']);
+            }
+
+            $fcm_jsonList = array('result'=>'Y', 'message'=>'성공적으로 등록 완료되었습니다..', 'fcm_result'=>$test, 'msg'=>$push, 'url'=>$REUTN);
+            $fcm_json = json_encode( $fcm_jsonList);
+
+        }else{
+            $fcm_jsonList = array('result'=>'Y', 'message'=>'성공적으로 등록 완료되었습니다..','url'=>$REUTN);
+            $fcm_json = json_encode( $fcm_jsonList);
+        }
+        //푸시 로직종료
+
+        if($rs){
+            useExit($fcm_json);
+        }else{
+            useExit('{"result":"N","message":"일시적 오류입니다.","url":""}');
+        }
+    }
+    //</editor-fold>
+    //<editor-fold desc="게시판글수정신규:setBoardModify_new">
+    if($_POST['dbControl'] == 'setBoardModify_new'){
+
+        $getBoardAdmin	=	getValue('_BOARD_ADMIN', " where ba_idx = '".$BCODE."' ");
+
+        $sql	=	"
+                UPDATE  
+                    _BOARD_".$getBoardAdmin['ba_table']." 
+                SET 
+                    b_cate				=	'".trim(addslashes(setSqlFilter($_POST['b_cate'])))."'
+                    , b_site			=	'".setSqlFilter($getSiteSkin['di_idx'])."'
+                    , b_title			=	'".trim(addslashes(setSqlFilter($_POST['b_title'])))."'
+                    , b_contents		=	'".trim(addslashes(setSqlFilter($_POST['b_contents'])))."'
+                    , b_reply			=	'".trim(addslashes(setSqlFilter($_POST['b_reply'])))."'
+                    , b_notice_is		=	'".trim(addslashes(setSqlFilter($_POST['b_notice_is'] == 'Y' ? 'Y' : 'N')))."'
+                    , b_secret_is		=	'".trim(addslashes(setSqlFilter($_POST['b_secret_is'] == 'Y' ? 'Y' : 'N')))."'
+                    , b_name			=	'".trim(addslashes(setSqlFilter($_POST['b_name'] ? $_POST['b_name'] : $memberInfo['m_name'])))."'
+                    , b_class			=	'".trim(addslashes(setSqlFilter($_POST['b_class'])))."'
+                    , b_add1			=	'".trim(addslashes(setSqlFilter($_POST['b_add1'])))."'
+                    , b_add2			=	'".trim(addslashes(setSqlFilter($_POST['b_add2'])))."'
+                    , b_add3			=	'".trim(addslashes(setSqlFilter($_POST['b_add3'])))."'
+                    , b_add4			=	'".trim(addslashes(setSqlFilter($_POST['b_add4'])))."'
+                    , b_add5			=	'".trim(addslashes(setSqlFilter($_POST['b_add5'])))."'
+                    , b_add6			=	'".trim(addslashes(setSqlFilter($_POST['b_add6'])))."'
+                    , b_add7			=	'".trim(addslashes(setSqlFilter($_POST['b_add7'])))."'
+                    , b_add8			=	'".trim(addslashes(setSqlFilter($_POST['b_add8'])))."'
+                    , b_add9			=	'".trim(addslashes(setSqlFilter($_POST['b_add9'])))."'
+                    , b_add10			=	'".trim(addslashes(setSqlFilter($_POST['b_add10'])))."'
+                    , b_ip				=	'".$connectIP."'
+                    , b_agent			=	'".$agent."'
+                    , b_tag				=	'".$b_tag."'
+                    , b_modidate		=	now() 
+                    ".$_WHERE."
+                WHERE 
+                    b_idx				=	'".$CODE."'
+            ";
+        $rs		=	query($sql);
+        $thisKey=	$CODE;
+
+
+        $FILEINFO	=	array();
+        $_WHERE		=	'';
+        $_DIR		=	'BOARD';
+        $_DIR_DELIM	=	$getBoardAdmin['ba_table'];
+        for($f=1; $f <= trim($getBoardAdmin['ba_file_cnt']); $f++){
+            $_FILENUM	=	1;
+            $_FILENAME	=	'bf_file_'.$f;
+            if($_FILES[$_FILENAME]['name'] != ''){
+                $getFileInfo	=	getValue('_BOARD_FILE', " where bf_idx = '".$bf_idx."' ", 'ar', 'bf_dir, bf_file');
+                @unlink($_SERVER['DOCUMENT_ROOT'].'/'.$getFileInfo['bf_dir'].'/'.$getFileInfo['bf_file']);
+
+                $FILEINFO['_UPLOADFILE']=	fileUpload($_FILENAME, $_DIR, $_DIR_DELIM);
+
+                $FILEINFO['_DIR']		=	'/UPLOAD/'.$_DIR.'/'.$_DIR_DELIM.'/';
+                $FILEINFO['_FILE']		=	$FILEINFO['_UPLOADFILE'];
+                $FILEINFO['_FILE_ORG']	=	$_FILES[$_FILENAME]['name'];
+                $FILEINFO['_FILE_SIZE']	=	$_FILES[$_FILENAME]['size'];
+
+                if($getFileInfo['bf_file']	!=	''){
+                    $filesql	=	"
+                            UPDATE  
+                                _BOARD_FILE 
+                            SET 
+                                bf_dir			=	'".$FILEINFO['_DIR']."'
+                                , bf_file		=	'".$FILEINFO['_FILE']."'
+                                , bf_file_org	=	'".$FILEINFO['_FILE_ORG']."'
+                                , bf_file_size	=	'".$FILEINFO['_FILE_SIZE']."'
+                                , bf_contents	=	''
+                                , bf_download	=	0
+                                , bf_regdate	=	now()
+                            WHERE 
+                                bf_idx			=	'".$bf_idx."' 
+                        ";
+                }else{
+                    $filesql	=	"
+                            INSERT INTO 
+                                _BOARD_FILE 
+                            SET 
+                                bf_board_id		=	'".$BCODE."'
+                                , bf_board_idx	=	'".$thisKey."'
+                                , bf_dir		=	'".$FILEINFO['_DIR']."'
+                                , bf_file		=	'".$FILEINFO['_FILE']."'
+                                , bf_file_org	=	'".$FILEINFO['_FILE_ORG']."'
+                                , bf_file_size	=	'".$FILEINFO['_FILE_SIZE']."'
+                                , bf_contents	=	''
+                                , bf_download	=	0
+                                , bf_rank		=	'".$f."'
+                                , bf_regdate	=	now()
+                        ";
+                }
+                $filers		=	query($filesql);
+                $_FILENUM++;
+            }
+        }
+
+        if($rs){
+            useExit('{"result":"Y","message":"성공적으로 등록 완료되었습니다.","url":"'.($_POST['RETURNURL']).'"}');
+        }else{
+            useExit('{"result":"N","message":"일시적 오류입니다.","url":""}');
+        }
+    }
+    //</editor-fold>
+    //<editor-fold desc="게시판글삭제신규:setBoardDel_new">
+    if($_POST['dbControl'] == 'setBoardDel_new'){
+        $getBoardAdmin	=	getValue('_BOARD_ADMIN', " where ba_idx = '".$BCODE."' ");
+
+        $fileSql	=	"select * from _BOARD_FILE where bf_board_idx = '".$CODE."' and bf_board_id = '".$getBoardAdmin['ba_idx']."' ";
+        $fileRs		=	query($fileSql);
+        if(rows() > 0){
+            for($f=0; $fileRow = assoc($fileRs); $f++){
+                @unlink($_SERVER['DOCUMENT_ROOT'].'/'.$fileRow['bf_dir'].'/'.$fileRow['bf_file']);
+                query("delete from _BOARD_FILE where bf_idx = '".$fileRow['bf_idx']."' ");
+            }
+        }
+        $sql	=	"delete from _BOARD_".$getBoardAdmin['ba_table']." where b_idx = '".$CODE."' ";
+        $rs		=	query($sql);
+        if($rs){
+            useExit('{"result":"Y","message":"성공적으로 삭제 완료되었습니다.","url":"'.($_POST['RETURNURL']).'"}');
+        }else{
+            useExit('{"result":"N","message":"일시적 오류입니다.","url":""}');
+        }
+    }
+    //</editor-fold>
+
+
+    //<editor-fold desc="상품상위카테고리등록:setCateInsert">
+    if($_POST['dbControl'] == 'setCateInsert'){
+
+        //변수등록
+        $sc_cate_name           = $_POST['sc_cate_name'];                         //카테고리명
+        $sc_status              = $_POST['sc_status'];                            //사용여부
+        $sc_cate_contents       = $_POST['sc_cate_contents'];             //카테고리설명
+
+        autocommit(false);
+
+        $sql = "INSERT INTO 
+                    _SHOP_CATE
+                SET
+                   sc_cate_name             =    '".trim(addslashes(setSqlFilter($sc_cate_name)))."'		
+                   , sc_status              =    '".trim(addslashes(setSqlFilter($sc_status)))."'		
+                   , sc_cate_contents       =    '".trim(addslashes(setSqlFilter($sc_cate_contents)))."'		
+                   , sc_regdate             =      now()
+                   ".$_WHERE."
+        ";
+
+        $rs         =   query($sql);
+        $thisKey    =	insert_id();
+
+        if(!$rs){
+            mysqlrollback();
+            autocommit(true);
+            useExit('{"result":"N","message":"일시적 오류입니다.","ErrCODE":"rs"}');
+        }
+
+        mysqlcommit();
+        autocommit(true);
+        useExit('{"result":"Y","message":"성공적으로 등록 완료되었습니다.","url":"'.$retrunUrl.'"}');
+    }
+    //</editor-fold>
+    //<editor-fold desc="상품상위카테고리수정:setCateUpdate">
+    if($_POST['dbControl'] == 'setCateUpdate'){
+
+        //변수등록
+        $sc_cate_name    = $_POST['sc_cate_name'];                           //카테고리명
+        $sc_status       = $_POST['sc_status'];                             //사용여부
+        $sc_cate_contents       = $_POST['sc_cate_contents'];             //카테고리설명
+
+        autocommit(false);
+
+        $sql = "
+                UPDATE
+                    _SHOP_CATE
+                SET
+                   sc_cate_name             =    '".trim(addslashes(setSqlFilter($sc_cate_name)))."'		
+                   , sc_status              =    '".trim(addslashes(setSqlFilter($sc_status)))."'	
+                   , sc_cate_contents       =    '".trim(addslashes(setSqlFilter($sc_cate_contents)))."'			
+                   
+                   ".$_WHERE."
+                WHERE
+                    sc_idx                  =     '".$CODE."'
+		   
+        ";
+
+        $rs         =   query($sql);
+
+
+        if(!$rs){
+            mysqlrollback();
+            autocommit(true);
+            useExit('{"result":"N","message":"일시적 오류입니다.","ErrCODE":"rs"}');
+        }
+
+        mysqlcommit();
+        autocommit(true);
+        useExit('{"result":"Y","message":"성공적으로 등록 완료되었습니다.","url":"'.$retrunUrl.'"}');
+        }
+        //</editor-fold>
+    //<editor-fold desc="상품상위카테고리삭제:setCateDelete">
+    if($_POST['dbControl'] == 'setCateDelete'){
+
+        autocommit(false);
+        $rs		=	query("DELETE FROM _SHOP_CATE WHERE sc_idx = '".$_POST['CODE']."' ");
+
+        if(!$rs){
+            mysqlrollback();
+            autocommit(true);
+            useExit('{"result":"N","message":"일시적 오류입니다.","ErrCODE":"rs"}');
+        }
+        //echoAr($_POST['CODE']);
+
+        mysqlcommit();
+        autocommit(true);
+
+
+        if($rs == 1){
+            useExit('{"result":"Y","message":"성공적으로 삭제 되었습니다.","url":"f5"}');
+        }else{
+            useExit('{"result":"N","message":"일시적 오류입니다.","url":""}');
+        }
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="상품하위카테고리등록:setCateInsert2">
+    if($_POST['dbControl'] == 'setCateInsert2'){
+
+        //변수등록
+        $scc_cate_name    = $_POST['scc_cate_name'];          //카테고리명
+        $scc_status       = $_POST['scc_status'];             //사용여부
+
+        autocommit(false);
+
+        $sql = "INSERT INTO 
+                    _SHOP_CATE2
+                SET
+                   scc_cate_name             =    '".trim(addslashes(setSqlFilter($scc_cate_name)))."'		
+                   , scc_status              =    '".trim(addslashes(setSqlFilter($scc_status)))."'		
+                   , scc_regdate             =      now()
+                   ".$_WHERE."
+        ";
+
+        $rs         =   query($sql);
+
+        if(!$rs){
+            mysqlrollback();
+            autocommit(true);
+            useExit('{"result":"N","message":"일시적 오류입니다.","ErrCODE":"rs"}');
+        }
+
+        mysqlcommit();
+        autocommit(true);
+        useExit('{"result":"Y","message":"성공적으로 등록 완료되었습니다.","url":"'.$retrunUrl.'"}');
+    }
+    //</editor-fold>
+    //<editor-fold desc="상품하위카테고리수정:setCateUpdate2">
+    if($_POST['dbControl'] == 'setCateUpdate2'){
+
+        //변수등록
+        $scc_cate_name    = $_POST['scc_cate_name'];                           //카테고리명
+        $scc_status       = $_POST['scc_status'];                             //사용여부
+
+        autocommit(false);
+
+        $sql = "
+                UPDATE
+                    _SHOP_CATE2
+                SET
+                    scc_cate_name            =    '".trim(addslashes(setSqlFilter($scc_cate_name)))."'
+                   , scc_status              =    '".trim(addslashes(setSqlFilter($scc_status)))."'	
+                   
+                   ".$_WHERE."
+                WHERE
+                    scc_idx                  =     '".$CODE."'
+		   
+        ";
+
+        $rs         =   query($sql);
+
+
+        if(!$rs){
+            mysqlrollback();
+            autocommit(true);
+            useExit('{"result":"N","message":"일시적 오류입니다.","ErrCODE":"rs"}');
+        }
+
+        mysqlcommit();
+        autocommit(true);
+        useExit('{"result":"Y","message":"성공적으로 등록 완료되었습니다.","url":"'.$retrunUrl.'"}');
+    }
+        //</editor-fold>
+    //<editor-fold desc="상품하위카테고리삭제:setCateDelete2">
+    if($_POST['dbControl'] == 'setCateDelete2'){
+
+        autocommit(false);
+        $rs		=	query("DELETE FROM _SHOP_CATE2 WHERE scc_idx = '".$_POST['CODE']."' ");
+
+        if(!$rs){
+            mysqlrollback();
+            autocommit(true);
+            useExit('{"result":"N","message":"일시적 오류입니다.","ErrCODE":"rs"}');
+        }
+        //echoAr($_POST['CODE']);
+
+        mysqlcommit();
+        autocommit(true);
+
+
+        if($rs == 1){
+            useExit('{"result":"Y","message":"성공적으로 삭제 되었습니다.","url":"f5"}');
+        }else{
+            useExit('{"result":"N","message":"일시적 오류입니다.","url":""}');
+        }
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="브랜드소개등록:setBrandInsert_Intro">
+    if($_POST['dbControl'] == 'setBrandInsert_Intro'){
+
+        $b_contents           = $_POST['b_contents'];                         //카테고리명
+
+        autocommit(false);
+
+        $sql = "INSERT INTO 
+                    _BOARD_BRAND
+                SET
+                   b_contents             =    '".trim(addslashes(setSqlFilter($b_contents)))."'		
+                   , b_regdate            =      now()
+                   ".$_WHERE."
+        ";
+
+        $rs         =   query($sql);
+
+
+        if(!$rs){
+            mysqlrollback();
+            autocommit(true);
+            useExit('{"result":"N","message":"일시적 오류입니다.","ErrCODE":"rs"}');
+        }
+
+        mysqlcommit();
+        autocommit(true);
+        useExit('{"result":"Y","message":"성공적으로 등록 완료되었습니다.","url":"'.$retrunUrl.'"}');
+    }
+    //</editor-fold>
+    //<editor-fold desc="브랜드소개수정:setBrandUpdate_Intro">
+    if($_POST['dbControl'] == 'setBrandUpdate_Intro'){
+
+        $b_contents           = $_POST['b_contents'];                         //카테고리명
+
+        autocommit(false);
+
+        $sql = "UPDATE
+                    _BOARD_BRAND
+                SET
+                   b_contents             =    '".trim(addslashes(setSqlFilter($b_contents)))."'		
+                   , b_regdate            =      now()
+                   ".$_WHERE."
+                WHERE
+                    b_idx                  =     '".$CODE."'
+        ";
+
+        $rs         =   query($sql);
+
+
+        if(!$rs){
+            mysqlrollback();
+            autocommit(true);
+            useExit('{"result":"N","message":"일시적 오류입니다.","ErrCODE":"rs"}');
+        }
+
+        mysqlcommit();
+        autocommit(true);
+        useExit('{"result":"Y","message":"성공적으로 등록 완료되었습니다.","url":"'.$retrunUrl.'"}');
+    }
+    //</editor-fold>
+    //<editor-fold desc="브랜드소개삭제:setBrandDelete_Intro">
+    if($_POST['dbControl'] == 'setBrandDelete_Intro'){
+        autocommit(false);
+        $rs		=	query("DELETE FROM _BOARD_BRAND WHERE b_idx = '".$_POST['CODE']."' ");
+
+        if(!$rs){
+            mysqlrollback();
+            autocommit(true);
+            useExit('{"result":"N","message":"일시적 오류입니다.","ErrCODE":"rs"}');
+        }
+        //echoAr($_POST['CODE']);
+
+        mysqlcommit();
+        autocommit(true);
+
+
+        if($rs == 1){
+            useExit('{"result":"Y","message":"성공적으로 삭제 되었습니다.","url":"f5"}');
+        }else{
+            useExit('{"result":"N","message":"일시적 오류입니다.","url":""}');
+        }
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="브랜드스토리등록:setBrandInsert_Story">
+    if($_POST['dbControl'] == 'setBrandInsert_Story'){
+
+        $b_contents           = $_POST['b_contents'];                         //카테고리명
+
+        autocommit(false);
+
+        $sql = "INSERT INTO 
+                    _BOARD_BRAND2
+                SET
+                   b_contents             =    '".trim(addslashes(setSqlFilter($b_contents)))."'		
+                   , b_regdate            =      now()
+                   
+                   ".$_WHERE."
+        ";
+
+        $rs         =   query($sql);
+
+
+        if(!$rs){
+            mysqlrollback();
+            autocommit(true);
+            useExit('{"result":"N","message":"일시적 오류입니다.","ErrCODE":"rs"}');
+        }
+
+        mysqlcommit();
+        autocommit(true);
+        useExit('{"result":"Y","message":"성공적으로 등록 완료되었습니다.","url":"'.$retrunUrl.'"}');
+    }
+    //</editor-fold>
+    //<editor-fold desc="브랜드스토리수정:setBrandUpdate_Story">
+    if($_POST['dbControl'] == 'setBrandUpdate_Story'){
+
+        $b_contents           = $_POST['b_contents'];                         //카테고리명
+
+        autocommit(false);
+
+        $sql = "UPDATE
+                    _BOARD_BRAND2
+                SET
+                   b_contents             =    '".trim(addslashes(setSqlFilter($b_contents)))."'		
+                   , b_regdate            =      now()
+                   ".$_WHERE."
+                WHERE
+                    b_idx                  =     '".$CODE."'
+        ";
+
+        $rs         =   query($sql);
+
+
+        if(!$rs){
+            mysqlrollback();
+            autocommit(true);
+            useExit('{"result":"N","message":"일시적 오류입니다.","ErrCODE":"rs"}');
+        }
+
+        mysqlcommit();
+        autocommit(true);
+        useExit('{"result":"Y","message":"성공적으로 등록 완료되었습니다.","url":"'.$retrunUrl.'"}');
+    }
+    //</editor-fold>
+    //<editor-fold desc="브랜드스토리삭제:setBrandDelete_Story">
+    if($_POST['dbControl'] == 'setBrandDelete_Story'){
+        autocommit(false);
+        $rs		=	query("DELETE FROM _BOARD_BRAND2 WHERE b_idx = '".$_POST['CODE']."' ");
+
+        if(!$rs){
+            mysqlrollback();
+            autocommit(true);
+            useExit('{"result":"N","message":"일시적 오류입니다.","ErrCODE":"rs"}');
+        }
+        //echoAr($_POST['CODE']);
+
+        mysqlcommit();
+        autocommit(true);
+
+
+        if($rs == 1){
+            useExit('{"result":"Y","message":"성공적으로 삭제 되었습니다.","url":"f5"}');
+        }else{
+            useExit('{"result":"N","message":"일시적 오류입니다.","url":""}');
+        }
+    }
+    //</editor-fold>
+
+
+
+

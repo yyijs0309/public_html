@@ -1,0 +1,314 @@
+<div class="con_head_wrap">
+	<div class="con_head">
+		<h1><?=$_TITLE_SUB ? $SITE_NAME.'-'.$_TITLE_SUB : $SITE_NAME.'-'.$_TITLE?></h1>
+	</div>
+</div>
+<div class="con_body_wrap">
+	<div class="con_body">
+		<div class="con_body_top_form_wrap">
+			<div class="row">
+				<div class="col-xs-12">
+					<div class="cloud_box">
+						<div role="tabpanel">
+							<div class="board_view_all_wrap">
+								<form method="post" name="viewNoticeFrmProcess" id="viewNoticeFrmProcess" enctype="multipart/form-data">
+									<input type="hidden" name="RETURNURL" value="notice.siso?pagenum=<?=$pagenum?>&search_order=<?=$search_order?>&word=<?=$word?>&options=<?=$options?>&cate=<?=$cate?>&date_from=<?=$date_from?>&date_to=<?=$date_to?>">
+									<input type="hidden" name="dbControl" value="setBoardDel_new">
+									<input type="hidden" name="CODE" value="<?=$list[0]['b_idx']?>">
+									<input type="hidden" name="BCODE" value="1">
+								</form>
+								<div class="tab-content">
+									<div role="tabpanel" class="tab-pane active" id="lang_kr">
+										<div class="board_view_top">
+											<h2><?=trim(stripslashes(str_replace("\n", '<br>', $list[0]["b_title"])))?></h2>
+										</div>
+										<div class="board_view_con_wrap">
+											<div class="board_view_con_top_wrap">
+												<div class="board_view_con_top">
+													<span class="view_con_top_span">
+														<i class="fa fa-tags"></i>
+														<span><?=$list[0]["b_cate"]?></span>
+													</span>
+													<span class="view_con_top_span">
+														<span class="sp"></span>
+														<i class="fa fa-user"></i>
+														<span><?=$list[0]["b_name"]?></span>
+													</span>
+													<span class="view_con_top_span">
+														<span class="sp"></span>
+														<i class="fa fa-eye"></i>
+														<span><?=$list[0]['b_hits']?> 회</span>
+													</span>
+													<span class="view_con_top_span pull-right">
+														<i class="fa fa-clock-o"></i>
+														<span><?=$list[0]['b_regdate']?></span>
+													</span>
+												</div>
+												<?php  if(trim($getBoardAdmin['ba_file_is'])	==	'Y'){ ?>
+													<?php  for($f=1; $f <= trim($getBoardAdmin['ba_file_cnt']); $f++){ ?>
+														<div class="board_view_con_top">
+															<span class="view_con_top_span">
+																<i class="fa fa-download">첨부파일 #<?=$f?></i>
+																<span>
+																	<?php  if($file[$f-1]['bf_file']){ ?><a href='<?=$file[$f-1]['bf_dir']?>/<?=$file[$f-1]['bf_file']?>' target="_blank"><?=$file[$f-1]['bf_file_org']?></a><?php  } ?>
+																</span>
+															</span>
+														</div>
+													<?php  } ?>
+												<?php  } ?>
+											</div>
+											<div class="board_view_con_in">
+												<div class="board_view_con">
+													<?=trim(stripslashes(str_replace("\n", '<br>', $list[0]["b_contents"])))?>
+												</div>
+											</div>
+											
+										</div>
+									</div>
+									<div role="tabpanel" class="tab-pane" id="lang_en">
+										<div class="board_view_top">
+											<h2><?=trim(stripslashes(str_replace("\n", '<br>', $list[0]["b_title_en"])))?></h2>
+										</div>
+										<div class="board_view_con_wrap">
+											<div class="board_view_con_top_wrap">
+												<div class="board_view_con_top">
+													<span class="view_con_top_span">
+														<i class="fa fa-tags"></i>
+														<span><?=$list[0]["b_cate"]?></span>
+													</span>
+													<span class="view_con_top_span">
+														<span class="sp"></span>
+														<i class="fa fa-user"></i>
+														<span><?=$list[0]["b_name"]?></span>
+													</span>
+													<span class="view_con_top_span">
+														<span class="sp"></span>
+														<i class="fa fa-eye"></i>
+														<span><?=$list[0]['b_hits']?> 회</span>
+													</span>
+													<span class="view_con_top_span pull-right">
+														<i class="fa fa-clock-o"></i>
+														<span><?=$list[0]['b_regdate']?></span>
+													</span>
+												</div>
+												<?php  if(trim($getBoardAdmin['ba_file_is'])	==	'Y'){ ?>
+													<?php  for($f=1; $f <= trim($getBoardAdmin['ba_file_cnt']); $f++){ ?>
+														<div class="board_view_con_top">
+															<span class="view_con_top_span">
+																<i class="fa fa-download">첨부파일 #<?=$f?></i>
+																<span>
+																	<?php  if($file[$f-1]['bf_file']){ ?><a href='<?=$file[$f-1]['bf_dir']?>/<?=$file[$f-1]['bf_file']?>' target="_blank"><?=$file[$f-1]['bf_file_org']?></a><?php  } ?>
+																</span>
+															</span>
+														</div>
+													<?php  } ?>
+												<?php  } ?>
+											</div>
+											<div class="board_view_con_in">
+												<div class="board_view_con">
+													<?=trim(stripslashes(str_replace("\n", '<br>', $list[0]["b_contents_en"])))?>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div role="tabpanel" class="tab-pane" id="lang_cn">
+										<div class="board_view_top">
+											<h2><?=trim(stripslashes(str_replace("\n", '<br>', $list[0]["b_title_cn"])))?></h2>
+										</div>
+										<div class="board_view_con_wrap">
+											<div class="board_view_con_top_wrap">
+												<div class="board_view_con_top">
+													<span class="view_con_top_span">
+														<i class="fa fa-tags"></i>
+														<span><?=$list[0]["b_cate"]?></span>
+													</span>
+													<span class="view_con_top_span">
+														<span class="sp"></span>
+														<i class="fa fa-user"></i>
+														<span><?=$list[0]["b_name"]?></span>
+													</span>
+													<span class="view_con_top_span">
+														<span class="sp"></span>
+														<i class="fa fa-eye"></i>
+														<span><?=$list[0]['b_hits']?> 회</span>
+													</span>
+													<span class="view_con_top_span pull-right">
+														<i class="fa fa-clock-o"></i>
+														<span><?=$list[0]['b_regdate']?></span>
+													</span>
+												</div>
+												<?php  if(trim($getBoardAdmin['ba_file_is'])	==	'Y'){ ?>
+													<?php  for($f=1; $f <= trim($getBoardAdmin['ba_file_cnt']); $f++){ ?>
+														<div class="board_view_con_top">
+															<span class="view_con_top_span">
+																<i class="fa fa-download">첨부파일 #<?=$f?></i>
+																<span>
+																	<?php  if($file[$f-1]['bf_file']){ ?><a href='<?=$file[$f-1]['bf_dir']?>/<?=$file[$f-1]['bf_file']?>' target="_blank"><?=$file[$f-1]['bf_file_org']?></a><?php  } ?>
+																</span>
+															</span>
+														</div>
+													<?php  } ?>
+												<?php  } ?>
+											</div>
+											<div class="board_view_con_in">
+												<div class="board_view_con">
+													<?=trim(stripslashes(str_replace("\n", '<br>', $list[0]["b_contents_cn"])))?>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div role="tabpanel" class="tab-pane" id="lang_jp">
+										<div class="board_view_top">
+											<h2><?=trim(stripslashes(str_replace("\n", '<br>', $list[0]["b_title_jp"])))?></h2>
+										</div>
+										<div class="board_view_con_wrap">
+											<div class="board_view_con_top_wrap">
+												<div class="board_view_con_top">
+													<span class="view_con_top_span">
+														<i class="fa fa-tags"></i>
+														<span><?=$list[0]["b_cate"]?></span>
+													</span>
+													<span class="view_con_top_span">
+														<span class="sp"></span>
+														<i class="fa fa-user"></i>
+														<span><?=$list[0]["b_name"]?></span>
+													</span>
+													<span class="view_con_top_span">
+														<span class="sp"></span>
+														<i class="fa fa-eye"></i>
+														<span><?=$list[0]['b_hits']?> 회</span>
+													</span>
+													<span class="view_con_top_span pull-right">
+														<i class="fa fa-clock-o"></i>
+														<span><?=$list[0]['b_regdate']?></span>
+													</span>
+												</div>
+												<?php  if(trim($getBoardAdmin['ba_file_is'])	==	'Y'){ ?>
+													<?php  for($f=1; $f <= trim($getBoardAdmin['ba_file_cnt']); $f++){ ?>
+														<div class="board_view_con_top">
+															<span class="view_con_top_span">
+																<i class="fa fa-download">첨부파일 #<?=$f?></i>
+																<span>
+																	<?php  if($file[$f-1]['bf_file']){ ?><a href='<?=$file[$f-1]['bf_dir']?>/<?=$file[$f-1]['bf_file']?>' target="_blank"><?=$file[$f-1]['bf_file_org']?></a><?php  } ?>
+																</span>
+															</span>
+														</div>
+													<?php  } ?>
+												<?php  } ?>
+											</div>
+											<div class="board_view_con_in">
+												<div class="board_view_con">
+													<?=trim(stripslashes(str_replace("\n", '<br>', $list[0]["b_contents_jp"])))?>
+												</div>
+											</div>
+										</div>
+									</div>
+									<?php  if($getBoardAdmin['ba_comment_is']	==	'Y'){ ?>
+										<div class="new_comment_all_wrap">
+											<div class="new_comment_wrap">
+												<?php  for($c=1; $c <= $commenttotal; $c++){ ?>
+													<div class="new_comment_box">
+														<div class="new_comment_user">
+															<a><?=$comment[$c-1]['m_name'];?></a>
+														</div>
+														<input type="hidden" name="b_idx<?=$c-1?>" id="b_idx<?=$c-1?>" value="<?=$comment[$c-1]['b_idx']?>">
+														<div class="new_comment_desc">
+															<?=$comment[$c-1]['comment'];?>
+														</div>
+														<div class="new_comment_info">
+															<div class="new_comment_info_left">
+																<i class="fa fa-clock-o" aria-hidden="true"></i>
+																<?=date('y.m.d H:i', strtotime($comment[$c-1]['b_regdate']))?>
+															</div>
+															<div class="new_comment_info_right">
+																<div class="order_btn_wrap">
+																	<button type="button" class="btn btn-delete" id="cBtnDel<?=$c-1?>" onclick="comment_delete(this.id);">삭제</button>
+																</div>
+															</div>
+														</div>
+													</div>
+												<?php  } ?>
+											</div>
+										</div>
+										<div class="total_reply_wrap">
+											<div class="new_comment_reply_wrap">
+												<div class="new_comment_reply_box">
+													<div class="new_comment_reply_table">
+														<div class="new_comment_reply_table_td">
+															<textarea class="form-control" name="b_comment" id="b_comment" ></textarea>
+														</div>
+														<a class="btn btn-white btn-sm new_comment_reply_table_a" id="commentBtn">
+															<span>댓글입력</span>
+														</a>
+													</div>
+												</div>
+											</div>
+										</div>
+									<?php  } ?>
+									<div class="table_bottom_btn_wrap">
+										<a href="notice.form.siso?BCODE=<?=$BCODE?>&CODE=<?=$list[0]['b_idx']?>&pagenum=<?=$pagenum?>&search_order=<?=$search_order?>&word=<?=$word?>&options=<?=$options?>&cate=<?=$cate?>&date_from=<?=$date_from?>&date_to=<?=$date_to?>"><button type="button" class="btn btn-edit">수정하기</button></a>
+										<button type="button" class="btn btn-delete" id="viewDeleteBtn">삭제</button>
+										<a href="notice.siso?pagenum=<?=$pagenum?>&search_order=<?=$search_order?>&word=<?=$word?>&options=<?=$options?>&cate=<?=$cate?>&date_from=<?=$date_from?>&date_to=<?=$date_to?>"><button type="button" class="btn btn-default">목록</button></a>
+									</div>
+
+								</div>
+							</div>
+						</div>
+						<div class="board_view_all_wrap">
+							
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+
+	function readURL(input) {
+		if (input.files && input.files[0]) {
+			var reader = new FileReader();
+			reader.onload = function(e) {
+				var thisBumo = $(input).closest('.banner_img_all_wrap');
+				thisBumo.find(".banner_img_wrap img").attr('src', e.target.result);
+			}
+			reader.readAsDataURL(input.files[0]);
+		}
+	}
+	// function saveFn(){
+	// 	ajaxFormSave('saveNoticeFrmProcess', '/lib/control.siso');
+	// 	setAjaxPostSend(path, code, control, val);
+	//
+	// }
+	function deleteFn(){
+		ajaxFormSave('viewNoticeFrmProcess', '/lib/control.siso');
+	}
+	$('#viewDeleteBtn').click(function(){
+		// if(checkFormFn('b_title', '제목') == false) return;
+		// if(checkFormFn('b_contents', '내용') == false) return;
+		//
+		// saveFn();
+		deleteFn();
+	});
+
+	$('#commentBtn').click(function(){
+		if(jQuery.inArray(document.getElementById('b_comment').value.toLowerCase().replace(/^\s*|\s*$/g, ''), ['&nbsp;','<p>&nbsp;</p>','<p><br></p>','<div><br></div>','<p></p>','<br>','']) != -1){
+			document.getElementById('b_comment').value='';
+		}
+		if(checkFormFn('b_comment', '댓글') == false) return;
+		setAjaxPostSend('/lib/control.siso', '<?=$CODE?>', 'setBoardComment', '<?=$BCODE?>@|@|@|'+'<?=$CODE?>@|@|@|'+$('#b_comment').val());
+	}).css({"cursor":"pointer"});
+
+	function comment_delete(value){
+		var value_num = value.substring(8,7);
+		var b_idx = 'b_idx' + value_num;
+		var idx_value = document.getElementById(b_idx).value
+		//alert(value2);
+		setAjaxPostSend('/lib/control.siso', '<?=$CODE?>', 'delBoardComment', '<?=$BCODE?>@|@|@|'+'<?=$CODE?>@|@|@|'+idx_value);
+	}
+
+	// $(".banner_img_wrap .file_input").change(function() {
+	// 	readURL(this);
+	// });
+</script>
+

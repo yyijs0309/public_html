@@ -1,0 +1,13 @@
+<?php
+
+	require $_SERVER['DOCUMENT_ROOT'].'/lib/global.php';
+	use ElephantIO\Client as Elephant;
+
+	//0.공통
+	require $_SERVER['DOCUMENT_ROOT'].'/lib/control/common_control.siso';
+	//2.사용자
+	require $_SERVER['DOCUMENT_ROOT'].'/lib/control/member_control.siso';
+	//3.게시판
+	require $_SERVER['DOCUMENT_ROOT'].'/lib/control/board_control.siso';
+
+

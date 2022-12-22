@@ -1,0 +1,245 @@
+<style>
+	.table_st_01 th{
+		width:80px;
+	}
+	.table_st_01 .td_order{
+		width:160px;
+	}
+	.table_st_01 .td_subject{
+		width:calc(100% - 560px);
+	}
+</style>
+<div class="con_head_wrap">
+    <div class="con_head">
+        <h1><?=$_TITLE_SUB ? $SITE_NAME.'-'.$_TITLE_SUB : $SITE_NAME.'-'.$_TITLE?></h1>
+    </div>
+</div>
+<div class="con_body_wrap">
+    <div class="con_body">
+        <div class="con_body_top_form_wrap">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="cloud_box">
+                        <form class="form-search" id="frm" name="frm">
+                            <div class="form_search_wrap">
+                                <label class="form_search_label">검색어</label>
+                                <div class="form_search_desc">
+                                    <div class="form_div_wrap">
+                                        <div class="form_select_box_wrap">
+                                            <select name="search_order" id="search_order" class="selectpicker">
+                                                <option value="all" <?php if($search_order == 'all') echo 'selected'; ?>> 전체</option>
+                                                <option value="b_title" <?php if($search_order == 'b_title') echo 'selected'; ?>>제목</option>
+                                            </select>
+                                        </div>
+                                        <div class="search_box_wrap">
+                                            <input type="text" class="form-control" name="word"  id="word" placeholder="검색어를 입력해주세요." value="<?=$_REQUEST['word'];?>">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form_search_wrap">
+                                <label class="form_search_label">기기 카테고리</label>
+                                <div class="form_search_desc">
+                                    <div class="form_div_wrap">
+                                        <div class="form_radio_chk_wrap">
+                                            <div class="radio_chk_st_wrap">
+                                                <input type="radio" name="search_cate" id="search_cate_all" value="ALL" <?php if($search_cate=='ALL' || $search_cate=='') echo 'checked'; ?> >
+                                                <label for="search_cate_all">
+                                                    <span>전체</span>
+                                                </label>
+                                            </div>
+                                            <div class="radio_chk_st_wrap">
+                                                <input type="radio" name="search_cate" id="search_cate_pc" value="PC" <?php if($search_cate=='PC') echo 'checked'; ?> >
+                                                <label for="search_cate_pc">
+                                                    <span>PC</span>
+                                                </label>
+                                            </div>
+                                            <div class="radio_chk_st_wrap">
+                                                <input type="radio" name="search_cate" id="search_cate_ios" value="IOS" <?php if($search_cate=='IOS') echo 'checked'; ?> >
+                                                <label for="search_cate_ios">
+                                                    <span>IOS</span>
+                                                </label>
+                                            </div>
+                                            <div class="radio_chk_st_wrap">
+                                                <input type="radio" name="search_cate" id="search_cate_aos" value="AOS" <?php if($search_cate=='AOS') echo 'checked'; ?> >
+                                                <label for="search_cate_aos">
+                                                    <span>AOS</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="date_btn_wrap">
+                                            <button type="button" class="btn btn-primary" onclick="srch_submit();">검색</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="con_body_mid_wrap">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="cloud_box">
+                        <div class="table_all_wrap">
+                            <div class="table_top_wrap">
+                                <div class="table_top_left">
+                                    <div class="table_top_left_label_wrap">
+										<span class="table_top_left_label">
+											검색결과
+										</span>
+                                        <span class="table_top_left_desc">
+											<b><?=number_format($total)?></b>건
+										</span>
+                                    </div>
+                                </div>
+                                <div class="table_top_right">
+                                    <!--									<div class="table_top_right_btn_wrap">-->
+                                    <!--										<button type="button" class="btn excel_btn">엑셀다운로드</button>-->
+                                    <!--									</div>-->
+                                    <div class="table_top_right_input_wrap">
+                                        <div class="select_box_wrap">
+                                            <select class="selectpicker">
+                                                <option>최신순</option>
+                                                <!--												<option>이름순</option>-->
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="table_body_wrap">
+                                <div class="table_wrap">
+                                    <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table_st_01">
+                                        <tr>
+                                            <!--											<th class="td_chk">-->
+                                            <!--												<div class="td_chk_box_wrap">-->
+                                            <!--													<input type="checkbox" id="allCheck">-->
+                                            <!--													<label for="allCheck">-->
+                                            <!--														<span>전체 선택/해제</span>-->
+                                            <!--													</label>-->
+                                            <!--												</div>-->
+                                            <!--											</th>-->
+                                            <th class="td_num">
+                                                번호
+                                            </th>
+                                            <th class="td_name">
+                                                카테고리
+                                            </th>
+                                            <th class="td_subject">
+                                                제목
+                                            </th>
+                                            <th class="td_views">
+                                                작성자
+                                            </th>
+                                            <th class="td_name">
+                                                조회수
+                                            </th>
+                                            <th class="td_write_date">
+                                                작성일
+                                            </th>
+                                            <th class="td_order">
+                                                관리
+                                            </th>
+                                        </tr>
+                                        <?php
+											if(count($list) > 0)
+                                        {
+                                        //echo "<pre>";
+											//print_r($list);
+											//echo "</pre>";
+                                        for($i=0; $i < count($list); $i++)
+                                        {
+                                        ?>
+                                        <tr>
+                                            <!--											<td class="td_chk">-->
+                                            <!--												<div class="td_chk_box_wrap">-->
+                                            <!--													<input type="checkbox" id="chk_id_1" name="" value="1">-->
+                                            <!--													<label for="chk_id_1">-->
+                                            <!--														<span>선택</span>-->
+                                            <!--													</label>-->
+                                            <!--												</div>-->
+                                            <!--											</td>-->
+                                            <td class="td_num">
+                                                <?=$list[$i]["num"]?>
+                                            </td>
+                                            <td class="td_name">
+                                                <?=setOutput($list[$i]['b_cate'])?>
+                                            </td>
+                                            <td class="td_subject">
+                                                <a href="faq.view.siso?BCODE=<?=$BCODE?>&CODE=<?=$list[$i]['b_idx']?>&pagenum=<?=$pagenum?>&search_order=<?=$search_order?>&word=<?=$word?>&options=<?=$options?>&search_cate=<?=$search_cate?>"><?=setOutput($list[$i]['b_title'])?>
+                                            </td>
+                                            <td class="td_name">
+                                                <?=setOutput($list[$i]['b_name'])?>
+                                            </td>
+                                            <td class="td_views">
+                                                <?=setOutput($list[$i]['b_hits'], 'money', '회')?>
+                                            </td>
+                                            <td class="td_write_date">
+                                                <?=setOutput($list[$i]['b_regdate'])?>
+                                            </td>
+                                            <td class="td_order">
+                                                <div class="order_btn_wrap">
+                                                    <!--													<button type="button" class="btn btn-edit">수정</button>-->
+                                                    <a href="faq.form.siso?BCODE=<?=$BCODE?>&CODE=<?=$list[$i]['b_idx']?>&pagenum=<?=$pagenum?>&search_order=<?=$search_order?>&word=<?=$word?>&options=<?=$options?>&b_cate=<?=$list[$i]['b_cate']?>&search_cate=<?=$search_cate?>" class="btn btn-info btn-xs">수정</a>
+                                                    <button type="button" class="btn btn-delete" onclick="boardDelFn('/lib/control.siso', '<?=$list[$i]['b_idx']?>', 'setBoardDel', '5')">삭제</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <?php
+												}
+											}else{
+										?>
+                                        <tr>
+                                            <td colspan="7" class="td_none">
+                                                자료가 없습니다.
+                                            </td>
+                                        </tr>
+                                        <?php
+											}
+										?>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="table_bottom_btn_wrap">
+                                <a href='faq.form.siso?BCODE=<?=$BCODE?>' class="btn btn-primary">추가</a>
+                            </div>
+                            <div class="table_page_wrap">
+                                <?=$paging?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" charset="utf-8">
+    // $(document).ready(function(){
+    //     if(("<?=$cate?>" == "all") || ("<?=$cate?>" == "")){
+    //         $('.cate_tab_wrap label').removeClass("active");
+    //         $('.cate_all').addClass("active");
+    //         $('input[name="cate"]').attr("checked", false);
+    //         $('#cate1').attr("checked", true);
+    //     }else if("<?=$cate?>" == "sponsor"){
+    //         $('.cate_tab_wrap label').removeClass("active");
+    //         $('.cate_sponsor').addClass("active");
+    //         $('input[name="cate"]').attr("checked", false);
+    //         $('#cate2').attr("checked", true);
+    //     }else if("<?=$cate?>" == "user"){
+    //         $('.cate_tab_wrap label').removeClass("active");
+    //         $('.date_user').addClass("active");
+    //         $('input[name="cate"]').attr("checked", false);
+    //         $('#cate3').attr("checked", true);
+    //     }
+    // });
+
+    function srch_submit()
+    {
+        var frm = document.frm;
+        frm.submit();
+    }
+
+
+</script>

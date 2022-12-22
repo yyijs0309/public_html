@@ -1,0 +1,697 @@
+<?php
+
+
+
+//기본 검색어(searchid:검색할 DB컬럼명, word:검색text) by donghwa 20200512
+function searchbox($searchid, $word){
+    $_WHERE = " WHERE 1 ";
+    if($word !=	''){
+        if($searchid != ''){
+            $_WHERE	.=	" AND ( ".$searchid." like '%".$word."%' )";
+        }
+    }
+    return $_WHERE;
+}
+//전체검색 검색어(searchid:검색할 DB컬럼명,arr_searchid:검색할 컬럼명 전체(ex 'id:name:text'), word:검색text) by donghwa 20200512
+function searchboxArr($searchid, $searchidArr, $word){
+    $v_word = $word;
+    $v_searchid = $searchid;
+    $v_searchidArr = explode('##',$searchidArr);
+    $v_searchidArrCnt = count($v_searchidArr);
+
+    $_WHERE = " WHERE 1 ";
+    if($v_word !=	''){
+        if($v_searchid != '' && $v_searchid != 'all'){
+            $_WHERE	.=	" AND ( ".$v_searchid." like '%".$v_word."%' )";
+        }else if($v_searchid == 'all'){
+            $_WHERE	.=	" AND ( ";
+            for($i=0;$i<$v_searchidArrCnt;$i++){
+                if($i==0){
+                    $_WHERE	.=	$v_searchidArr[$i]." like '%".$v_word."%' ";
+                }else{
+                    $_WHERE	.=	" OR ".$v_searchidArr[$i]." like '%".$v_word."%' ";
+                }
+            }
+            $_WHERE	.=	" ) ";
+        }
+    }
+    return $_WHERE;
+}
+
+// insert 트랜잭션 처리 (단독 insert)
+function insTransactionSingle($tablename,$columnArr,$file=false,$debug=false,$debugExit=false){
+    global $DBINFO;
+
+    $v_table = $tablename;
+    $v_columnArr = explode(',',$columnArr);
+    $v_columnArrCnt = count($v_columnArr);
+
+    //auto commit false
+    mysqli_autocommit($DBINFO,false);
+
+    try{
+        $_sql = "INSERT INTO " . $v_table . " SET ";
+        for($i=0;$i<$v_columnArrCnt;$i++){
+            $v_columndetailArr[$i] = explode('##',$v_columnArr[$i]);
+            if($i==0){
+                $_sql .= $v_columndetailArr[$i][0]." = ".$v_columndetailArr[$i][1]." ";
+            }else{
+                $_sql .= ", ".$v_columndetailArr[$i][0]." = ".$v_columndetailArr[$i][1]." ";
+            }
+        }
+        //echo "sql:".$_sql; //exit;
+        $result = @mysqli_query($DBINFO,$_sql);
+
+        if(!$result){
+            $result->free();
+            throw new Exception($DBINFO->error);
+        }
+        mysqli_commit($DBINFO);
+        mysqli_autocommit($DBINFO,true);
+
+        return 1;
+
+    }catch(Exception $e){
+        mysqli_rollback($DBINFO);
+        mysqli_autocommit($DBINFO,true);
+        $errormsg = "Message: " .$e->getMessage();
+        //echo $errormsg;
+        return $errormsg;
+    }
+
+//    //변수처리
+//    $success = true;
+//    $result = @mysqli_query("SET AUTOCOMMIT=0", $DBINFO);
+//    $result = @mysqli_query("BEGIN", $DBINFO);
+//
+////    $v_debugExit = $debugExit;
+////    $v_debug = $debug;
+//    $v_table = $tablename;
+//    $v_columnArr = explode(',',$columnArr);
+//    $v_columnArrCnt = count($v_columnArr);
+////    print_r($v_columnArr); exit;
+//
+//    $_sql = "INSERT INTO " . $v_table . " SET ";
+//    for($i=0;$i<$v_columnArrCnt;$i++){
+//        $v_columndetailArr[$i] = explode(':',$v_columnArr[$i]);
+//        if($i==0){
+//            //$_sql .= $v_columndetailArr[$i][0]." = ".trim(addslashes(setSqlFilter($v_columndetailArr[$i][1])))." ";
+//            $_sql .= $v_columndetailArr[$i][0]." = ".$v_columndetailArr[$i][1]." ";
+//        }else{
+//            //$_sql .= ", ".$v_columndetailArr[$i][0]." = ".trim(addslashes(setSqlFilter($v_columndetailArr[$i][1])))." ";
+//            $_sql .= ", ".$v_columndetailArr[$i][0]." = ".$v_columndetailArr[$i][1]." ";
+//        }
+//    }
+//    $result = @mysqli_query($DBINFO, $_sql);
+//    $resultcnt = @mysqli_affected_rows($result);
+////echo "resultcnt:" . $resultcnt; exit;
+//    print_r($resultcnt); exit;
+//    if(!$result || $resultcnt == 0) $success = false;
+//
+//    if(!$success){
+//        $result = @mysqli_query("ROLLBACK", $DBINFO);
+//        if(!$result) getDBError();
+//        return $result;
+//        //echo ("롤백되었습니다.");
+//    }else{
+//        $result = @mysqli_query("COMMIT", $DBINFO);
+//        return $result;
+//        //echo("입력되었습니다.");
+//    }
+
+//    if($v_debug == true){
+//        if($v_debugExit)
+//            exit( specialchars_replace($_sql) );
+//        else
+//            return $_sql;
+//    }
+//    echo "_sql:".$_sql; exit;
+//    $rs		=	query($_sql);
+    //트랜잭션 성공여부를 저장하는 변수 선언
+//    $success = true;
+    //트랜잭션 시작
+//    query("START TRANSACTION");
+    //데이터를 등록
+//    $sql = "";
+}
+
+// insert 트랜잭션 처리 (멀티 insert)
+function insTransactionDual($first_tablename,$first_columnArr,$secon_tablename,$secon_columnArr,$debug=false,$debugExit=false){
+    global $DBINFO;
+
+    $v_table = $first_tablename;
+    $v_columnArr = explode(',',$first_columnArr);
+    $v_columnArrCnt = count($v_columnArr);
+
+    //auto commit false
+    mysqli_autocommit($DBINFO,false);
+
+    try{
+        $_sql = "INSERT INTO " . $v_table . " SET ";
+        for($i=0;$i<$v_columnArrCnt;$i++){
+            $v_columndetailArr[$i] = explode('##',$v_columnArr[$i]);
+            if($i==0){
+                $_sql .= $v_columndetailArr[$i][0]." = ".$v_columndetailArr[$i][1]." ";
+            }else{
+                $_sql .= ", ".$v_columndetailArr[$i][0]." = ".$v_columndetailArr[$i][1]." ";
+            }
+        }
+        $result = @mysqli_query($DBINFO,$_sql);
+
+        if(!$result){
+            $result->free();
+            throw new Exception($DBINFO->error);
+        }
+        mysqli_commit($DBINFO);
+        mysqli_autocommit($DBINFO,true);
+
+        return 1;
+
+    }catch(Exception $e){
+        mysqli_rollback($DBINFO);
+        mysqli_autocommit($DBINFO,true);
+        return 0;
+    }
+}
+
+// insert 트랜잭션 처리 (멀티 insert)
+function insTransactionService($first_tablename,$first_columnArr,$secon_tablename="",$secon_columnArr="",$third_tablename="",$third_columnArr=""){
+    global $DBINFO;
+
+    $v_firsttable = $first_tablename;
+    $v_firstcolumnArr = explode(',',$first_columnArr);
+    $v_firstcolumnArrCnt = count($v_firstcolumnArr);
+
+//    $v_secontable = $secon_tablename;
+//    $v_seconcolumnArr = explode(',',$secon_columnArr);
+//    $v_seconcolumnArrCnt = count($v_seconcolumnArr);
+//
+//    $v_thirdtable = $third_tablename;
+//    $v_thirdcolumnArr = explode(',',$third_columnArr);
+//    $v_thirdcolumnArrCnt = count($v_thirdcolumnArr);
+
+    //auto commit false
+    mysqli_autocommit($DBINFO,false);
+
+    //서비스 테이블
+    $_fsql = "INSERT INTO " . $v_firsttable . " SET ";
+    for($i=0;$i<$v_firstcolumnArrCnt;$i++){
+        $v_fcolumndetailArr[$i] = explode('##',$v_firstcolumnArr[$i]);
+        if($i==0){
+            $_fsql .= $v_fcolumndetailArr[$i][0]." = ".$v_fcolumndetailArr[$i][1]." ";
+        }else{
+            $_fsql .= ", ".$v_fcolumndetailArr[$i][0]." = ".$v_fcolumndetailArr[$i][1]." ";
+        }
+    }
+    $first_result = @mysqli_query($DBINFO,$_fsql);
+    if(!$first_result){
+        $first_result->free();
+        throw new Exception($DBINFO->error);
+    }
+    $thisfirstKey = insert_id();
+
+    // 등록된 서비스 테이블 값 가져오기
+    $_TABLE	=	'_SERVICE S';
+    $_JOIN	=	' LEFT OUTER JOIN _COMPANY C ON C.c_idx = S.s_cidx ';
+    $firsttablevalue = getValue($_TABLE.$_JOIN, " where s_idx = '".$thisfirstKey."' ", 'ar', '*');
+
+    //빌링 테이블
+    $seconcolumnArr = "b_cidx##".$firsttablevalue['s_cidx'].",b_sidx##'".$firsttablevalue['s_idx']."',b_biz_name##'".$firsttablevalue['c_name']."',b_sv_name##'".$firsttablevalue['s_service_name']."'";
+    $seconcolumnArr .= ",b_bill_money##'".$firsttablevalue['s_service_money']."',b_regdate##now()";
+    $v_seconcolumnArr = explode(',',$seconcolumnArr);
+    $v_seconcolumnArrCnt = count($v_seconcolumnArr);
+
+    $_ssql = "INSERT INTO _BILLING SET ";
+    for($j=0;$j<$v_seconcolumnArrCnt;$j++){
+        $v_scolumndetailArr[$j] = explode('##',$v_seconcolumnArr[$j]);
+        if($j==0){
+            $_ssql .= $v_scolumndetailArr[$j][0]." = ".$v_scolumndetailArr[$j][1]." ";
+        }else{
+            $_ssql .= ", ".$v_scolumndetailArr[$j][0]." = ".$v_scolumndetailArr[$j][1]." ";
+        }
+    }
+    $secon_result = @mysqli_query($DBINFO,$_ssql);
+    if(!$secon_result){
+        $secon_result->free();
+        throw new Exception($DBINFO->error);
+    }
+    //$thisseconKey = insert_id();
+
+    //수금 테이블
+    $thirdcolumnArr = "cb_cidx##".$firsttablevalue['s_cidx'].",cb_sidx##".$thisfirstKey.",cb_regdate##now()";
+    $v_thirdcolumnArr = explode(',',$thirdcolumnArr);
+    $v_thirdcolumnArrCnt = count($v_thirdcolumnArr);
+
+    $_tsql = "INSERT INTO _COLLECTION SET ";
+    for($k=0;$k<$v_thirdcolumnArrCnt;$k++){
+        $v_tcolumndetailArr[$k] = explode('##',$v_thirdcolumnArr[$k]);
+        if($k==0){
+            $_tsql .= $v_tcolumndetailArr[$k][0]." = ".$v_tcolumndetailArr[$k][1]." ";
+        }else{
+            $_tsql .= ", ".$v_tcolumndetailArr[$k][0]." = ".$v_tcolumndetailArr[$k][1]." ";
+        }
+    }
+//    echo "sql:".$_tsql; exit;
+    $third_result = @mysqli_query($DBINFO,$_tsql);
+    if(!$third_result){
+        $third_result->free();
+        throw new Exception($DBINFO->error);
+    }
+
+    mysqli_commit($DBINFO);
+    mysqli_autocommit($DBINFO,true);
+
+    return 1;
+
+//        mysqli_rollback($DBINFO);
+//        mysqli_autocommit($DBINFO,true);
+//        return 0;
+
+}
+
+// insert 트랜잭션 처리
+function insTransactionAll($tablename,$columnArr,$debug=false,$debugExit=false){
+    global $DBINFO;
+
+    $v_table = $tablename;
+    $v_columnArr = explode(',',$columnArr);
+    $v_columnArrCnt = count($v_columnArr);
+
+    //auto commit false
+    mysqli_autocommit($DBINFO,false);
+
+    try{
+        $_sql = "INSERT INTO " . $v_table . " VALUES( ";
+        for($i=0;$i<$v_columnArrCnt;$i++){
+            if($i==0){
+                $_sql .= $v_columnArr[$i];
+            }else{
+                $_sql .= ",".$v_columnArr[$i];
+            }
+        }
+        $_sql .= " ) ";
+        echo "sql:".$_sql; exit;
+        $result = @mysqli_query($DBINFO,$_sql);
+
+        if(!$result){
+            $result->free();
+            throw new Exception($DBINFO->error);
+        }
+        mysqli_commit($DBINFO);
+        mysqli_autocommit($DBINFO,true);
+
+        return 1;
+
+    }catch(Exception $e){
+        mysqli_rollback($DBINFO);
+        mysqli_autocommit($DBINFO,true);
+        return 0;
+    }
+}
+
+// insert 트랜잭션 처리 (단독 insert)
+function updTransactionSingle($tablename,$columnArr,$where=" where 1 ")
+{
+    global $DBINFO;
+
+    $v_table = $tablename;
+    $v_columnArr = explode(',', $columnArr);
+    $v_columnArrCnt = count($v_columnArr);
+    $_WHERE = $where;
+
+    //auto commit false
+    mysqli_autocommit($DBINFO, false);
+
+    try {
+        $_sql = "UPDATE " . $v_table . " SET ";
+        for ($i = 0; $i < $v_columnArrCnt; $i++) {
+            $v_columndetailArr[$i] = explode('##', $v_columnArr[$i]);
+            if ($i == 0) {
+                $_sql .= $v_columndetailArr[$i][0] . " = " . $v_columndetailArr[$i][1] . " ";
+            } else {
+                $_sql .= ", " . $v_columndetailArr[$i][0] . " = " . $v_columndetailArr[$i][1] . " ";
+            }
+        }
+        $_sql .= $_WHERE;
+        //echo "sql:",$_sql; exit;
+        $result = @mysqli_query($DBINFO, $_sql);
+
+        if (!$result) {
+            $result->free();
+            throw new Exception($DBINFO->error);
+        }
+        mysqli_commit($DBINFO);
+        mysqli_autocommit($DBINFO, true);
+
+        return 1;
+
+    } catch (Exception $e) {
+        mysqli_rollback($DBINFO);
+        mysqli_autocommit($DBINFO, true);
+        $errormsg = "Message: " . $e->getMessage();
+        //echo $errormsg;
+        return $errormsg;
+    }
+}
+//
+//function sendMail($EMAIL, $NAME, $SUBJECT, $CONTENT, $MAILTO, $MAILTONAME, $RETURNIS=true){
+//    include_once $_SERVER['DOCUMENT_ROOT'].'/lib/PHPMailer_5.2.4/class.phpmailer.php';
+//    $mail             = new PHPMailer();
+//    $body             = $CONTENT;
+//
+//    $mail->IsSMTP(); // telling the class to use SMTP
+//    $mail->Host       = "smtp.worksmobile.com"; // SMTP server
+//    $mail->SMTPDebug  = 0;                     // enables SMTP debug information (for testing)
+//    // 1 = errors and messages
+//    // 2 = messages only
+//    $mail->CharSet    = "utf-8";
+//    $mail->SMTPAuth   = true;                  // enable SMTP authentication
+//    $mail->SMTPSecure = "tls";                 // sets the prefix to the servier
+//    $mail->Host       = "smtp.naver.com";      // sets GMAIL as the SMTP server
+//    $mail->Port       = 587;             // set the SMTP port for the GMAIL server
+//    $mail->Username   = "yds5004@naver.com";    // GMAIL username
+//    $mail->Password   = "lifeadvisor";         // GMAIL password
+//
+//    $mail->SetFrom($EMAIL, $NAME);
+//
+//    $mail->AddReplyTo($EMAIL, $NAME);
+//    //$mail->AddCC('cc@example.com');// 참조
+//    //$mail->AddBCC('bcc@example.com');//숨은참조
+//    //$mail->AddAttachment($_SERVER['DOCUMENT_ROOT'].'/img01_about_img.jpg');         // Add attachments   첨부 파일이 있을 경우
+//    //$mail->AddAttachment('/tmp/image.jpg', 'new.jpg');    // Optional name  첨부 파일과 첨부파일 명
+//    $mail->IsHTML(true);                                  // Set email format to HTML  메일을 보낼 때 html 형식으로 메일을 보낼 경우 true
+//
+//    $mail->Subject    = $SUBJECT;
+//
+//    $mail->MsgHTML($body);
+//
+//    $address = $MAILTO;
+//    $mail->AddAddress($address, $MAILTONAME);
+//
+//    if(!$mail->Send()){
+//
+//        if($RETURNIS){
+//            return('{"result":"N","message":"메일을 전송하지 못하였습니다.\n(사유 : '.$mail->ErrorInfo.').","CODE":"", "NAME":""}');
+//        }
+//        //echo "Mailer Error: " . $mail->ErrorInfo;
+//    }else{
+//        //	exit('this');
+//        if($RETURNIS)
+//            return('{"result":"Y","message":"성공적으로 메일전송이 완료 하였습니다.","ID":""}');
+//        //echo "Message sent!";
+//    }
+//}
+
+//company 리스트 프로시저 호출 by donghwa 20200508
+function listCompanyP($TB, $column='*', $searchtype=1, $searchtext='', $orderby='', $nowpage=1, $pagenum=20){
+    //searchtype(1.name, 2.email)
+    $sql  =   sprintf("CALL select_company('".$TB."','".$column."',".$searchtype.",'".$searchtext."','".$orderby."',".$nowpage.",".$pagenum.")");
+    return $sql;
+}
+
+//board cnt 출력 프로시저 호출 by donghwa 20200508
+function cntBoardP($TB, $searchtype=1, $searchtext='', $orderby='', $nowpage=1, $pagenum=20){
+    //searchtype(1.name, 2.email)
+    $sql  =   sprintf("CALL select_cnt('".$TB."',".$searchtype.",'".$searchtext."','".$orderby."',".$nowpage.",".$pagenum.")");
+
+    $rs		=	query($sql);
+    @$row	=	assoc($rs);
+    $result	=	$row;
+
+    return $result;
+}
+
+////코드 가져오기
+//function codename($PCODE='0000',$CCODE,$TYPE='C',$WHERE=''){
+//    global $DBINFO;
+//
+//    $v_codepid = $PCODE;            //부모코드
+//    $v_codecid = $CCODE;            //자식코드
+//    $v_codetype = $TYPE;            //P:부모값 전체호출, C:자식값 호출
+//    $v_where = $WHERE;
+//
+//    if($v_codecid == ''){
+//        $result = 0;        //ccode에 값이 없는경우
+//    }
+//
+//    try{
+//        //부모 또는 자녀 코드호출
+//        if($v_codetype == 'P'){
+//            $_sql = "select * from _CODE where  code_pid = '".$v_codepid."' and code_state = 'Y' ".$v_where;
+//        }else{
+//            // 최상위코드 체크
+//            if($v_codepid == '0000'){
+//                $_sql = "select * from _CODE where  code_cid = '".$v_codecid."'  and code_state = 'Y' ".$v_where;
+//            }else {
+//                $_sql = "select * from _CODE where  code_pid = '".$v_codepid."' and code_cid = '".$v_codecid."'  and code_state = 'Y' ".$v_where;
+//            }
+//        }
+//
+//        $rs = query($_sql);
+//
+//        $no=0;
+//        $list	=	Array();
+//        while(@$row = assoc($rs)){
+//            $row['num'] = $no--;
+//            $list[] = $row;
+//        }
+//        //코드 count
+//        $count = count($list);
+//        $list['code_count'] = $count;
+//
+//        return $list;
+//
+//    }catch(Exception $e){
+//        return 0;
+//    }
+//}
+
+//코드 가져오기
+function codename($PCODE='0000',$CCODE,$TYPE='C',$WHERE=''){
+    global $DBINFO;
+
+    $v_codepid = $PCODE;            //부모코드
+    $v_codecid = $CCODE;            //자식코드
+    $v_codetype = $TYPE;            //P:부모값 전체호출, C:자식값 호출
+    $v_where = $WHERE;
+
+    if($v_codecid == ''){
+        $result = 0;        //ccode에 값이 없는경우
+    }
+
+    try{
+        //부모 또는 자녀 코드호출
+        if($v_codetype == 'P') {
+            $_sql = "select * from _CODE where  code_pid = '" . $v_codepid . "' and code_cid='0000' and code_state = 'Y' " . $v_where;
+        }else if($v_codetype == 'A'){
+            $_sql = "select * from _CODE where  code_pid = '".$v_codepid."' and code_cid <> '0000' and code_state = 'Y' ".$v_where;
+        }else{
+            //$_sql = "select * from _CODE where  code_pid = '".$v_codepid."' and code_cid<>'0000' and code_state = 'Y' ".$v_where;
+            $_sql = "select * from _CODE where  code_pid = '".$v_codepid."' and code_cid = '".$v_codecid."' and code_cid<>'0000' and code_state = 'Y' ".$v_where;
+        }
+
+        $rs = query($_sql);
+
+        $no=0;
+        $list	=	Array();
+        while(@$row = assoc($rs)){
+            $row['num'] = $no--;
+            $list[] = $row;
+        }
+        //코드 count
+        $count = count($list);
+        $list['code_count'] = $count;
+
+        return $list;
+
+    }catch(Exception $e){
+        return 0;
+    }
+}
+
+//카테고리 코드 가져오기
+function codename2($PCODE='0000',$CCODE,$TYPE='C',$WHERE=''){
+    global $DBINFO;
+
+    $v_codepid = $PCODE;            //부모코드
+    $v_codecid = $CCODE;            //자식코드
+    $v_codetype = $TYPE;            //P:부모값 전체호출, C:자식값 호출
+    $v_where = $WHERE;
+
+    if($v_codecid == ''){
+        $result = 0;        //ccode에 값이 없는경우
+    }
+
+    try{
+        //부모 또는 자녀 코드호출
+        if($v_codetype == 'P') {
+            $_sql = "select * from _CATE_CODE where  code_pid = '" . $v_codepid . "' and code_cid='0000' and code_state = 'Y' " . $v_where;
+        }else if($v_codetype == 'A'){
+            $_sql = "select * from _CATE_CODE where  code_pid = '".$v_codepid."' and code_cid <> '0000' and code_state = 'Y' ".$v_where;
+        }else{
+            //$_sql = "select * from _CODE where  code_pid = '".$v_codepid."' and code_cid<>'0000' and code_state = 'Y' ".$v_where;
+            $_sql = "select * from _CATE_CODE where  code_pid = '".$v_codepid."' and code_cid = '".$v_codecid."' and code_cid<>'0000' and code_state = 'Y' ".$v_where;
+        }
+
+        $rs = query($_sql);
+
+        $no=0;
+        $list	=	Array();
+        while(@$row = assoc($rs)){
+            $row['num'] = $no--;
+            $list[] = $row;
+        }
+        //코드 count
+        $count = count($list);
+        $list['code_count'] = $count;
+
+        return $list;
+
+    }catch(Exception $e){
+        return 0;
+    }
+}
+
+// GET 방식 함수
+function getnode($url, $params=array())
+{
+    $url = $url.'?'.http_build_query($params, '', '&');
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    $response = curl_exec($ch);
+    curl_close($ch);
+    return $response;
+}
+// get함수 호출
+// ex) getnode('http://itfresh.tistory.com', array('param1'=>'value1', 'param2'=>'value2'));
+
+// POST 방식 함수
+function postnode($url, $fields)
+{
+    $post_field_string = http_build_query($fields, '', '&');
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $post_field_string);
+    curl_setopt($ch, CURLOPT_POST, true);
+    $response = curl_exec($ch);
+    curl_close ($ch);
+    return $response;
+}
+// post함수 호출
+// ex) postnode('http://itfresh.tistory.com', array('field1'=>'value1', 'field2'=>'value2'));
+
+
+// GET 방식 함수
+function getnode_new()
+{
+    $elephant = new Elephant('http://terratest.co.kr:1455', 'socket.io', 1, false, true, true);
+    $elephant->init();
+    $elephant->send(
+        ElephantIOClient::TYPE_EVENT,
+        null,
+        null,
+        json_encode(array('name' => 'getnoticeMessage', 'args' => ''))
+    );
+    $elephant->close();
+    return;
+}
+
+// GET 방식 함수
+function getLoginCheck($m_idx,$m_imei)
+{
+    $m_uniq      = $m_imei;       //전송 idx
+    $m_uniq = getValue("_MEMBER_DEVICE","where m_idx = '".$m_idx."' and m_uniq = '".$m_uniq."' ",'ar','m_state', false);
+
+    if($m_uniq){
+        return $m_uniq['m_state'];
+    }else{
+        return "입력된 Device 로그인 값이 없습니다.";
+    }
+}
+
+//브라우저 정보1
+function getBrowserInfo()
+{
+    $userAgent = $_SERVER["HTTP_USER_AGENT"];
+    if(preg_match('/MSIE/i',$userAgent) && !preg_match('/Opera/i',$u_agent)){
+        $browser = 'Internet Explorer';
+    }
+    else if(preg_match('/Firefox/i',$userAgent)){
+        $browser = 'Mozilla Firefox';
+    }
+    else if (preg_match('/Chrome/i',$userAgent)){
+        $browser = 'Google Chrome';
+    }
+    else if(preg_match('/Safari/i',$userAgent)){
+        $browser = 'Apple Safari';
+    }
+    elseif(preg_match('/Opera/i',$userAgent)){
+        $browser = 'Opera';
+    }
+    elseif(preg_match('/Netscape/i',$userAgent)){
+        $browser = 'Netscape';
+    }
+    else{
+        $browser = "Other";
+    }
+    return $browser;
+}
+//브라우저 정보2
+function getBrowser() {
+    $broswerList = array('MSIE', 'Chrome', 'Firefox', 'iPhone', 'iPad', 'Android', 'PPC', 'Safari', 'Trident', 'none');
+    $browserName = 'none';
+
+    foreach ($broswerList as $userBrowser){
+        if($userBrowser === 'none') break;
+        if(strpos($_SERVER['HTTP_USER_AGENT'], $userBrowser)) {
+            $browserName = $userBrowser;
+            break;
+        }
+    }
+    return $browserName;
+}
+
+//OS정보
+function getOsInfo()
+{
+    $userAgent = $_SERVER["HTTP_USER_AGENT"];
+
+//    if (preg_match('/linux/i', $userAgent)){
+//        $os = 'linux';}
+//    elseif(preg_match('/macintosh|mac os x/i', $userAgent)){
+//        $os = 'mac';}
+//    elseif (preg_match('/windows|win32/i', $userAgent)){
+//        $os = 'windows';}
+//    elseif (preg_match('/Android/i', $userAgent)){
+//        $os = 'Android';}
+//    else {
+//        $os = 'Other';
+//    }
+
+    if( stristr($_SERVER['HTTP_USER_AGENT'],'ipad') ) {
+        $os = "ipad";
+    } else if( stristr($_SERVER['HTTP_USER_AGENT'],'iphone') ||
+        strstr($_SERVER['HTTP_USER_AGENT'],'iphone') ) {
+        $os = "iphone";
+    } else if( stristr($_SERVER['HTTP_USER_AGENT'],'blackberry') ) {
+        $os = "blackberry";
+    } else if( stristr($_SERVER['HTTP_USER_AGENT'],'android') ) {
+        $os = "android";
+    } else if( stristr($_SERVER['HTTP_USER_AGENT'],'windows') ) {
+        $os = "windows";
+    } else if( stristr($_SERVER['HTTP_USER_AGENT'],'mac') ) {
+        $os = "mac";
+    } else {
+        $os = "etc";
+    }
+    return $os;
+}
+
+
+?>

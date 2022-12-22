@@ -1,0 +1,22 @@
+textarea{resize: none;}
+.table{font-size:12px; vertical-align:middle}
+.control_fix {
+	background: transparent;
+	margin:0 auto;
+	margin-top:8px;
+	position:fixed;
+	z-index:999;
+}
+
+.paymentbtn{margin-right:10px;margin-top:7px}
+.logbtn{margin-right:10px;margin-top:11px}
+@media (max-width:767px){
+	.paymentbtn{margin-right:0;margin-top:4px;line-height:10px}
+	.paymentbtn{margin-right:0;margin-top:8px;line-height:10px}
+}
+
+/*
+.table td, div.form-control-static { color:#666; font-weight:bold}
+.board_contents { color:#000; font-weight:500}
+*/
+.table {font-size:14px}

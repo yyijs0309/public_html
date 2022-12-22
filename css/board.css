@@ -1,0 +1,15 @@
+@charset "utf-8";
+/* 기본설정 시작 */
+
+.gnu5_wrap, .gnu5_wrap *,.gnu5_wrap :after, .gnu5_wrap :before{
+    -webkit-box-sizing: border-box!important;
+    -moz-box-sizing: border-box!important;
+    box-sizing: border-box!important;
+}
+#wrap, #wrap *, #wrap :after, #wrap :before{
+    -webkit-box-sizing: content-box;
+    -moz-box-sizing: content-box;
+    box-sizing: content-box;
+}
+
+

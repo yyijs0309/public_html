@@ -1,0 +1,36 @@
+.mailbox-messages>.table {
+	min-width:1335px
+}
+
+/* popup */
+.img-popup {
+	display:none;
+	max-width:90%;
+	/* width: 600px; */
+	text-align:center;
+	background-color:#fff
+}
+
+.img-popup .title {
+	position:relative;
+	background-color:#222;
+	color:#fff;
+	padding: 10px;
+	font-size:18px
+}
+
+.img-popup .title .b-close {
+	cursor:pointer;
+	position:absolute;
+	right: 10px;
+	top: 5px;
+	font-size:25px
+}
+
+.img-view-popup .content {
+	padding: 10px
+}
+
+.img-popup .content img {
+	max-width:1000px
+}

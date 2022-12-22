@@ -1,0 +1,141 @@
+<?php
+// 면석세팅
+$http_host = $_SERVER['HTTP_HOST'];
+$request_uris = $_SERVER['REQUEST_URI'];
+$url = 'http://' . $http_host . $request_uris;
+$request_arr = explode('?',$_SERVER['PHP_SELF']); 
+$request_uri = $request_arr[0];
+$part_uri = array_filter(explode('/', parse_url($request_uri, PHP_URL_PATH)));
+$seok_skin_path = array_filter(explode('/', parse_url(PUSANKJS_SKIN_MAIN_CONTENTS_FILE, PHP_URL_PATH)));
+$seok_skin_file = substr(end($seok_skin_path), 0, strrpos(end($seok_skin_path), "."));
+$fileNameWithoutExt = substr(end($part_uri), 0, strrpos(end($part_uri), "."));
+$now_file = str_replace('.','',$fileNameWithoutExt);
+$root_path = $_SERVER['DOCUMENT_ROOT']; 
+$dir = getcwd(); 
+$temp = explode("/", $dir);
+$dirname = $temp[sizeof($temp)-1];
+$nowdriname = str_replace('_', '', $dirname);
+$PageName = substr($PUSANKJS['filename'], 0, strrpos($PUSANKJS['filename'], "."));
+
+
+
+
+
+// 공통경로
+define('THEME_SKIN_URL', '/Form/_adm');
+define('THEME_SKIN_PATH', $root_path.'/Form/_adm');
+
+// 사이트세팅
+
+$_SITE_KEYWORD = "사이트 키워드";
+//$getSiteSkin['di_title'] = "파워로또";
+// $_SERVER['HTTPS'] = 'off';
+$_HTTP_SET = ($_SERVER['HTTPS']=='on'?'https://':'http://') ; 
+
+// 메타 타이틀
+if (!isset($_TITLE)) {
+    if (!isset($_TITLE_SUB)) {
+    	$_META_NAME = $getSiteSkin['di_title'];
+    }
+    else {
+    	$_META_NAME = $_TITLE_SUB;
+    	$_META_NAME .= " :: ".$getSiteSkin['di_title'];
+    }
+}
+else {
+	if (!isset($_TITLE_SUB)) {
+		$_META_NAME = $_TITLE;
+		$_META_NAME .= " :: ".$getSiteSkin['di_title'];
+	}
+	else {
+		$_META_NAME = $_TITLE;
+		$_META_NAME .= "-".$_TITLE_SUB;
+		$_META_NAME .= " :: ".$getSiteSkin['di_title'];
+	}
+}
+
+$_META_NAME = strip_tags($_META_NAME);
+
+	//$newpaycnt = getValue("_LOTTO_PREMIUM_PASS"," where date(p_purchasetime) = date(now()) ","CN","*");			//신규 매출 건수 받아오기
+	$newmemcnt = getValue("_MEMBER"," where date(m_regdate) = date(now()) ","CN","*");			//신규 회원 건수 받아오기
+	//echo $newpaycnt;
+	//exit;
+// 메타 타이틀
+?>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta http-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title><?=$_META_NAME?></title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no,maximum-scale=1.0,minimum-scale=1.0,target-densitydpi=medium-dpi" />
+<meta content="width=1600px">
+<!--<link rel="shortcut icon" type="image/x-icon" href="<?=THEME_SKIN_URL?>/images/favicon.ico">-->
+<!--<link href="<?=THEME_SKIN_URL?>/images/favicon.png" rel="icon">-->
+<link rel="canonical" href="<?=$_HTTP_SET.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']?>">
+<meta name="robots" content="index,follow">
+<meta name="title" itemprop="name" content="<?=$_META_NAME?>" />
+<meta name="description" itemprop="description" content="<?=$_SITE_DESCRIPTION?>">
+<meta name="keywords" itemprop="keywords" content="<?=$_SITE_KEYWORD?>">
+<meta property="og:type" content="website" />
+<meta property="og:title" content="<?=$_META_NAME?>" />
+<meta property="og:url" content="<?=$_HTTP_SET.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']?>" />
+<meta property="og:description" content="<?=$_SITE_DESCRIPTION?>" />
+<meta property="og:site_name" content="<?=$_META_NAME?>" />
+<meta property="og:image" content="<?=THEME_SKIN_URL?>/images/img.jpg" />
+<meta property="og:image:width" content="800" />
+<meta property="og:image:height" content="400" />
+<meta property="og:locale" content="ko_KR" />
+<meta property="og:keywords" content="<?=$_SITE_KEYWORD?>" />
+<meta name="twitter:card" content="summary" />
+<!--[if lt IE 9]>
+<link rel="stylesheet" href="/css/ie8.css" type="text/css">
+<![endif]-->
+<link rel="stylesheet" href="<?=THEME_SKIN_URL?>/css/bootstrap.min.css">
+<link rel="stylesheet" href="<?=THEME_SKIN_URL?>/css/bootstrap-select.min.css">
+<link rel="stylesheet" href="<?=THEME_SKIN_URL?>/css/jquery-ui.css">
+<link rel="stylesheet" href="<?=THEME_SKIN_URL?>/css/font-awesome.min.css">
+<link rel="stylesheet" href="<?=THEME_SKIN_URL?>/css/import.css?<?=time()?>">
+
+<!--[if lte IE 8]>
+<script src="<?=THEME_SKIN_URL?>/js/html5.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+<script src="<?=THEME_SKIN_URL?>/js/html5shiv.min.js"></script>
+<script src="<?=THEME_SKIN_URL?>/js/respond.min.js"></script>
+<![endif]-->
+<script src="<?=THEME_SKIN_URL?>/js/jquery-1.11.3.min.js"></script>
+<!-- <script src="<?=THEME_SKIN_URL?>/js/jquery.min.js"></script> -->
+<script src="<?=THEME_SKIN_URL?>/js/jquery-migrate-1.2.1.min.js"></script>
+<script src="<?=THEME_SKIN_URL?>/js/easing.js"></script>
+<script src="<?=THEME_SKIN_URL?>/js/jquery-ui.js"></script>
+<script src="<?=THEME_SKIN_URL?>/js/bootstrap.min.js"></script>
+<script src="<?=THEME_SKIN_URL?>/js/bootstrap-select.min.js"></script>
+<script src="<?=THEME_SKIN_URL?>/js/jquery.bpopup.min.js"></script>
+<script src="<?=THEME_SKIN_URL?>/js/jquery.bxslider.min.js"></script>
+<script src="<?=THEME_SKIN_URL?>/js/jquery.placeholder.js"></script>
+<script src="<?=THEME_SKIN_URL?>/js/jquery.ui.touch-punch.min.js"></script>
+<script src="<?=THEME_SKIN_URL?>/js/jquery.ui.totop.js"></script>
+<script src="<?=THEME_SKIN_URL?>/js/totop.js"></script>
+
+<script src="/Conn/js/jquery.form.js?<?=time()?>"></script>
+<script src="/Conn/js/global.func.js?<?=time()?>"></script>
+</head>
+<body>
+<div id="wrap">
+		<?php include(PUSANKJS_SKIN_MAIN_CONTENTS_FILE);?>
+</div>
+
+<div class="modal fade" id="loadingmodal" data-backdrop="static">
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content"><div class="modal-body"><p class="col-md-12"><center><h2><i class="fa fa-circle-o-notch fa-spin"></i> Process Loading</h2></center></p></div></div>
+	</div>
+</div>
+
+<script src="<?=THEME_SKIN_URL?>/js/common.js"></script>
+</body>
+</html>

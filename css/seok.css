@@ -1,0 +1,12 @@
+@media screen and  (max-width:800px)  {
+
+	.mobile_wrap {display: block;}
+	.pc_wrap {display: none;}
+
+
+
+}
+
+@media screen and  (max-width:560px)  {
+	
+}

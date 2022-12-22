@@ -1,0 +1,43 @@
+<?php
+require $_SERVER['DOCUMENT_ROOT'].'/lib/global.php';
+
+$auth	=	$thisConnAuth != '' ?  $thisConnAuth : 'root';
+auth_limit($auth);
+
+$BCODE = "14";
+$getBoardAdmin	=	getValue('_BOARD_ADMIN', " where ba_idx = '".$BCODE."' ");
+
+$_WHERE	=	" WHERE 1 ";
+if($CODE){
+    $_WHERE	.=	" AND b_idx = '".$CODE."' ";
+    $_TABLE	=	'_BOARD_'.$getBoardAdmin['ba_table'];
+    $_ORDER	=	'ORDER BY b_regdate DESC';
+    $row	=	getValue($_TABLE, $_WHERE, 'ar', '*', false);
+    $fileSql	=	"select * from _BOARD_FILE where bf_board_idx = '".$CODE."' and bf_board_id = '".$BCODE."' ";
+    $fileRs		=	query($fileSql);
+    if(rows() > 0){
+        for($f=0; $fileRow = assoc($fileRs); $f++){
+            $file[]	=	$fileRow;
+        }
+    }
+}
+
+if($_ANDWHERE)
+    $_WHERE	.=	$_ANDWHERE;
+
+if($_REQUEST['word']	!=	''){
+    $_WHERE	.=	" AND ( REPLACE(m_hp, '-', '') like '%".str_replace('-', '', $_REQUEST['word'])."%' or m_id like '%".setOutput($_REQUEST['word'])."%' or m_name like '%".setOutput($_REQUEST['word'])."%' )";
+}
+
+
+$_TITLE = "사용후기 작성";
+$_TITLE_SUB = "";
+$_SITE_DESCRIPTION = "사용후기 관리 페이지입니다.";
+
+getSkinSet('_'.str_replace('root', 'adm', $auth).'/', 'form', $PUSANKJS['filename'], 'main', true);
+
+//exit($PSKIN['view_layout']);
+include($PSKIN['view_layout']);
+mysqli_close($DBINFO);
+
+?>

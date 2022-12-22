@@ -1,0 +1,171 @@
+<style type="text/css">
+    .input_box_100_wrap iframe {
+        width: 100%!important;
+        min-height: 300px!important;
+    }
+	.form_div_wrap > div.input_box_wrap {
+		width: auto;
+		float: none;
+		max-width: 550px;
+	}
+</style>
+
+<script type="text/javascript" src="/Conn/edit/smartEdit_2_0/js/HuskyEZCreator.js" charset="utf-8"></script>
+<div class="con_head_wrap">
+    <div class="con_head">
+        <h1><?=$_TITLE_SUB ? $SITE_NAME.'-'.$_TITLE_SUB : $SITE_NAME.'-'.$_TITLE?></h1>
+    </div>
+</div>
+<div class="con_body_wrap">
+    <div class="con_body">
+        <div class="con_body_top_form_wrap">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="cloud_box">
+                        <div class="table_form_all_wrap">
+                            <div class="table_form_top">
+                                <h2>공지사항 내용 입력</h2>
+                            </div>
+                            <form method="post" name="saveEventFrmProcess" id="saveEventFrmProcess" enctype="multipart/form-data">
+                                <?php if($row['b_idx'] == ''){ ?>
+                                <input type="hidden" name="RETURNURL" value=event.siso?pagenum=<?=$pagenum?>&search_order=<?=$search_order?>&word=<?=$word?>&cate=<?=$cate?>">
+                                <?php }else{ ?>
+                                <input type="hidden" name="RETURNURL" value="event.siso?pagenum=<?=$pagenum?>&search_order=<?=$search_order?>&word=<?=$word?>&cate=<?=$cate?>">
+                                <?php } ?>
+                                <input type="hidden" name="dbControl" value="<?=$row['b_idx'] == '' ? 'setEventBoardSend' : 'setEventBoardModify'?>">
+                                <input type="hidden" name="CODE" value="<?=$row['b_idx']?>">
+                                <input type="hidden" name="BCODE" value="6">
+
+                                <div class="clearfix visible-block"></div>
+                                <div class="tab-content">
+                                    <div role="tabpanel" class="tab-pane active" id="lang_kr">
+                                        <div class="table_form_wrap">
+                                            <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table_st_02">
+                                                <?php if($row['b_idx']==''){ ?>
+                                                <tr>
+                                                    <th scope="row">
+                                                        <span>*</span>푸시
+                                                    </th>
+                                                    <td>
+                                                        <div class="form_div_wrap">
+                                                            <div class="input_box_50_wrap">
+																<div class="radio_chk_st_wrap">
+																	<input type="checkbox" name="push_check" id="push_check" value="Y">
+																	<label for="push_check">
+																		<span>푸시전송</span>
+																	</label>
+																</div>
+                                                                <!-- <input type="checkbox" id="" name="contact" value="">
+                                                                <label>푸시전송</label> -->
+                                                                <!--																	<input type="reset" value="Reset">-->
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <?php } ?>
+                                                <tr>
+                                                    <th scope="row">
+                                                        <span>*</span>제목
+                                                    </th>
+                                                    <td>
+                                                        <div class="form_div_wrap">
+                                                            <div class="input_box_100_wrap">
+                                                                <input type="text" name="b_title" id="b_title" class="form-control" placeholder="이벤트 제목을 입력해주세요." value="<?=$row["b_title"]?>">
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row">
+                                                        <span>*</span>내용
+                                                    </th>
+                                                    <td>
+                                                        <div class="form_div_wrap">
+                                                            <div class="input_box_100_wrap">
+                                                                <textarea name="b_contents" id="b_contents"  class="form-control" rows="10"><?=trim(stripslashes($row["b_contents"]))?></textarea>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <?php  if(trim($getBoardAdmin['ba_file_is'])    ==  'Y'){ ?>
+                                    <?php  for($f=1; $f <= trim($getBoardAdmin['ba_file_cnt']); $f++){ ?>
+                                    <div class="table_form_wrap">
+                                        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table_st_02">
+                                            <tr>
+                                                <th scope="row" style="border-top: none;">
+                                                    <span>*</span>첨부파일 #<?=$f?>
+                                                </th>
+                                                <td style="border-top: none;">
+                                                    <div class="form_div_wrap">
+														<div class="">
+															<p class="red">* 파일첨부 : 5MB 이하로 등록 부탁드립니다. </p>
+															<p class="red">&nbsp;&nbsp;(확장자는 jpeg / png / gif 로만 가능)</p>
+														</div>
+                                                        <div class="input_box_wrap">
+                                                            <input type="file" name="bf_file_<?=$f?>" id="bf_file_<?=$f?>" class="form-control file_input" value="">
+                                                            <input type="hidden" name="bf_idx[<?=$f?>]" id="bf_idx_<?=$f?>" value="<?=$file[$f-1]['bf_idx']?>">
+
+                                                        </div>
+                                                        <div class="input_box_wrap">
+                                                            <?php  if($file[$f-1]['bf_file']){ ?>
+                                                            <div class="pre_file">
+                                                                ※기존 파일 : <a href='<?=$file[$f-1]['bf_dir']?>/<?=$file[$f-1]['bf_file']?>' target="_blank"><?=$file[$f-1]['bf_file_org']?></a>
+                                                            </div>
+                                                            <?php  } ?>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <?php  } ?>
+                                    <?php  } ?>
+                                </div>
+                        </div>
+                        <div class="table_bottom_btn_wrap">
+                            <?php  if($row["b_idx"] == ''){ ?>
+                            <button type="button" class="btn btn-primary" id="listSaveBtn">등록하기</button>
+                            <?php  }else{ ?>
+                            <button type="button" class="btn btn-primary" id="listSaveBtn">수정하기</button>
+                            <?php  } ?>
+                            <button type="button" class="btn btn-default" onclick="javascript:history.back();">취소</button>
+                        </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<script type="text/javascript">
+
+    $(document).ready(function(){
+
+        $('#listSaveBtn').click(function(){
+            if(checkFormFn('b_title', '제목') == false) return;
+            if(checkFormFn('b_contents', '내용') == false) return;
+            saveFn();
+        });
+
+    });
+
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var thisBumo = $(input).closest('.banner_img_all_wrap');
+                thisBumo.find(".banner_img_wrap img").attr('src', e.target.result);
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function saveFn(){
+        ajaxFormSave('saveEventFrmProcess', '/lib/control.siso');
+    }
+</script>

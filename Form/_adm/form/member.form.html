@@ -1,0 +1,399 @@
+<style type="text/css">
+	.span_btn {
+	display: inline-block;
+	margin: 2px;
+	height: 30px;
+	line-height: 30px;
+	padding: 0 10px;
+	background-color: #fff;
+	border: 1px solid #ddd;
+	text-align: center;
+	font-size: 13px;
+	font-family: 'no300';
+	border-radius: 100px;
+	}
+	.span_btn_use {
+		background-color: #129c3a;
+		border-color: #129c3a;
+		color: #fff;
+	}
+	.span_btn_not {
+		background-color: #c9302c;
+		border-color: #c9302c;
+		color: #fff;
+	}
+	.span_btn_stop {
+		background-color: #336ef4;
+		border-color: #336ef4;
+		color: #fff;
+	}
+</style>
+<div class="con_head_wrap">
+	<div class="con_head">
+		<h1><?=$_TITLE_SUB ? $SITE_NAME.'-'.$_TITLE_SUB : $SITE_NAME.'-'.$_TITLE?></h1>
+	</div>
+</div>
+<div class="con_body_wrap">
+	<div class="con_body">
+		<div class="con_body_top_form_wrap">
+			<form method="post" name="saveFrmProcess" id="saveFrmProcess" action="" enctype="multipart/form-data">
+				<input type="hidden" name="dbControl" value="<?=$row["m_idx"] == '' ? 'setMemberRegi' : 'setMemberModify'?>">
+				<input type="hidden" name="useControl" value="<?=$row["m_use"] == 'Y' ? 'setUseMemberN' : 'setUseMemberY'?>">
+				<input type="hidden" name="CODE" value="<?=$row["m_idx"]?>">
+				<input type="hidden" name="retrunUrl" value="<?=str_replace('.form', '', $PUSANKJS['filename'])?>">
+				<input type="hidden" name="m_use" value="<?=$row["m_use"]?>">
+			<div class="row">
+				<div class="col-xs-12">
+					<div class="cloud_box">
+						<div class="table_form_all_wrap">
+							<div class="table_form_wrap">
+								<table width="100%" border="0" cellspacing="0" cellpadding="0" class="table_st_02">
+									<tr>
+										<th scope="row">
+											사용자ID
+										</th>
+										<td>
+											<div class="form_div_wrap">
+												<div class="search_box_wrap">
+													<input type="text" class="form-control" id="m_id" name="m_id" placeholder="ID를 입력해주세요." value="<?=setOutput($row['m_id'])?>" <?=$row['m_idx'] == "" ? "" : "readonly"?> >
+												</div>
+											</div>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row">
+											사용자비밀번호
+										</th>
+										<td>
+											<div class="form_div_wrap">
+												<div class="search_box_wrap">
+													<input type="text" class="form-control" id="m_pass" name="m_pass" placeholder="비밀번호 입력해주세요." value="<?=setOutput($row['m_pass'])?>">
+												</div>
+											</div>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row">
+											사용자명
+										</th>
+										<td>
+											<div class="form_div_wrap">
+												<div class="search_box_wrap">
+													<input type="text" class="form-control" id="m_name" name="m_name" placeholder="사용자명을 입력해주세요." value="<?=setOutput($row['m_name'])?>" >
+												</div>
+											</div>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row">
+											메신저
+										</th>
+										<td>
+											<div class="form_div_wrap">
+												<div class="input_box_wrap">
+													<select class="form-control" name="m_option1" id="m_option1">
+														<option value="" <?php  if($row['m_option1'] == '') echo 'selected'; ?>>선택</option>
+														<?php
+														$code = codename('0500','','A');
+														for($a=0; $a < $code['code_count']; $a++){
+														echo "<option value='".$code[$a]['code_pid'].$code[$a]['code_cid']."' ".($code[$a]['code_pid'].$code[$a]['code_cid'] == $row['m_option1'] ? 'selected' : '').">".$code[$a]['code_name']."</option>";
+													}
+													?>
+													</select>
+												</div>
+												<div class="search_box_wrap">
+													<input type="text" class="form-control" id="m_option2" name="m_option2" placeholder="메신저ID를 입력해주세요." value="<?=setOutput($row['m_option2'])?>">
+												</div>
+											</div>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row">
+											서비스 기기수
+										</th>
+										<td>
+											<div class="form_div_wrap">
+												<div class="search_box_wrap">
+													<input type="number" class="form-control" id="m_option3" name="m_option3" placeholder="서비스기기 갯수를 입력해주세요." value="<?=setOutput($row['m_option3'])?>" onkeypress="inNumber();">
+												</div>
+											</div>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row">
+											전화번호
+										</th>
+										<td>
+											<div class="form_div_wrap">
+												<div class="search_box_wrap">
+													<input type="tel" class="form-control" id="m_hp" name="m_hp" placeholder="전화번호를 입력해주세요." hpinput="true" maxlength="13" value="<?=setOutput($row['m_hp'])?>">
+												</div>
+											</div>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row">
+											권한레벨
+										</th>
+										<td>
+											<div class="form_div_wrap">
+												<div class="search_box_wrap">
+													<select class="form-control" name="m_auth_level" id="m_auth_level">
+														<option value="01001000">사용자</option>
+													</select>
+												</div>
+											</div>
+										</td>
+									</tr>
+
+<!-- 									<tr>
+										<th scope="row">
+											최종접속일
+										</th>
+										<td>
+											<div class="form_div_wrap">
+												<div class="input_box_100_wrap">
+													<input type="text" id="m_last_login" name="m_last_login" class="form-control date_input" value="<?=$row["m_last_login"] == '0000-00-00 00:00:00' ? '0000-00-00' : date('Y-m-d',strtotime($row["m_last_login"]))?>" readonly>
+												</div>
+											</div>
+										</td>
+									</tr>  -->
+									<tr>
+										<th scope="row">
+											유료서비스 시작일
+										</th>
+										<td>
+											<div class="form_div_wrap">
+												<div class="search_box_wrap">
+													<input type="text" id="m_pay_datetime" name="m_pay_datetime" class="form-control date_input" value="<?php if($row['m_pay_datetime'] == ''){ echo '0000-00-00'; }else if($row['m_pay_datetime'] == '0000-00-00 00:00:00'){ echo '0000-00-00'; }else{echo date('Y-m-d',strtotime($row['m_pay_datetime']));}?>">
+												</div>
+											</div>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row">
+											유료서비스 종료일
+										</th>
+										<td>
+											<div class="form_div_wrap">
+												<div class="search_box_wrap">
+													<input type="text" id="m_expire_datetime" name="m_expire_datetime" class="form-control date_input" value="<?php if($row['m_expire_datetime'] == ''){ echo '0000-00-00'; }else if($row['m_expire_datetime'] == '0000-00-00 00:00:00'){ echo '0000-00-00'; }else{echo date('Y-m-d',strtotime($row['m_expire_datetime']));}?>">
+												</div>
+											</div>
+										</td>
+									</tr>
+									<?php  if($row["m_idx"] != ''){?>
+									<tr>
+										<th scope="row">
+											회원가입일
+										</th>
+										<td>
+											<div class="form_div_wrap">
+												<div class="search_box_wrap">
+													<input type="text" id="m_regdate" name="m_regdate" class="form-control date_input" value="<?=$row["m_regdate"] == '0000-00-00 00:00:00' ? '0000-00-00' : date('Y-m-d',strtotime($row["m_regdate"]))?>" disabled>
+												</div>
+											</div>
+										</td>
+									</tr>
+
+									<tr>
+										<th scope="row">
+											사용상태
+										</th>
+										<td>
+											<div class="form_div_wrap none_btn_wrap">
+												<div class="search_box_wrap">
+													<span class="span_btn <?php if($row['m_use']=='Y') echo 'span_btn_use'; ?>" >사용중</span>
+													<span class="span_btn <?php if($row['m_use']=='N') echo 'span_btn_not'; ?>" >미사용자</span>
+													<span class="span_btn <?php if($row['m_use']=='T') echo 'span_btn_stop'; ?>" >정지</span>
+												</div>
+											</div>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row">
+											사용정지
+										</th>
+										<td>
+											<div class="form_div_wrap">
+												<div class="search_box_wrap">
+													<?php  if($row['m_use'] == 'T'){ ?>
+														<button type="button" class="btn btn-danger" onclick="userStartFn('/lib/control.siso', '<?=$row['m_idx']?>', 'setUserStart', 'f5');">ON</button>
+													<?php  }else{ ?>
+														<button type="button" class="btn btn-primary" onclick="userStopFn('/lib/control.siso', '<?=$row['m_idx']?>', 'setUserStop', 'f5');">OFF</button>
+													<?php  } ?>
+												</div>
+											</div>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row">
+											블랙리스트
+										</th>
+										<td>
+											<div class="form_div_wrap">
+												<div class="search_box_wrap">
+													<?php  if($row['m_option6'] == 'Y'){ ?>
+														<button type="button" class="btn btn-danger" onclick="deletBlacklistFn('/lib/control.siso', '<?=$row['m_idx']?>', 'delBlicklistSend', 'f5');">ON</button>
+													<?php  }else{ ?>
+														<button type="button" class="btn btn-primary" onclick="insertBlacklistFn('/lib/control.siso', '<?=$row['m_idx']?>', 'setBlicklistSend', 'f5');">OFF</button>
+													<?php  } ?>
+												</div>
+											</div>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row">
+											트래픽 사용량(KB)
+										</th>
+										<td>
+											<div class="form_div_wrap">
+												<div class="search_box_wrap">
+													<input type="text" id="m_option5" name="m_option5" class="form-control date_input" value="<?=number_format($row['m_option5'])?>" disabled>
+												</div>
+												<div class="date_btn_wrap">
+													<button type="button" class="btn btn-danger" onclick="initTrafficFn('/lib/control.siso', '<?=$row['m_idx']?>', 'setInitTraffic', 'f5');">초기화</button>
+												</div>
+											</div>
+										</td>
+									</tr>
+									<!-- <tr>
+										<th scope="row">
+											리셋
+										</th>
+										<td>
+											<div class="form_div_wrap">
+												<div class="search_box_wrap">
+													<button type="button" class="btn btn-primary" id="resetBtn">리셋</button>
+												</div>
+											</div>
+										</td>
+									</tr> -->
+									<?php }?>
+									<tr>
+										<th scope="row">
+											이메일
+										</th>
+										<td>
+											<div class="form_div_wrap">
+												<div class="search_box_wrap">
+													<input type="text" class="form-control" id="m_email" name="m_email" placeholder="이메일을 입력해주세요." value="<?=setOutput($row['m_email'])?>" disabled>
+												</div>
+											</div>
+										</td>
+									</tr>
+									<!-- <tr>
+										<th scope="row">
+											결제방법
+										</th>
+										<td>
+											<div class="form_div_wrap">
+												<div class="search_box_wrap">
+													<select class="form-control" name="m_option4" id="m_option4">
+														<option value="" <?php  if($row['m_option4'] == '') echo 'selected'; ?>>선택</option>
+														<?php
+														//$code = codename('0600','','P');
+														//for($a=0; $a < $code['code_count']; $a++){
+														//	echo "<option value='".$code[$a]['code_pid'].$code[$a]['code_cid']."' ".($code[$a]['code_pid'].$code[$a]['code_cid'] == $row['m_option4'] ? 'selected' : '').">".$code[$a]['code_name']."</option>";
+														//}
+														?>
+													</select>
+												</div>
+											</div>
+										</td>
+									</tr> -->
+									<!-- <tr>
+										<th scope="row">
+											제한 트래픽양
+										</th>
+										<td>
+											<div class="form_div_wrap">
+												<div class="input_box_100_wrap">
+													<input type="text" class="form-control" id="m_option5" name="m_option5" placeholder="트래픽양을 입력해주세요." value="<?=setOutput($row['m_option5'])?>">
+												</div>
+											</div>
+										</td>
+									</tr> -->
+									<tr>
+										<th scope="row">
+											메모
+										</th>
+										<td>
+											<div class="form_div_wrap">
+												<div class="input_box_100_wrap">
+													<textarea class="form-control" name="m_memo" id="m_memo"><?=$row["m_memo"]?></textarea>
+												</div>
+											</div>
+										</td>
+									</tr>
+								</table>
+							</div>
+							<div class="table_bottom_btn_wrap">
+								<?php  if($row["c_idx"] == ''){ ?>
+									<button type="button" class="btn btn-primary" id="saveBtn">등록하기</button>
+								<?php  }else{ ?>
+									<button type="button" class="btn btn-primary" id="saveBtn">수정하기</button>
+								<?php  } ?>
+								<button type="button" class="btn btn-default" onclick="javascript:history.back();">목록</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			</form>
+		</div>
+	</div>
+</div>
+<script type="text/javascript" charset="utf-8">
+$(document).ready(function(){ 
+	$('#saveBtn').click(function(){
+		if(checkFormFn('m_id', '사용자ID') == false) return;
+		if(checkFormFn('m_pass', '사용자비밀번호') == false) return;
+		if(checkFormFn('m_name', '사용자명') == false) return;
+		//if(checkFormFn('m_email', '이메일') == false) return;
+		if(checkFormFn('m_option1', '메신저') == false) return;
+		if(checkFormFn('m_option3', '서비스 기기수') == false) return;
+		if(checkFormFn('m_expire_datetime', '유료서비스 종료일') == false) return;
+		//if(checkFormFn('m_auth_level', '권한레벨') == false) return;
+		//if(checkFormFn('m_class', '사용자등급') == false) return;
+		//if(checkFormFn('m_option5', '제한 트레픽양') == false) return;
+		//if(checkFormFn('m_use', '사용여부') == false) return;
+		//if(checkFormFn('m_option3', '서비스 기기수 0') == 0) return;
+
+		if($('#m_option3').val() == "0"){alert('서비스 기기수에 0을 입력하실수 없습니다.'); return;}
+		if($('#m_expire_datetime').val() == "0000-00-00"){alert('유료서비스 종료일을 입력하여 주세요'); return;}
+
+		ajaxFormSave('saveFrmProcess', '/lib/control.siso');
+	}).css({"cursor":"pointer"});
+});
+
+function userStopFn(path, code, control, val){
+	if(confirm('해당 사용자는 사용이 정지됩니다.\n실행 하시겠습니까?')){
+		setAjaxPostSend(path, code, control, val);
+	}
+}
+
+function userStartFn(path, code, control, val){
+	if(confirm('해당 사용자는 사용이 시작됩니다.\n실행 하시겠습니까?')){
+		setAjaxPostSend(path, code, control, val);
+	}
+}
+
+function insertBlacklistFn(path, code, control, val){
+	if(confirm('해당 사용자는 블랙 리스트에 등록됩니다.\n실행 하시겠습니까?')){
+		setAjaxPostSend(path, code, control, val);
+	}
+}
+
+function deletBlacklistFn(path, code, control, val){
+	if(confirm('해당 사용자는 정상 사용자로 변경됩니다.\n실행 하시겠습니까?')){
+		setAjaxPostSend(path, code, control, val);
+	}
+}
+
+function initTrafficFn(path, code, control, val){
+	if(confirm('해당 사용자의 트래픽이 초기화 됩니다. 정상유저로 등록됩니다. \n실행 하시겠습니까?')){
+		setAjaxPostSend(path, code, control, val);
+	}
+}
+</script>

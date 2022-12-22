@@ -1,0 +1,143 @@
+<?php
+require $_SERVER['DOCUMENT_ROOT'].'/lib/global.php';
+use ElephantIO\Client as Elephant;
+
+	//<editor-fold desc="공통도메인:getDomailUrl">
+	if($dbControl == 'getDomailUrl'){
+
+		//$http_host = $_SERVER['HTTP_HOST'];
+		$http_host = "epihaimapp.adamstore.co.kr";
+		$request_uri = $_SERVER['REQUEST_URI'];
+		$url = 'https://'.$http_host;
+//	    $url = 'http://'.$http_host;
+
+		$jsonList	=	array('result'=>'Y','domainurl'=>$url);
+		$json = json_encode( $jsonList);
+
+		useExit($json);
+	}
+	//</editor-fold>
+	//<editor-fold desc="공통약관:getMobileDomain">
+	if($dbControl	==	'getMobileDomain'){
+		$_WHERE			=	" WHERE 1 ";
+		$_WHERE			.=	" AND di_idx = 1 ";
+		$_TABLE			=	"_DOMAIN_INFO";
+
+		$sql	=
+			"
+			SELECT 
+				di_terms as terms, di_personal_information as personal_information, di_financial_information as financial_information
+			FROM 
+				".$_TABLE.$_WHERE;
+
+		$rs		=	query($sql);
+
+		if(rows() > 0) {
+			$list = array();
+			for ($i = 0; $row = assoc($rs); $i++) {
+				$list[] = $row;
+			}
+			$jsonList = array('result' => 'Y', 'message' => '조회하였습니다.','data' => $list);
+			$json = json_encode($jsonList);
+		}else{
+			$jsonList	=	array('result'=>'N', 'message'=>'오류가 발생하였습니다.','ErrCODE'=>'domain01','data'=>'');
+			$json = json_encode( $jsonList);
+		}
+
+		useExit($json);
+	}
+	//</editor-fold>
+	//<editor-fold desc="공통코드호출:getCodeName">
+	if($dbControl == 'getCodeName'){
+
+		$sql	=	"SELECT * FROM _CODE GROUP BY code_pid ORDER BY code_pid ";
+		$rs		=	query($sql);
+		if(rows() > 0){
+			$list	=	array();
+			for($i=0; $row = assoc($rs); $i++){
+				$list[]	=	$row;
+
+				$sql_sub	=	"SELECT * FROM _CODE where code_pid = '".$list[$i]['code_pid']."' and code_cid <> '0000' ORDER BY code_pid, code_order ";
+				$rs_sub		=	query($sql_sub);
+				for($j=0; $subrow = assoc($rs_sub); $j++){
+					//$list_sub[]	=	$subrow;
+					$list[$i]['code_list'][$j] = $subrow;
+				}
+			}
+			$jsonList	=	array('result'=>'Y', 'message'=>'조회하였습니다.', 'data'=>$list);
+			$json = json_encode( $jsonList);
+		}else{
+			$jsonList	=	array('result'=>'N', 'message'=>'오류가 발생하였습니다.','ErrCODE'=>'code01', 'data'=>'');
+			$json = json_encode( $jsonList);
+		}
+
+		useExit($json);
+	}
+	//</editor-fold>
+	//<editor-fold desc="공통앱버전체크:versionchk">
+	if($dbControl == "versionchk")
+	{
+		//<editor-fold desc="param">
+		$cate       = $_SENDTYPE['cate'];
+		//</editor-fold>
+
+		if($cate == ''){
+			useExit('{"result":"N","message":"카테고리 값을 확인할수 없습니다.","ErrCODE":"ver01"}');
+		}
+
+		$_column =  "p.p_idx as idx,p.p_name as name,p.p_class as class,p.p_cate as cate,p.p_last_ver last_ver,p.p_last_build as last_build,p.p_last_history as last_history,p.p_file as file,p.p_file_url as url";
+		$_column .= ",p.p_upload_file as upload_file,p.p_upload_file_url as upload_url,p.p_memo as memo,p.p_status as status,p.p_regdate as regdate,p.p_editdate as editdate";
+
+		$_sql    =  "SELECT ".$_column." FROM _PROGRAM p WHERE p.p_cate = '".$cate."' AND p.p_status='Y'";
+		$_rs     =  query($_sql);
+		$list    =  array();
+		for ($i = 0; $row = assoc($_rs); $i++) {
+			$list[] =   $row;
+
+			$_column_history    =   "ph.ph_idx as hidx,ph.ph_name as name,ph.ph_class as class,ph.ph_cate as cate,ph.ph_ver as ver,ph.ph_build as build,ph.ph_history as history,ph.ph_file as file,ph.ph_file_url as url";
+			$_column_history    .=  ",ph.ph_upload_file as upload_file,ph.ph_upload_file_url as upload_url,ph.ph_memo as memo,ph.ph_status as status,ph.ph_regdate as regdate";
+
+			$_sql_history   =   "SELECT ".$_column_history." FROM _PROGRAM_HISTORY ph WHERE ph.p_idx = ".$row['idx']." AND ph.ph_status='Y' ORDER BY ph_idx DESC";
+			$_rs_history    =   query($_sql_history);
+
+			for ($j = 0; $row_history = assoc($_rs_history); $j++) {
+				$list[$i]['history'][$j]    =   $row_history;
+			}
+		}
+		$jsonList   =   array('result'=>'Y', 'message'=>'조회에 성공하였습니다.','data'=>$list);
+		$json       =   json_encode( $jsonList);
+		useExit($json);
+	}
+	//</editor-fold>
+
+	//<editor-fold desc="카카오,실시간,위챗 정보 및 QR코드확인:getMobileChatinfo">
+	if($dbControl	==	'getMobileChatinfo'){
+
+		$_WHERE			=	" WHERE 1 ";
+		$_WHERE			.=	" AND di_idx = '1' ";
+		$_TABLE			=	"_DOMAIN_INFO";
+
+		$sql	=
+			"
+		SELECT 
+			diposit_bank as bank, diposit_account as account,account_holder as holder,kakao,realtime_talk,alipay,wechat,wechat_pay,kakaoqr
+		FROM 
+			".$_TABLE.$_WHERE;
+
+		$rs		=	query($sql);
+
+		if(rows() > 0) {
+			$list = array();
+			for ($i = 0; $row = assoc($rs); $i++) {
+				$list[] = $row;
+			}
+			$jsonList = array('result'=>'Y','message'=>$NomalMessageAr['성공'],'data'=>$list);
+			$json = json_encode($jsonList);
+		}else{
+			$jsonList	=	array('result'=>'N','message'=>$NomalMessageAr['데이터없음'],'data'=>'');
+			$json = json_encode( $jsonList);
+		}
+		useExit($json);
+	}
+	//</editor-fold>
+

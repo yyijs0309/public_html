@@ -1,0 +1,63 @@
+<?php
+	require $_SERVER['DOCUMENT_ROOT'].'/lib/global.php';
+
+	$auth	=	$thisConnAuth != '' ?  $thisConnAuth : 'root';
+	menu_auth_limit($MCODE,$auth);
+
+	$_WHERE	=	" WHERE 1 ";
+	$_TAGS	=	"&BCODE=".$BCODE;
+	if($_REQUEST['word']	!=	''){
+	    //$_WHERE	.=	" AND ( REPLACE(m_hp, '-', '') like '%".str_replace('-', '', $_REQUEST['word'])."%' or m_id like '%".setOutput($_REQUEST['word'])."%' or m_name like '%".setOutput($_REQUEST['word'])."%' )";
+		if($_REQUEST['search_order'] != 'all'){
+			$_WHERE	.=	" AND ( REPLACE(".$_REQUEST['search_order'].", '-', '') LIKE '%".str_replace('-', '', $_REQUEST['word'])."%')";
+		}else{
+            $_WHERE	.=	" AND b_title LIKE '%".$_REQUEST['word']."%'";
+		}
+		$_TAGS	.=	'&word='.$_REQUEST['word'];
+        $_TAGS	.=	'&search_order='.$_REQUEST['search_order'];
+	}
+
+	//$_TAGS .= '&options='.$_REQUEST['options'];
+
+	$_TABLE			=	'_BOARD_NOTICE';
+	$_ORDER			=	'ORDER BY b_idx desc';
+
+	$onePageCount	=	20;
+	$pagenum		=	$_REQUEST['pagenum'] ? $_REQUEST['pagenum'] : 1;
+	$offset			=	($pagenum-1) * $onePageCount;
+	$total			=	getValue($_TABLE, $_WHERE, 'CNT', 'COUNT(*) AS CNT');
+	$no				=	$total	 -	($pagenum-1) * $onePageCount;
+
+	$sql	=
+	    "
+	    SELECT
+	        *
+	    FROM
+	        ".$_TABLE.$_WHERE.$_ORDER."
+	    limit ".$offset.", ".$onePageCount
+	;
+	//echo "sql:" . $sql; exit;
+	$rs		=	query($sql);
+	$list   =   array();
+	if(rows() > 0){
+	    for($i=0; $row = assoc($rs); $i++){
+	        $row['num']		=	$no--;
+	        $list[]			=	$row;
+	    }
+	}
+
+	if($total > 0)
+	    $toalPageCn	=	ceil($total/$onePageCount);
+	else
+	    $toalPageCn	=	1;
+	$paging		=	disPgCount($toalPageCn, $pagenum, $_TAGS, 1);
+
+	$_TITLE = "공지사항";
+	$_TITLE_SUB = "";
+	$_SITE_DESCRIPTION = "공지사항 관리 페이지입니다.";
+
+	getSkinSet('_'.str_replace('root', 'adm', $auth).'/', 'form', $PUSANKJS['filename'], 'main', true);
+
+	include($PSKIN['view_layout']);
+	mysqli_close($DBINFO);
+?>

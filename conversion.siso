@@ -1,0 +1,15 @@
+<?php
+require $_SERVER['DOCUMENT_ROOT'].'/lib/global.php';
+@SetCookie('_LANG','',-1,'/');
+$lang = $_REQUEST['lang'];
+@SetCookie('_LANG',$lang,-1,'/');
+
+$http_host = $_SERVER['HTTP_HOST'];
+$request_uri = $_SERVER['REQUEST_URI'];
+$url = 'http://' . $http_host . $request_uri;
+$beforurl = str_replace('http://' . $http_host,'',$_SERVER["HTTP_REFERER"]);
+
+//echo $LANGUAGE; exit;
+//msg('', '/index.siso');
+msg('', $beforurl);
+?>

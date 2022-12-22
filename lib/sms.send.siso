@@ -1,0 +1,23 @@
+<?php
+require $_SERVER['DOCUMENT_ROOT'].'/lib/global.php';
+//echoAr(json_encode($_REQUEST));
+//$smsmsg		=	'['.$getSiteSkin['di_site_name'].']인증번호는 '.$rand_num.' 입니다.';
+//$sms_from	=	$getSiteSkin['di_call'];
+//$sms_to		=	str_replace('-', '', $FROMTEL);
+
+if(setOutput($smsmsg)	==	''){
+	exit('{"result":"N","message":"문자 내용이 공백입니다.","url":"'.$returnURL.'"}');
+}
+
+if(setOutput($sms_from)	==	''){
+	exit('{"result":"N","message":"발신번호가 공백입니다.","url":"'.$returnURL.'"}');
+}
+
+if(setOutput($sms_to)	==	''){
+	exit('{"result":"N","message":"수신번호가 공백입니다.","url":"'.$returnURL.'"}');
+}
+
+$return =	smsSendFn('SMS', $smsmsg, '', $sms_to, '', $sms_from, 'SYSTEM', '', 'Y');
+smsSendResultInputFn();
+exit('{"result":"Y","message":"문자 발송요청을 성공적으로 하였습니다. ","url":"'.$returnURL.'"}');
+?>

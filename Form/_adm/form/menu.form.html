@@ -1,0 +1,192 @@
+<!--
+  ~ create by donghwa
+  ~ email 'donghwa1112@gmail.com'
+  -->
+
+<div class="con_head_wrap">
+	<div class="con_head">
+		<h1><?=$_TITLE_SUB ? $SITE_NAME.'-'.$_TITLE_SUB : $SITE_NAME.'-'.$_TITLE?></h1>
+	</div>
+</div>
+<div class="con_body_wrap">
+	<div class="con_body">
+		<div class="con_body_top_form_wrap">
+			<form method="post" name="saveFrmProcess" id="saveFrmProcess" action="" enctype="multipart/form-data">
+				<input type="hidden" name="dbControl" value="<?=$row["idx"] == '' ? 'setMenuInsert' : 'setMenuUpdate'?>">
+				<input type="hidden" name="CODE" value="<?=$row["idx"]?>">
+				<input type="hidden" name="retrunUrl" value="<?=str_replace('.form', '', $PUSANKJS['filename'])?>">
+				<div class="row">
+					<div class="col-xs-12">
+						<div class="cloud_box">
+							<div class="table_form_all_wrap">
+								<div class="table_form_wrap">
+									<table width="100%" border="0" cellspacing="0" cellpadding="0" class="table_st_02">
+										<tr>
+											<th scope="row">
+												메뉴ID
+											</th>
+											<td>
+												<div class="form_div_wrap">
+													<div class="search_box_wrap">
+														<input type="text" class="form-control" id="m_menu_id" name="m_menu_id" placeholder="메뉴ID를 입력해주세요." value="<?=setOutput($row['m_menu_id'])?>" <?=$row['idx'] == "" ? "" : "readonly"?> >
+													</div>
+												</div>
+											</td>
+										</tr>
+										<tr>
+											<th scope="row">
+												상위폴더여부
+											</th>
+											<td>
+												<div class="form_div_wrap">
+													<div class="search_box_wrap">
+														<select class="form-control" name="m_menu_folder" id="m_menu_folder">
+															<option value="" <?php if($row['m_menu_folder'] == '') echo 'selected'; ?>>선택</option>
+															<option value="Y" <?php if($row['m_menu_folder'] == 'Y') echo 'selected'; ?>>폴더</option>
+															<option value="N" <?php if($row['m_menu_folder'] == 'N') echo 'selected'; ?>>일반</option>
+														</select>
+													</div>
+												</div>
+											</td>
+										</tr>
+										<tr>
+											<th scope="row">
+												폴더명
+											</th>
+											<td>
+												<div class="form_div_wrap">
+													<div class="search_box_wrap">
+														<input type="text" class="form-control" id="m_menu_main_name" name="m_menu_main_name" placeholder="폴더명을 입력해주세요." value="<?=setOutput($row['m_menu_main_name'])?>">
+													</div>
+												</div>
+											</td>
+										</tr>
+										<tr>
+											<th scope="row">
+												상위 메뉴ID
+											</th>
+											<td>
+												<div class="form_div_wrap">
+													<div class="search_box_wrap">
+														<input type="text" class="form-control" id="m_menu_main_id" name="m_menu_main_id" placeholder="상위 메뉴ID를 입력해주세요." value="<?=setOutput($row['m_menu_main_id'])?>" >
+													</div>
+												</div>
+												* 상위 메뉴가 존재할 경우에만 입력
+											</td>
+										</tr>
+										<tr>
+											<th scope="row">
+												메뉴 DEPTH
+											</th>
+											<td>
+												<div class="form_div_wrap">
+													<div class="search_box_wrap">
+														<input type="text" class="form-control" id="m_menu_depth" name="m_menu_depth" placeholder="메뉴DEPTH를 입력해주세요." value="<?=setOutput($row['m_menu_depth'])?>" >
+													</div>
+												</div>
+												* 기본메뉴1, 하위메뉴일 경우2
+											</td>
+										</tr>
+										<tr>
+											<th scope="row">
+												메뉴명
+											</th>
+											<td>
+												<div class="form_div_wrap">
+													<div class="search_box_wrap">
+														<input type="text" class="form-control" id="m_menu_name" name="m_menu_name" placeholder="메뉴명을 입력해주세요." value="<?=setOutput($row['m_menu_name'])?>">
+													</div>
+												</div>
+											</td>
+										</tr>
+										<tr>
+											<th scope="row">
+												메뉴출력순서
+											</th>
+											<td>
+												<div class="form_div_wrap">
+													<div class="search_box_wrap">
+														<input type="text" class="form-control" id="m_menu_order" name="m_menu_order" placeholder="메뉴출력순서를 입력해주세요." value="<?=setOutput($row['m_menu_order'])?>">
+													</div>
+												</div>
+											</td>
+										</tr>
+										<tr>
+											<th scope="row">
+												메뉴url
+											</th>
+											<td>
+												<div class="form_div_wrap">
+													<div class="search_box_wrap">
+														<input type="text" class="form-control" id="m_menu_url" name="m_menu_url" placeholder="메뉴url을 입력해주세요." value="<?=setOutput($row['m_menu_url'])?>">
+													</div>
+												</div>
+											</td>
+										</tr>
+										<tr>
+											<th scope="row">
+												메뉴file
+											</th>
+											<td>
+												<div class="form_div_wrap">
+													<div class="search_box_wrap">
+														<input type="text" class="form-control" id="m_menu_file" name="m_menu_file" placeholder="메뉴file을 입력해주세요." value="<?=setOutput($row['m_menu_file'])?>">
+													</div>
+												</div>
+											</td>
+										</tr>
+										<tr>
+											<th scope="row">
+												메뉴class
+											</th>
+											<td>
+												<div class="form_div_wrap">
+													<div class="search_box_wrap">
+														<input type="text" class="form-control" id="m_menu_class" name="m_menu_class" placeholder="메뉴class를 입력해주세요." value="<?=setOutput($row['m_menu_class'])?>">
+													</div>
+												</div>
+											</td>
+										</tr>
+										<tr>
+											<th scope="row">
+												상태
+											</th>
+											<td>
+												<div class="form_div_wrap">
+													<div class="search_box_wrap">
+														<select class="form-control" name="m_menu_state" id="m_menu_state">
+															<option value="" <?php if($row['m_menu_state'] == '') echo 'selected'; ?>>선택</option>
+															<option value="Y" <?php if($row['m_menu_state'] == 'Y') echo 'selected'; ?>>사용</option>
+															<option value="N" <?php if($row['m_menu_state'] == 'N') echo 'selected'; ?>>정지</option>
+														</select>
+													</div>
+												</div>
+											</td>
+										</tr>
+									</table>
+								</div>
+								<div class="table_bottom_btn_wrap">
+									<?php if($row["c_idx"] == ''){ ?>
+									<button type="button" class="btn btn-primary" id="saveBtn">등록하기</button>
+									<?php }else{ ?>
+									<button type="button" class="btn btn-primary" id="saveBtn">수정하기</button>
+									<?php } ?>
+									<button type="button" class="btn btn-default" onclick="javascript:history.back();">목록</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<script type="text/javascript" charset="utf-8">
+	$(document).ready(function(){
+		$('#saveBtn').click(function(){
+
+			//if(checkFormFn('m_use', '사용여부') == false) return;
+			ajaxFormSave('saveFrmProcess', '/lib/control.siso');
+		}).css({"cursor":"pointer"});
+	});
+</script>

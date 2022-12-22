@@ -1,0 +1,53 @@
+<?php if($thisConnectType	==	'iframe'){ ?>
+<!doctype html>
+<!--[if IE 7 ]>		 <html class="no-js ie ie7 lte7 lte8 lte9" lang="en-US"> <![endif]-->
+<!--[if IE 8 ]>		 <html class="no-js ie ie8 lte8 lte9" lang="en-US"> <![endif]-->
+<!--[if IE 9 ]>		 <html class="no-js ie ie9 lte9>" lang="en-US"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html class="no-js" lang="en-US"> <!--<![endif]-->
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title><?=$PUSANKJS_SYS['T_SITE_TITLE']?></title>
+<script src="http://code.jquery.com/jquery-1.8.3.js"></script>
+<script src="http://code.jquery.com/ui/1.9.2/jquery-ui.js"></script>
+<script src="/Conn/js/jquery.form.js"></script>
+<script src= "/Conn/js/global.func.js"></script>
+
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.9.2/themes/redmond/jquery-ui.css" />
+<link href="<?=adminSkinDirRoot('css')?>/manager.css" rel="stylesheet" type="text/css" />
+
+<script>
+	var PSKIN_PATH		=	'<?=adminSkinDirRoot('images')?>';
+	var DEFAULTXMLDIR	=	'<?=pXmlSet('')?>';
+	$(document).ready(function(){ 
+		$( "input[type=button]" ).button();
+	});
+	
+</script>
+
+
+
+</head>
+
+<body>
+<input type="hidden" id='leve2Value' value='<?=$_REQUEST['appSite']?>'>
+<div id="popup1" class="popup_block"><div id="musicDiv" style="display:none"></div></div>
+<?php include(PUSANKJS_SKIN_MAIN_CONTENTS_FILE);?>
+</body>
+</html>
+<?php }else{ ?>
+
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.9.2/themes/redmond/jquery-ui.css" />
+<link href="<?=adminSkinDirRoot('css')?>/manager.css" rel="stylesheet" type="text/css" />
+<script>
+	var PSKIN_PATH		=	'<?=adminSkinDirRoot('images')?>';
+	var DEFAULTXMLDIR	=	'<?=pXmlSet('')?>';
+	$(document).ready(function(){ 
+		$( "input[type=button]" ).button();
+	});
+	
+</script>
+<input type="hidden" id='leve2Value' value='<?=$_REQUEST['appSite']?>'>
+<div id="popup1" class="popup_block"><div id="musicDiv" style="display:none"></div></div>
+<?php include(PUSANKJS_SKIN_MAIN_CONTENTS_FILE);?>
+<?php } ?>

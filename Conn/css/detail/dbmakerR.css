@@ -1,0 +1,125 @@
+
+* {padding: 0; margin: 0; box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -o-box-sizing: border-box;}
+ul,ol {list-style: none;}
+a     {text-decoration: none;}
+img   {border:0;}
+
+body {!font-family:NotoSans-Medium;}
+
+		
+/* left - side nav */
+.continer_inner > .side_nav ul li a.active {!background:#3a3a3a; color:#ffc600;}
+.continer_inner > .side_nav .title {border-bottom:1px solid #ffc600;}
+
+/* right */
+.continer_inner > .contain .purchase_contain .payment .title {border-bottom:2px solid #f5a804;}
+.contain .purchase_contain .img_section .thumnail .tail b {color:#f5a804;}
+/* 제품설명서 */
+.continer_inner > .contain .goods_Explanation .tabs li:hover {color:#f5a804;}
+.continer_inner > .contain .goods_Explanation .tabs li.active 
+{color:#f5a804; border-color: #f5a804;}
+
+.contain .goods_Explanation .tab_content .ex_title h4 b.qna_text {color:#f5a804;}
+
+/* 1번탭 */
+/* .contain .goods_Explanation .tab_content .Explanation .Img_Section .product {width: 90%;} */
+.contain .goods_Explanation .tab_content .Explanation .Img_Section .product .text_box h5 {letter-spacing:-5px; font-size:42px; line-height:52px;}
+.contain .goods_Explanation .tab_content .Explanation .Img_Section .product .text_box p {letter-spacing:-2px; font-size:22px; line-height:37px;}
+
+/* .QNA .QNA_inner .A_section img.db_logo { display:none!important;}
+.QNA .QNA_inner .A_section img.db_logo_r { display:inline-block!important;} */
+
+@media (max-width:929px) {
+	.contain .goods_Explanation .tab_content .Explanation .Img_Section .product .text_box h5 {letter-spacing:-5px; font-size:35px;  line-height:45px;}
+	.contain .goods_Explanation .tab_content .Explanation .Img_Section .product .text_box p {letter-spacing:-2px; font-size:18px; line-height:35px;}
+}
+
+@media (max-width:826px) {
+	.contain .goods_Explanation .tab_content .Explanation .Img_Section .product .text_box h5 {letter-spacing:-4px; font-size:30px;  line-height:40px;}
+	.contain .goods_Explanation .tab_content .Explanation .Img_Section .product .text_box p {letter-spacing:-2px; font-size:18px; line-height:33px;}
+}
+
+@media (max-width:420px) {
+	.contain .goods_Explanation .tab_content .Explanation .Img_Section .product .text_box h5 {letter-spacing:-2px; font-size:25px; line-height:35px;}
+	.contain .goods_Explanation .tab_content .Explanation .Img_Section .product .text_box p {letter-spacing:-1.5px; font-size:15px; line-height:30px;}
+}
+
+.contain .goods_Explanation .tab_content .Explanation .goods_set .goods > p:before
+{background:#f5a804;}
+.contain .goods_Explanation .tab_content .Explanation .goods_set .goods .goods_title:before {background:#f5a804;}
+.contain .goods_Explanation .tab_content .Explanation .goods_set .goods > p span {color:#f5a804;}
+
+.contain .goods_Explanation .tab_content .f_type .type .title:first-child { background:url('/img/sub/DBmaker/db_royal/title.png')}
+
+.contain .goods_Explanation .tab_content .f_type .title span {color:#f5a804;}
+
+.contain .goods_Explanation .tab_content .f_type .type > img {margin-bottom: 0;}
+
+
+.contain .goods_Explanation .tab_content .step .title span {color:#f5a804;}
+.contain .goods_Explanation .tab_content .step .title b {color:#f5a804;}
+.contain .goods_Explanation .tab_content .step .title b:before 
+{background:#f5a804;}
+
+.contain .goods_Explanation .tab_content .step > img {width: 100%;}
+
+
+/* 3번탭 */
+.contain .goods_Explanation .tab_content .video .title b {color:#f5a804;}
+.contain .goods_Explanation .tab_content .video .title b:before 
+{background:#f5a804;}
+.contain .goods_Explanation .tab_content .preparing h4 span {color:#f5a804;}
+
+
+/* =====================================공통적용============================= */
+.contain .purchase_contain .img_section .thumnail .title img.goods_name {height: 40px;}
+
+.contain .purchase_contain .img_section .thumnail .content .text_box h5 {font-size:30px; line-height:50px; letter-spacing:-4px}
+.contain .purchase_contain .img_section .thumnail .content .text_box p {font-size:16px; line-height:30px;}
+
+.contain .purchase_contain .img_section .thumnail .tail {font-size:30px; padding: 13px 0;}
+
+@media (max-width:1020px) {
+	.contain .purchase_contain .img_section .thumnail .content .text_box h5 {font-size:27px; line-height:45px; letter-spacing:-4px}
+	.contain .purchase_contain .img_section .thumnail .content .text_box p {font-size:14px; line-height:28px;}
+}
+
+@media (max-width:929px) {	
+	.contain .purchase_contain .img_section .thumnail .title img.goods_name.royal { height: 30px;}
+
+	.contain .purchase_contain .img_section .thumnail .content .text_box h5 {font-size:23px; line-height:42px; letter-spacing:-4px; margin-bottom: 10px;}
+	.contain .purchase_contain .img_section .thumnail .content .text_box p {font-size:14px; line-height:28px;}
+
+	.contain .purchase_contain .img_section .thumnail .tail {font-size:27px; padding: 15px 0;}
+}
+
+@media (max-width:826px) {
+	
+	.contain .purchase_contain .img_section .thumnail .content .text_box h5 {font-size:33px; line-height:55px; letter-spacing:-4px}
+	.contain .purchase_contain .img_section .thumnail .content .text_box p {font-size:18px; line-height:32px;}
+
+}
+
+@media (max-width:676px) {
+	
+	.contain .purchase_contain .img_section .thumnail .title img.goods_name {height: 30px;}
+	.contain .purchase_contain .img_section .thumnail .content .text_box h5 {font-size:23px; line-height:40px; letter-spacing:-4px}
+	.contain .purchase_contain .img_section .thumnail .content .text_box p {font-size:14px; line-height:30px;}
+
+	
+}
+
+@media (max-width:527px) {
+	.contain .purchase_contain .img_section .thumnail .title img.goods_name {height: 25px; margin-top: 10px;}
+	.contain .purchase_contain .img_section .thumnail .content .text_box h5 {font-size:23px; line-height:40px; letter-spacing:-4px; margin-top: -10px;}
+	.contain .purchase_contain .img_section .thumnail .content .text_box p {font-size:14px; line-height:25px;}
+	.contain .purchase_contain .img_section .thumnail .tail {font-size:20px; padding: 10px;}
+}
+
+@media (max-width:420px) {
+	.contain .purchase_contain .img_section .thumnail .title img.goods_name {height: 18px;}
+	.contain .purchase_contain .img_section .thumnail .tail {font-size:16px; letter-spacing:-1px; padding: 10px;}
+}

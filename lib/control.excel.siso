@@ -1,0 +1,661 @@
+<?php
+require $_SERVER['DOCUMENT_ROOT'].'/lib/global.php';
+require_once $_SERVER['DOCUMENT_ROOT'].'/Conn/excel/reader.php';
+$data = new Spreadsheet_Excel_Reader();
+$data->setOutputEncoding('UTF-8'); // 이부분만 바꿨습니다.
+
+
+
+//error_reporting(E_ALL ^ E_NOTICE);
+
+
+//[2016-01-08 JJ] SK 공시지원금
+if($dbControl	==	'SK_PRICE_UPDATE'){
+	if($_FILES['sk_data']['tmp_name'] == '') exit('{"result":"N","message":"파일 첨부 실패"}');
+	$data->read($_FILES['sk_data']['tmp_name']);
+
+	if($data){
+		$_IS_SUCCESS	=	'Y';
+	}else{
+		exit('{"result":"N","message":"파일 등록 실패"}');
+		$_IS_SUCCESS	=	'N';
+	}
+
+	$PLANCNT	=	0;
+	$MOBCNT		=	0;
+	$UPCNT		=	0;
+	$TOTALCNT	=	0;
+	
+
+	//세로 [4]번째줄부터 읽는다
+	for ($i = 4; $i <= $data->sheets[0]['numRows']; $i = $i+3) {
+
+		$TMPCNT		=	getValue("_SK_DATA", "where trim(replace(replace(sk_name, ' ', ''), '_', '')) = '".trim(str_replace(array('_', ' '), '', $data->sheets[0]['cells'][$i][1]))."' ", 'CNT', 'COUNT(*) AS CNT');
+
+		$TOTALCNT	=	$TOTALCNT+$TMPCNT;
+
+		$TMPCNT		=	'';
+
+		//가로 [1]번째줄부터 읽는다
+		for ($j = 1; $j <= $data->sheets[0]['numCols']; $j++) {
+			if($i == 4) $PLANCNT++;
+			
+			$sql	=	"
+				SELECT
+					sk_idx
+				FROM
+					_SK_DATA
+				WHERE
+					trim(replace(replace(sk_name, ' ', ''), '_', '')) = '".trim(str_replace(array('_', ' '), '', $data->sheets[0]['cells'][$i][1]))."'
+				AND
+					sk_fee_real_price = '".str_replace('그룹','',$data->sheets[0]['cells'][3][$j+4])."'
+			";
+			//echo $sql.";\n";
+			$rs			=	query($sql);
+
+			if(rows() > 0){
+				for($a=0; $row = assoc($rs); $a++){
+					$asql	=	"
+						UPDATE
+							_SK_DATA
+						SET
+							sk_back_price		=	'".$data->sheets[0]['cells'][$i][$j+4]."'
+						WHERE
+							sk_idx				=	'".$row['sk_idx']."'
+					";
+					
+					$ars	=	query($asql);
+					if($ars){
+						$UPCNT++;
+						$ars	=	'';
+					}
+
+				
+				}
+			}
+
+			//echo "단말명 : ".$data->sheets[0]['cells'][$i][1]."\n";
+			//echo "요금제명 : ".str_replace('그룹','',$data->sheets[0]['cells'][3][$j+4])."\n";
+			//echo "가격명 : ".$data->sheets[0]['cells'][$i][$j+4]."\n\n";
+			
+		}
+		$MOBCNT++;
+	}
+
+	query("
+		INSERT INTO 
+			_EXCEL_UP_LOG 
+		SET 
+			exl_type			=	'SK'
+			, exl_file			=	'".$_FILES['sk_data']['name']."'
+			, exl_ip			=	'".addslashes($_SERVER['REMOTE_ADDR'])."'
+			, exl_regdate		=	now()
+			, exl_success		=	'".$_IS_SUCCESS."'								
+	");
+
+	$SRATE		=	@round(($UPCNT / $TOTALCNT) * 100);
+	$FAILCNT	=	$TOTALCNT - $UPCNT;
+	//$TOTALCNT	=	$MOBCNT * $PLANCNT;
+	exit('{"result":"Y","message":"성공적으로 업데이트 하였습니다.\n단말기 : ['.$MOBCNT.']개 \n요금제 : ['.$PLANCNT.']종 \n총 데이터수 : ['.$TOTALCNT.']건 \n성공갯수 : ['.$UPCNT.']건 \n실패갯수 : ['.$FAILCNT.']건 \n성공률 ['.$SRATE.'%]","url":"f5"}');
+}
+
+
+//[2016-01-08 JJ] KT 공시지원금
+if($dbControl	==	'KT_PRICE_UPDATE'){
+	if($_FILES['kt_data']['tmp_name'] == '') exit('{"result":"N","message":"파일 첨부 실패"}');
+	$data->read($_FILES['kt_data']['tmp_name']);
+
+	if($data){
+		$_IS_SUCCESS	=	'Y';
+	}else{
+		exit('{"result":"N","message":"파일 등록 실패"}');
+		$_IS_SUCCESS	=	'N';
+	}
+
+	$PLANCNT	=	0;
+	$MOBCNT		=	0;
+	$UPCNT		=	0;
+	$TOTALCNT	=	0;
+	
+	//세로 [3]번째줄부터 읽는다
+	for ($i = 3; $i <= $data->sheets[0]['numRows']; $i = $i+2) {
+
+		$TMPCNT		=	getValue("_KT_DATA", "where trim(replace(replace(kt_name, ' ', ''), '_', '')) = '".trim(str_replace(array('_', ' '), '', $data->sheets[0]['cells'][$i][4]))."' ", 'CNT', 'COUNT(*) AS CNT');
+
+		$TOTALCNT	=	$TOTALCNT+$TMPCNT;
+
+		$TMPCNT		=	'';
+
+		//가로 [1]번째줄부터 읽는다
+		for ($j = 1; $j <= $data->sheets[0]['numCols']; $j++) {
+			if($i == 3) $PLANCNT++;
+
+			//2016-01-08 요금제그룹이 15미만,24미만 일경우엔 예외
+			if(strstr($data->sheets[0]['cells'][2][$j+7], '15미만')){
+				$_ADDPRICE	=	" AND kt_fee_real_price >= 1 AND kt_fee_real_price < 15000 ";
+			}elseif(strstr($data->sheets[0]['cells'][2][$j+7], '24미만')){
+				$_ADDPRICE	=	" AND kt_fee_real_price >= 15000 AND kt_fee_real_price < 24000 ";
+			}else{
+				$_ADDPRICE	=	" AND kt_fee_real_price = '".str_replace('요금','',$data->sheets[0]['cells'][2][$j+7])."000' ";
+			}
+			
+			$sql	=	"
+				SELECT
+					kt_idx
+					,kt_fee_real_price
+				FROM
+					_KT_DATA
+				WHERE
+					trim(replace(replace(kt_name, ' ', ''), '_', '')) = '".trim(str_replace(array('_', ' '), '', $data->sheets[0]['cells'][$i][4]))."'
+				".$_ADDPRICE."
+			";
+			$rs			=	query($sql);
+
+			if(rows() > 0){
+				for($a=0; $row = assoc($rs); $a++){
+					$asql	=	"
+						UPDATE
+							_KT_DATA
+						SET
+							kt_back_price		=	'".$data->sheets[0]['cells'][$i][$j+7]."'
+						WHERE
+							kt_idx				=	'".$row['kt_idx']."'
+					";
+					$ars	=	query($asql);
+					if($ars){
+						$UPCNT++;
+						$ars	=	'';
+					}
+				}
+			}
+			
+		}
+		$MOBCNT++;
+	}
+
+	query("
+		INSERT INTO 
+			_EXCEL_UP_LOG 
+		SET 
+			exl_type			=	'KT'
+			, exl_file			=	'".$_FILES['kt_data']['name']."'
+			, exl_ip			=	'".addslashes($_SERVER['REMOTE_ADDR'])."'
+			, exl_regdate		=	now()
+			, exl_success		=	'".$_IS_SUCCESS."'								
+	");
+
+	$SRATE		=	@round(($UPCNT / $TOTALCNT) * 100);
+	$FAILCNT	=	$TOTALCNT - $UPCNT;
+	//$TOTALCNT	=	$MOBCNT * $PLANCNT;
+	exit('{"result":"Y","message":"성공적으로 업데이트 하였습니다.\n단말기 : ['.$MOBCNT.']개 \n요금제 : ['.$PLANCNT.']종 \n총 데이터수 : ['.$TOTALCNT.']건 \n성공갯수 : ['.$UPCNT.']건 \n실패갯수 : ['.$FAILCNT.']건 \n성공률 ['.$SRATE.'%]","url":"f5"}');
+}
+
+
+//[2016-01-08 JJ] LG 공시지원금
+if($dbControl	==	'LG_PRICE_UPDATE'){
+	if($_FILES['lg_data']['tmp_name'] == '') exit('{"result":"N","message":"파일 첨부 실패"}');
+	$data->read($_FILES['lg_data']['tmp_name']);
+
+	if($data){
+		$_IS_SUCCESS	=	'Y';
+	}else{
+		exit('{"result":"N","message":"파일 등록 실패"}');
+		$_IS_SUCCESS	=	'N';
+	}
+
+	$PLANCNT	=	0;
+	$MOBCNT		=	0;
+	$UPCNT		=	0;
+	$TOTALCNT	=	0;
+	
+	//세로 [3]번째줄부터 읽는다
+	for ($i = 3; $i <= $data->sheets[0]['numRows']; $i++) {
+
+		$TMPCNT		=	getValue("_LG_DATA", "where trim(replace(replace(lg_name, ' ', ''), '_', '')) = '".trim(str_replace(array('_', ' '), '', $data->sheets[0]['cells'][$i][1]))."' ", 'CNT', 'COUNT(*) AS CNT');
+
+		$TOTALCNT	=	$TOTALCNT+$TMPCNT;
+
+		$TMPCNT		=	'';
+
+		//가로 [4]번째줄부터 읽는다
+		for ($j = 4; $j <= $data->sheets[0]['numCols']; $j++) {
+			if($i == 3) $PLANCNT++;
+
+			$_ADDPRICE	=	" AND trim(replace(replace(lg_fee_data, ' ', ''), '_', '')) = '".str_replace(' ','',$data->sheets[0]['cells'][1][$j])."' ";
+			
+			$sql	=	"
+				SELECT
+					lg_idx
+				FROM
+					_LG_DATA
+				WHERE
+					trim(replace(replace(lg_name, ' ', ''), '_', '')) = '".trim(str_replace(array('_', ' '), '', $data->sheets[0]['cells'][$i][1]))."'
+				".$_ADDPRICE."
+			";
+			//exit($sql);
+			$rs			=	query($sql);
+
+			if(rows() > 0){
+				for($a=0; $row = assoc($rs); $a++){
+					$asql	=	"
+						UPDATE
+							_LG_DATA
+						SET
+							lg_back_price		=	'".$data->sheets[0]['cells'][$i][$j]."'
+						WHERE
+							lg_idx				=	'".$row['lg_idx']."'
+					";
+					$ars	=	query($asql);
+					if($ars){
+						$UPCNT++;
+						$ars	=	'';
+					}
+				}
+			}
+			
+		}
+		$MOBCNT++;
+	}
+
+	query("
+		INSERT INTO 
+			_EXCEL_UP_LOG 
+		SET 
+			exl_type			=	'LG'
+			, exl_file			=	'".$_FILES['lg_data']['name']."'
+			, exl_ip			=	'".addslashes($_SERVER['REMOTE_ADDR'])."'
+			, exl_regdate		=	now()
+			, exl_success		=	'".$_IS_SUCCESS."'								
+	");
+
+	$SRATE		=	@round(($UPCNT / $TOTALCNT) * 100);
+	$FAILCNT	=	$TOTALCNT - $UPCNT;
+	//$TOTALCNT	=	$MOBCNT * $PLANCNT;
+	exit('{"result":"Y","message":"성공적으로 업데이트 하였습니다.\n단말기 : ['.$MOBCNT.']개 \n요금제 : ['.$PLANCNT.']종 \n총 데이터수 : ['.$TOTALCNT.']건 \n성공갯수 : ['.$UPCNT.']건 \n실패갯수 : ['.$FAILCNT.']건 \n성공률 ['.$SRATE.'%]","url":"f5"}');
+}
+
+//[2016-01-08 JJ] HEL 공시지원금
+if($dbControl	==	'HEL_PRICE_UPDATE'){
+	if($_FILES['hel_data']['tmp_name'] == '') exit('{"result":"N","message":"파일 첨부 실패"}');
+	$data->read($_FILES['hel_data']['tmp_name']);
+
+	if($data){
+		$_IS_SUCCESS	=	'Y';
+	}else{
+		exit('{"result":"N","message":"파일 등록 실패"}');
+		$_IS_SUCCESS	=	'N';
+	}
+
+	$PLANCNT	=	0;
+	$MOBCNT		=	0;
+	$UPCNT		=	0;
+	$TOTALCNT	=	0;
+	
+	//세로 [4]번째줄부터 읽는다
+	for ($i = 4; $i <= $data->sheets[0]['numRows']; $i++) {
+
+		$TMPCNT		=	getValue("_HEL_DATA", "where trim(replace(replace(hel_name, ' ', ''), '_', '')) = '".trim(str_replace(array('_', ' '), '', $data->sheets[0]['cells'][$i][1]))."' ", 'CNT', 'COUNT(*) AS CNT');
+
+		$TOTALCNT	=	$TOTALCNT+$TMPCNT;
+
+		$TMPCNT		=	'';
+
+		//가로 [7]번째줄부터 읽는다
+		for ($j = 7; $j <= $data->sheets[0]['numCols']; $j++) {
+			if($i == 4) $PLANCNT++;
+
+			$_ADDPRICE	=	" AND trim(replace(replace(hel_fee_data, ' ', ''), '_', '')) like '%".str_replace(' ','',$data->sheets[0]['cells'][2][$j])."' ";
+			
+			$sql	=	"
+				SELECT
+					hel_idx
+				FROM
+					_HEL_DATA
+				WHERE
+					trim(replace(replace(hel_name, ' ', ''), '_', '')) = '".trim(str_replace(array('_', ' '), '', $data->sheets[0]['cells'][$i][1]))."'
+				AND
+					hel_sub_etong = '".trim($data->sheets[0]['cells'][$i][3])."'
+				".$_ADDPRICE."
+			";
+			//echo $sql;
+			$rs			=	query($sql);
+
+			if(rows() > 0){
+				for($a=0; $row = assoc($rs); $a++){
+					$asql	=	"
+						UPDATE
+							_HEL_DATA
+						SET
+							hel_back_price		=	'".$data->sheets[0]['cells'][$i][$j]."'
+							,hel_test			=	'6'
+						WHERE
+							hel_idx				=	'".$row['hel_idx']."'
+					";
+					//echo $asql;
+					$ars	=	query($asql);
+					if($ars){
+						$UPCNT++;
+						$ars	=	'';
+					}
+				}
+			}
+			
+		}
+		$MOBCNT++;
+	}
+
+	query("
+		INSERT INTO 
+			_EXCEL_UP_LOG 
+		SET 
+			exl_type			=	'HEL'
+			, exl_file			=	'".$_FILES['hel_data']['name']."'
+			, exl_ip			=	'".addslashes($_SERVER['REMOTE_ADDR'])."'
+			, exl_regdate		=	now()
+			, exl_success		=	'".$_IS_SUCCESS."'								
+	");
+
+	$SRATE		=	@round(($UPCNT / $TOTALCNT) * 100);
+	$FAILCNT	=	$TOTALCNT - $UPCNT;
+	//$TOTALCNT	=	$MOBCNT * $PLANCNT;
+	exit('{"result":"Y","message":"성공적으로 업데이트 하였습니다.\n단말기 : ['.$MOBCNT.']개 \n요금제 : ['.$PLANCNT.']종 \n총 데이터수 : ['.$TOTALCNT.']건 \n성공갯수 : ['.$UPCNT.']건 \n실패갯수 : ['.$FAILCNT.']건 \n성공률 ['.$SRATE.'%]","url":"f5"}');
+}
+
+//[2016-01-26 JJ] S1 공시지원금
+if($dbControl	==	'S1_PRICE_UPDATE'){
+	if($_FILES['s1_data']['tmp_name'] == '') exit('{"result":"N","message":"파일 첨부 실패"}');
+	$data->read($_FILES['s1_data']['tmp_name']);
+
+	if($data){
+		$_IS_SUCCESS	=	'Y';
+	}else{
+		exit('{"result":"N","message":"파일 등록 실패"}');
+		$_IS_SUCCESS	=	'N';
+	}
+
+	$TOTALCNT	=	0;
+	$UPCNT		=	0;
+	
+	//세로 [3]번째줄부터 읽는다
+	for ($i = 3; $i <= $data->sheets[0]['numRows']; $i++) {
+
+		$TOTALCNT++;
+
+		$_ADDPRICE	=	" AND trim(replace(replace(s1_fee_data, ' ', ''), '_', '')) = '".str_replace(' ','',$data->sheets[0]['cells'][$i][3])."' ";
+
+		$_ADDPRICE2	=	" AND trim(replace(replace(s1_sub_etong, ' ', ''), '_', '')) = '".str_replace(' ','',$data->sheets[0]['cells'][$i][1])."' ";
+		
+		$sql	=	"
+			SELECT
+				s1_idx
+			FROM
+				_S1_DATA
+			WHERE
+				trim(replace(replace(s1_name, ' ', ''), '_', '')) = '".trim(str_replace(array('_', ' '), '', $data->sheets[0]['cells'][$i][2]))."'
+			".$_ADDPRICE.$_ADDPRICE2."
+		";
+
+		$rs			=	query($sql);
+
+		if(rows() > 0){
+			for($a=0; $row = assoc($rs); $a++){
+				$asql	=	"
+					UPDATE
+						_S1_DATA
+					SET
+						s1_back_price		=	'".$data->sheets[0]['cells'][$i][5]."'
+					WHERE
+						s1_idx				=	'".$row['s1_idx']."'
+				";
+
+
+				$ars	=	query($asql);
+				if($ars){
+					$UPCNT++;
+					$ars	=	'';
+				}
+			}
+		}
+			
+	}
+
+	query("
+		INSERT INTO 
+			_EXCEL_UP_LOG
+		SET 
+			exl_type			=	'S1'
+			, exl_file			=	'".$_FILES['s1_data']['name']."'
+			, exl_ip			=	'".addslashes($_SERVER['REMOTE_ADDR'])."'
+			, exl_regdate		=	now()
+			, exl_success		=	'".$_IS_SUCCESS."'								
+	");
+
+
+	$SRATE		=	@round(($UPCNT / $TOTALCNT) * 100);
+	$FAILCNT	=	$TOTALCNT - $UPCNT;
+	//$TOTALCNT	=	$MOBCNT * $PLANCNT;
+	exit('{"result":"Y","message":"성공적으로 업데이트 하였습니다.\n총 데이터수 : ['.$TOTALCNT.']건 \n성공갯수 : ['.$UPCNT.']건 \n실패갯수 : ['.$FAILCNT.']건 \n성공률 ['.$SRATE.'%]","url":"f5"}');
+}
+
+
+//[2016-01-25 JJ] 7M 공시지원금
+if($dbControl	==	'7M_PRICE_UPDATE'){
+	if($_FILES['7m_data']['tmp_name'] == '') exit('{"result":"N","message":"파일 첨부 실패"}');
+	$data->read($_FILES['7m_data']['tmp_name']);
+
+	if($data){
+		$_IS_SUCCESS	=	'Y';
+	}else{
+		exit('{"result":"N","message":"파일 등록 실패"}');
+		$_IS_SUCCESS	=	'N';
+	}
+
+	$TOTALCNT	=	0;
+	$UPCNT		=	0;
+	
+	//세로 [4]번째줄부터 읽는다
+	for ($i = 4; $i <= $data->sheets[0]['numRows']; $i++) {
+
+		$TOTALCNT++;
+
+		$_ADDPRICE	=	" AND trim(replace(replace(7m_fee_data, ' ', ''), '_', '')) like '".str_replace(array(' ', '_'),'',$data->sheets[0]['cells'][$i][1])."%' ";
+		
+		$sql	=	"
+			SELECT
+				7m_idx
+			FROM
+				_7M_DATA
+			WHERE
+				trim(replace(replace(7m_name, ' ', ''), '_', '')) = '".trim(str_replace(array('_', ' '), '', $data->sheets[0]['cells'][$i][2]))."'
+			".$_ADDPRICE."
+		";
+		//exit($sql);
+		$rs			=	query($sql);
+
+		if(rows() > 0){
+			for($a=0; $row = assoc($rs); $a++){
+				$asql	=	"
+					UPDATE
+						_7M_DATA
+					SET
+						7m_back_price		=	'".$data->sheets[0]['cells'][$i][5]."'
+						,7m_monthly_all_price	=	'1'
+					WHERE
+						7m_idx				=	'".$row['7m_idx']."'
+				";
+				$ars	=	query($asql);
+				if($ars){
+					$UPCNT++;
+					$ars	=	'';
+				}
+			}
+		}
+			
+	}
+
+	query("
+		INSERT INTO 
+			_EXCEL_UP_LOG 
+		SET 
+			exl_type			=	'7M'
+			, exl_file			=	'".$_FILES['7m_data']['name']."'
+			, exl_ip			=	'".addslashes($_SERVER['REMOTE_ADDR'])."'
+			, exl_regdate		=	now()
+			, exl_success		=	'".$_IS_SUCCESS."'								
+	");
+
+	$SRATE		=	@round(($UPCNT / $TOTALCNT) * 100);
+	$FAILCNT	=	$TOTALCNT - $UPCNT;
+	//$TOTALCNT	=	$MOBCNT * $PLANCNT;
+	exit('{"result":"Y","message":"성공적으로 업데이트 하였습니다.\n총 데이터수 : ['.$TOTALCNT.']건 \n성공갯수 : ['.$UPCNT.']건 \n실패갯수 : ['.$FAILCNT.']건 \n성공률 ['.$SRATE.'%]","url":"f5"}');
+}
+
+//[2016-01-26 JJ] UM 공시지원금
+if($dbControl	==	'UM_PRICE_UPDATE'){
+	if($_FILES['um_data']['tmp_name'] == '') exit('{"result":"N","message":"파일 첨부 실패"}');
+	$data->read($_FILES['um_data']['tmp_name']);
+
+	if($data){
+		$_IS_SUCCESS	=	'Y';
+	}else{
+		exit('{"result":"N","message":"파일 등록 실패"}');
+		$_IS_SUCCESS	=	'N';
+	}
+
+	$TOTALCNT	=	0;
+	$UPCNT		=	0;
+
+	//exit('오냐');
+	
+	//세로 [3]번째줄부터 읽는다
+	for ($i = 3; $i <= $data->sheets[0]['numRows']; $i++) {
+
+		$TOTALCNT++;
+
+		$_ADDPRICE	=	" AND trim(replace(replace(um_fee_data, ' ', ''), '_', '')) like '%".str_replace(array('_', ' ','LTE'),'',$data->sheets[0]['cells'][$i][4])."%' ";
+		
+		$sql	=	"
+			SELECT
+				um_idx
+			FROM
+				_UM_DATA
+			WHERE
+				trim(replace(replace(um_name, ' ', ''), '_', '')) = '".trim(str_replace(array('_', ' '), '', $data->sheets[0]['cells'][$i][1]))."'
+			".$_ADDPRICE."
+		";
+		//echo $sql."<br>"; exit;
+		//exit($sql);
+		$rs			=	query($sql);
+
+		if(rows() > 0){
+			for($a=0; $row = assoc($rs); $a++){
+				$asql	=	"
+					UPDATE
+						_UM_DATA
+					SET
+						um_back_price		=	'".str_replace(',', '', $data->sheets[0]['cells'][$i][5])."'
+					WHERE
+						um_idx				=	'".$row['um_idx']."'
+				";
+				$ars	=	query($asql);
+				if($ars){
+					$UPCNT++;
+					$ars	=	'';
+				}
+			}
+		}
+			
+	}
+
+	query("
+		INSERT INTO 
+			_EXCEL_UP_LOG 
+		SET 
+			exl_type			=	'UM'
+			, exl_file			=	'".$_FILES['um_data']['name']."'
+			, exl_ip			=	'".addslashes($_SERVER['REMOTE_ADDR'])."'
+			, exl_regdate		=	now()
+			, exl_success		=	'".$_IS_SUCCESS."'								
+	");
+
+	$SRATE		=	@round(($UPCNT / $TOTALCNT) * 100);
+	$FAILCNT	=	$TOTALCNT - $UPCNT;
+	//$TOTALCNT	=	$MOBCNT * $PLANCNT;
+	exit('{"result":"Y","message":"성공적으로 업데이트 하였습니다.\n총 데이터수 : ['.$TOTALCNT.']건 \n성공갯수 : ['.$UPCNT.']건 \n실패갯수 : ['.$FAILCNT.']건 \n성공률 ['.$SRATE.'%]","url":"f5"}');
+}
+
+
+//[2016-01-25 JJ] MM 공시지원금
+if($dbControl	==	'MM_PRICE_UPDATE'){
+	if($_FILES['mm_data']['tmp_name'] == '') exit('{"result":"N","message":"파일 첨부 실패"}');
+	$data->read($_FILES['mm_data']['tmp_name']);
+
+	if($data){
+		$_IS_SUCCESS	=	'Y';
+	}else{
+		exit('{"result":"N","message":"파일 등록 실패"}');
+		$_IS_SUCCESS	=	'N';
+	}
+
+	$TOTALCNT	=	0;
+	$UPCNT		=	0;
+	
+	//세로 [2]번째줄부터 읽는다
+	for ($i = 2; $i <= $data->sheets[0]['numRows']; $i++) {
+
+		$TOTALCNT++;
+
+		//exit(' tt : '.$data->sheets[0]['cells'][$i][4]);
+
+		$_ADDPRICE	=	" AND trim(replace(replace(replace(mm_fee_data, '-', ''), ' ', ''), '_', '')) = '".str_replace(array(' ', '-'), '', $data->sheets[0]['cells'][$i][4])."' ";
+		
+		$sql	=	"
+			SELECT
+				mm_idx
+			FROM
+				_MM_DATA
+			WHERE
+				trim(replace(replace(mm_name, ' ', ''), '_', '')) = '".trim(str_replace(array('_', ' '), '', $data->sheets[0]['cells'][$i][1]))."'
+			".$_ADDPRICE."
+		";
+		//echo $sql;
+		//exit($sql);
+		$rs			=	query($sql);
+
+		if(rows() > 0){
+			for($a=0; $row = assoc($rs); $a++){
+				$asql	=	"
+					UPDATE
+						_MM_DATA
+					SET
+						mm_back_price		=	'".$data->sheets[0]['cells'][$i][5]."'
+					WHERE
+						mm_idx				=	'".$row['mm_idx']."'
+				";
+				$ars	=	query($asql);
+				if($ars){
+					$UPCNT++;
+					$ars	=	'';
+				}
+			}
+		}
+			
+	}
+
+	query("
+		INSERT INTO 
+			_EXCEL_UP_LOG 
+		SET 
+			exl_type			=	'MM'
+			, exl_file			=	'".$_FILES['mm_data']['name']."'
+			, exl_ip			=	'".addslashes($_SERVER['REMOTE_ADDR'])."'
+			, exl_regdate		=	now()
+			, exl_success		=	'".$_IS_SUCCESS."'								
+	");
+
+	$SRATE		=	@round(($UPCNT / $TOTALCNT) * 100);
+	$FAILCNT	=	$TOTALCNT - $UPCNT;
+	//$TOTALCNT	=	$MOBCNT * $PLANCNT;
+	exit('{"result":"Y","message":"성공적으로 업데이트 하였습니다.\n총 데이터수 : ['.$TOTALCNT.']건 \n성공갯수 : ['.$UPCNT.']건 \n실패갯수 : ['.$FAILCNT.']건 \n성공률 ['.$SRATE.'%]","url":"f5"}');
+}
+?>

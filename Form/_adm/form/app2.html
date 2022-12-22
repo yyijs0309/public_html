@@ -1,0 +1,304 @@
+<style type="text/css">
+
+    .imagebtn {
+        max-width: 100px;
+        cursor: pointer;
+    }
+
+    .img-popup {
+        display:none;
+        max-width:90%;
+        text-align:center;
+        background-color:transparent;
+        box-shadow: none;
+        -webkit-box-shadow: none;
+        border: none;
+    }
+
+    .img-popup .title {
+        position:relative;
+        background-color:#222;
+        color:#fff;
+        padding: 10px;
+        font-size:18px
+    }
+
+    .img-popup .title .b-close {
+        cursor:pointer;
+        position:absolute;
+        right: 10px;
+        top: 5px;
+        font-size:25px
+    }
+
+    .img-view-popup .content {
+        padding: 10px
+    }
+
+    .img-popup .content img {
+        max-width:1000px
+    }
+
+    .table_st_02 .form_div_wrap .btn  {
+        border-radius: 100px;
+    }
+</style>
+<div class="con_head_wrap">
+    <div class="con_head">
+        <h1><?=$_TITLE_SUB ? $SITE_NAME.'-'.$_TITLE_SUB : $SITE_NAME.'-'.$_TITLE?></h1>
+    </div>
+</div>
+<div class="con_body_wrap">
+    <div class="con_body">
+        <div class="con_body_top_form_wrap">
+            <form method="post" name="saveFrmProcess" id="saveFrmProcess" action="" enctype="multipart/form-data">
+                <input type="hidden" name="dbControl" value="setDomainEdit3">
+                <input type="hidden" name="returnUrl" value="f5">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="cloud_box">
+                            <div class="table_form_all_wrap">
+                                <div class="table_form_top">
+                                    <h2>회사정보</h2>
+                                </div>
+                                <div class="table_form_wrap">
+                                    <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table_st_02">
+                                        <tr>
+                                            <th scope="row">
+                                                앱버전(AOS)
+                                            </th>
+                                            <td>
+                                                <div class="form_div_wrap">
+                                                    <div class="input_box_100_wrap">
+                                                        <input type="text" name="di_app_ver" class="form-control" id="di_app_ver" placeholder="" value="<?=$getSiteSkin['di_app_ver']?>">
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">
+                                                강제 업데이트(AOS)
+                                            </th>
+                                            <td>
+                                                <div class="form_div_wrap">
+                                                    <div class="input_box_100_wrap">
+                                                        <div class="radio_chk_st_wrap">
+                                                            <input type="radio" name="di_aos_check" id="di_aos_check_y" value="Y" <?php if($di_aos_check=='Y') echo 'checked'; ?> >
+                                                            <label for="di_aos_check_y">
+                                                                <span>실행</span>
+                                                            </label>
+                                                            <input type="radio" name="di_aos_check" id="di_aos_check_n" value="N" <?php if($di_aos_check=='N') echo 'checked'; ?> >
+                                                            <label for="di_aos_check_n">
+                                                                <span>미실행</span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">
+                                                업데이트 내역(AOS)
+                                            </th>
+                                            <td>
+                                                <div class="form_div_wrap">
+                                                    <div class="input_box_100_wrap">
+                                                        <textarea name="di_update_contents" id="di_update_contents"  class="form-control" rows="5"><?=stripslashes(str_replace('<br />', "\n", $getSiteSkin['di_update_contents']))?></textarea>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <th scope="row">
+                                                앱버전(IOS)
+                                            </th>
+                                            <td>
+                                                <div class="form_div_wrap">
+                                                    <div class="input_box_100_wrap">
+                                                        <input type="text" name="di_app_ver2" class="form-control" id="di_app_ver2" placeholder="" value="<?=$getSiteSkin['di_app_ver2']?>">
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">
+                                                빌드버전(IOS)
+                                            </th>
+                                            <td>
+                                                <div class="form_div_wrap">
+                                                    <div class="input_box_100_wrap">
+                                                        <input type="text" name="di_build_num" class="form-control" id="di_build_num" placeholder="" value="<?=$getSiteSkin['di_build_num']?>">
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">
+                                                강제 업데이트(IOS)
+                                            </th>
+                                            <td>
+                                                <div class="form_div_wrap">
+                                                    <div class="input_box_100_wrap">
+                                                        <div class="radio_chk_st_wrap">
+                                                            <input type="radio" name="di_ios_check" id="di_ios_check_y" value="Y" <?php if($di_ios_check=='Y') echo 'checked'; ?> >
+                                                            <label for="di_ios_check_y">
+                                                                <span>실행</span>
+                                                            </label>
+                                                            <input type="radio" name="di_ios_check" id="di_ios_check_n" value="N" <?php if($di_ios_check=='N') echo 'checked'; ?> >
+                                                            <label for="di_ios_check_n">
+                                                                <span>미실행</span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">
+                                                업데이트 내역(IOS)
+                                            </th>
+                                            <td>
+                                                <div class="form_div_wrap">
+                                                    <div class="input_box_100_wrap">
+                                                        <textarea name="di_update_contents2" id="di_update_contents2"  class="form-control" rows="5"><?=stripslashes(str_replace('<br />', "\n", $getSiteSkin['di_update_contents2']))?></textarea>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                    </table>
+                                </div>
+                                <div class="table_bottom_btn_wrap">
+                                    <button type="button" class="btn btn-primary" id="saveBtn">수정</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="img-popup modal-content" id="popupDiv">
+    <div class="title">
+        상세보기
+        <span class="b-close" id="popCloseBtn">×</span>
+    </div>
+    <div class="content">
+        <img src="" class="p-img">
+    </div>
+</div>
+<script>
+    $(document).ready(function(){
+        $("#pstep2").addClass("active");
+
+        $('#saveBtn').click(function(){
+            //if(checkFormFn('di_word', '대표문구') == false) return;
+            //if(checkFormFn('di_ver', '앱버전') == false) return;
+            //if(checkFormFn('di_url', '이용약관') == false) return;
+            //if(checkFormFn('di_personal_information', '개인정보 취급방침') == false) return;
+
+
+            ajaxFormSave('saveFrmProcess', '/lib/control.siso');
+
+        });
+
+        $('.savezone').keypress(function (e) {
+            if(e.which == 13){
+                saveFn();
+                return false;
+            }
+        });
+
+        $('.modifyzone').keypress(function (e) {
+            if(e.which == 13){
+                //alert($(this).attr('modifycode'));return;
+                modifyFn($(this).attr('modifycode'));
+                return false;
+            }
+        });
+
+        $('#listSaveBtn').click(function(){
+            saveFn();
+        });
+    });
+
+    function controlSelect(id, val){
+        switch(val){
+            case 'MODIFY' :
+                var text	=	'수정을';
+                var addMsg	=	'';
+                break;
+
+            case 'DELETE' :
+                var text	=	'삭제를';
+                var addMsg	=	'\n한번 삭제한 데이터는 복구 불가능합니다.';
+                break;
+        }
+
+        if(val	!=	''){
+            if(confirm(text +' 진행하시겠습니까?'+addMsg)){
+                if(val	==	'MODIFY')
+                    modifyFn(id);
+                else if(val	==	'DELETE')
+                    setAjaxPostSend('/lib/control.siso', id, 'setAPPSettingDel', '<?php //=$_CLASS?>');
+            }
+            $('.control_select').val('');
+        }
+    }
+
+    function saveFn(){
+        if(checkFormFn('s_name', '이름') == false) return;
+        if(checkFormFn('s_class', '코드') == false) return;
+
+
+        ajaxFormSave('listsaveFrmProcess', '/lib/control.siso');
+    }
+
+    function modifyFn(id){
+        //alert(id);
+        //if(checkFormFn('c_name'+id, '카테고리명') == false) return;
+        if(checkFormFn('s_name'+id, '이름') == false) return;
+        if(checkFormFn('s_class'+id, '코드') == false) return;
+
+        ajaxFormSave('listsaveFrmProcess'+id, '/lib/control.siso');
+    }
+</script>
+
+
+<script type="text/javascript">
+    $(document).ready(function(){
+
+
+    });
+
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var thisBumo = $(input).closest('.file_img_all_wrap');
+                thisBumo.find(".file_img_wrap > img").attr('src', e.target.result);
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    $(".file_img_wrap .file_input").change(function() {
+        readURL(this);
+    });
+
+    $('.imagebtn').click (function(){
+        var ImageUrl = $(this).attr('src');
+        $('.p-img').attr('src', ImageUrl);
+        $('.img-popup').bPopup({
+            modalClose: true
+            , opacity: 0.8
+            , positionStyle: 'absolute'
+            , speed: 300
+            , transition: 'fadeIn'
+            , transitionClose: 'fadeOut'
+            , zIndex : 99997
+        });
+    });
+</script>

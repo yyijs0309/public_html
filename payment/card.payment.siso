@@ -1,0 +1,169 @@
+<?php
+require $_SERVER['DOCUMENT_ROOT'].'/lib/global.php';
+?>
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="Generator" content="EditPlus®">
+    <meta name="Author" content="">
+    <meta name="Keywords" content="">
+    <meta name="Description" content="">
+    <title>Document</title>
+</head>
+<body onload="fnSubmit()">
+
+<script type="text/javascript">
+    var pf;
+    function fnSubmit() {
+        <?php //if($connectMachine != 'PC' && $memberInfo['m_idx']){ ?>
+
+        var fileName;
+        <?php /*if($_SERVER['REMOTE_ADDR']	==	'1.212.218.28'){ ?>
+	fileName = "https://zeropay.co.kr/PAYMENT_WELCOME/payment.siso";
+	<?php }else{ ?>
+	fileName = "https://zeropay.co.kr/PAYMENT/card_api/CardOrderSugi.html";
+	<?php }*/ ?>
+        //fileName = "https://zeropay.co.kr/PAYMENT/card_api/CardOrderSugi.html";
+        fileName = "https://zeropay.co.kr/PAYMENT_WELCOME/payment.siso";
+        //alert('w');
+
+        pf = document.frmConfirm
+        pf.action = fileName;
+        pf.method = "post";
+        pf.submit();
+        <?php /*}else{ ?>
+		alert('로그인 이후 가능한 서비스입니다.');
+		document.location = document.URL;
+		return;
+	<? }*/ ?>
+        //pf.submit();
+
+        /*
+        var UserAgent = navigator.userAgent;
+
+        if (UserAgent.match(/iPhone|iPod|iPad|Android|Windows CE|BlackBerry|Symbian|Windows Phone|webOS|Opera Mini|Opera Mobi|POLARIS|IEMobile|lgtelecom|nokia|SonyEricsson/i) != null || UserAgent.match(/LG|SAMSUNG|Samsung/) != null){
+            DAOUPAY = window.open("", "KIWOOMPAY", "fullscreen");
+            DAOUPAY.focus();
+            pf.target = "KIWOOMPAY";
+        }else{
+            DAOUPAY = window.open("", "KIWOOMPAY", "width=640,height=550");
+            DAOUPAY.focus();
+            pf.target = "KIWOOMPAY";
+        }
+        pf.action = fileName;
+        pf.method = "post";
+        pf.submit();
+        */
+        /*
+       $('element_to_pop_up').bPopup({
+            content:'image', //'iframe', 'iframe' or 'image'
+            contentContainer:'.content',
+            loadUrl:'http://marketingmonster.kr/dbmakerPro.html'
+        });
+        */
+        /*
+        var url = "http://marketingmonster.kr/dbmakerPro.html";
+        $('#paymentModal').bPopup({
+
+            content:'iframe'
+            , iframeAttr:('scrolling="yes" frameborder="0" width="100%" height="100%"')
+            , contentContainer:'.content'
+            , loadUrl:url
+        });
+        */
+    }
+</script>
+
+<!-- <center> -->
+<!-- 결제창 호출중 -->
+<link rel="stylesheet" href="/css/payP.css?<?=time()?>">
+<div class="payment_popup">
+
+    <div class="cradit">
+        <img src="/img/payment/img_left.png" alt="">
+        <p>신용카드</p>
+    </div>
+
+    <div class="complete">
+
+        <div class="title"><img src="/img/payment/logo_middle.png" alt=""></div>
+        <div class="sub-title">신용카드 결제</div>
+        <div class="content_box">
+            <div class="cp_content">
+                <!-- <p>결제요청이 <b>실패</b>되었습니다.</p> -->
+                <img src="/img/payment/Spin-1s-200px.gif">
+                <p style="margin: 10px 0; font-weight:bold;">결제창 호출중입니다.</p>
+                <span>결재창 호출중 브라우저를 닫거나, 새로고침 하시면<br>
+						오류가 발생 할 수 있습니다.<br>
+						결제창이 뜰 때 까지 잠시만 기다려 주세요.</span>
+            </div>
+
+
+            <div class="home_info">
+                <div class="siso"><p><a href="http://siso.kr" target="_blank"><img src="/img/payment/img_siso.png"></a></p></div>
+                <div class="question"><p>결제문의 1644-4726  / http://zeropay.co.kr</p></div>
+            </div>
+
+        </div>
+
+    </div><!-- complete -->
+
+    <!-- right -->
+    <div class="goods_info">
+        <div class="logo" style="border-bottom:0px;">Zero<b>pay</b></div>
+        <!-- <table>
+				<tr>
+					<th>상품명</th>
+					<td><?=urldecode($_GET['P'])?></td>
+				</tr>
+				<tr>
+					<th>상품가격</th>
+					<td><?=number_format($_GET['A'])?>원</td>
+				</tr>
+				<tr>
+					<th>결제금액</th>
+					<td><b><?=number_format($_GET['A'])?>원</b></td>
+				</tr>
+			</table> -->
+
+        <!-- <div class="complet_btn" onclick="window.close()"><a !href="">닫기</a></div> -->
+    </div>
+
+</div>
+
+
+<form name="frmConfirm" id="frmConfirm" action="" style="display:none">
+    PRODUCTNAME : <input type="text" name="PRODUCTNAME" id="PRODUCTNAME" value="<?=setOutput($PRODUCTNAME)?>"><br>
+    PRICE : <input type="text" name="PRICE" value="<?=setOutput($PRICE)?>"><br>
+
+    ID : <input type="text" name="ID" value="<?=$ID?>"><br>
+    CODE : <input type="text" name="CODE" value="<?=$CODE?>"><br>
+
+    NAME : <input type="text" name="NAME" id="NAME" value="<?=$NAME?>"><br>
+    EMAIL : <input type="text" name="EMAIL" value="<?=$EMAIL?>"><br>
+    TEL : <input type="text" name="TEL" id="TEL" value="<?=$TEL?>"><br>
+
+    CPID : <input type="text" name="CPID" value=""><br>
+    ZEROEXTEND1 : <input type="text" name="ZEROEXTEND1" id="ZEROEXTEND1" value="<?=$ZEROEXTEND1?>"><br>
+    ZEROEXTEND2 : <input type="text" name="ZEROEXTEND2" id="ZEROEXTEND2"  value="<?=$ZEROEXTEND2?>"><br>
+
+    returnUrl : <input type="text" name="returnUrl" value="<?=$returnUrl?>"><br>
+    제로페이아이이 : <input type="text" name="zero_id" value="MONKEYVPN"><br>
+
+    제로페이아이이 : <input type="text" name="complate_url" value="<?=$complate_url?>"><br>
+    제로페이아이이 : <input type="text" name="complate_script" value="<?=$complate_script?>"><br>
+    제로페이아이이 : <input type="text" name="headtype" value="<?=$headtype?>"><br>
+
+    default_EMAIL : <input type="text" name="_default_mail" value="<?=$getSiteSkin['di_defaultpay_email']?>"><br>
+
+    <input type="text" name="_mid" value="wa00472"><br>
+    <input type="text" name="_apikey" value="7bf58764432c6b47aa55cb0338c4dc83"><br>
+    <input type="text" name="_iv" value="690dff0310581ac2ba86220d4f6dab24"><br>
+
+    <!-- <input name="btnSubmit" type="button" value="요청" onclick="fnSubmit()" ><br> -->
+</form>
+<!-- </center> -->
+
+</body>
+</html>

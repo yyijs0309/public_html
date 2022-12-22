@@ -1,0 +1,252 @@
+<?
+require $_SERVER['DOCUMENT_ROOT'].'/lib/global.php';
+if($connectIP	!=	'1.212.218.28'){ exit('페이지가 존재하지 않습니다.'); }
+$httpport = "http";
+?>
+<script src="/Form/_adm/js/jquery-1.11.3.min.js"></script>
+<style>
+    .content{
+        display: none;
+    }
+</style>
+<script>
+    $(function(){
+        $('.more_bt').click(function(){
+            // $(this).parent('.title').siblings('.title').find('.content').hide();
+            $(this).parent('.title').find('.content').toggle();
+            return false;
+        });
+    });
+</script>
+<pre>
+***에피하임***
+
+0.공통
+
+<div class="title">
+    1)도메인호출() <a href="" class="more_bt">more</a>
+
+    <?=$httpport?>://<?=$_SERVER['HTTP_HOST']?>/lib/control/common_control.siso?dbControl=getDomailUrl
+     <div class="content">
+        [Parameters]
+            dbControl           =   getDomailUrl
+
+        [Responses]
+            result              =   Y/N(성공/실패)
+            domainurl           =   도메인 URL
+    </div>
+</div>
+<div class="title">
+    2)이용약관:setMobileDomain() <a href="" class="more_bt">more</a>
+
+    <?=$httpport?>://<?=$_SERVER['HTTP_HOST']?>/lib/control/common_control.siso?dbControl=setMobileDomain
+    <div class="content">
+        [Parameters]
+            dbControl           =   setMobileDomain
+
+        [Responses]
+            result              =   Y/N(성공/실패)
+            message             =   메세지
+            data
+                terms             =   이용약관
+                personal_info     =   개인정보 취급방침
+                financial_info    =   전자금융거래 이용약관
+    </div>
+</div>
+<div class="title">
+    3)버전관리:userversionchk() <a href="" class="more_bt">more</a>
+
+    <?=$httpport?>://<?=$_SERVER['HTTP_HOST']?>/lib/control/common_control.siso?dbControl=userversionchk&thisVer=1.0.0
+    <div class="content">
+        [Parameters]
+            dbControl           =   userversionchk
+            thisVer             =   버전(1.0.0)
+
+        [Responses]
+            result              =   Y/N(성공/실패)
+            message             =   메세지
+            MEMCODE             =   서버에등록된 최신버전정보(1.0.0)
+            update_contents     =   서버에등록된 최신버전업데이트내역
+            historydata
+                idx             =   서버히스토리idx
+                app_ver         =   버전정보(1.0.0)
+                update_contents =   버전업데이트내역
+                regdate         =   업데이트 일자
+    </div>
+</div>
+
+1.커뮤니티
+
+<div class="title">
+    1)베스트상품리스트:getBestList() <a href="" class="more_bt">more</a>
+
+    <?=$httpport?>://<?=$_SERVER['HTTP_HOST']?>/lib/control/board_control.siso?dbControl=getBestList&BCODE=1
+    <div class="content">
+    [MEMO]
+
+    [Parameters]
+        dbControl           =   getBestList
+        BCODE               =   게시판코드(1:사용자 공지사항)
+
+    [Responses]
+            total               =   게시물 전체수
+            maxpageno           =   게시물 전체 페이지수
+            result              =   Y/N(성공/실패)
+            message             =   메세지
+            data
+                bidx            =   게시판idx
+                title           =   게시판제목
+                contents        =   게시판내용
+                hits            =   게시판조회수
+                useridx         =   작성자idx
+                name            =   작성자명
+
+                file
+                    fidx            =   첨부파일idx
+                    bidx            =   게시판idx
+                    fdir            =   첨부파일경로
+                    ffile           =   첨부파일명
+                    ffile_org       =   첨부파일원본명
+                    fsize           =   첨부파일사이즈(KB)
+                    fregdate        =   파일등록일자
+    </div>
+</div>
+
+2.상품
+
+<div class="title">
+    0-1)베스트상품리스트:getBestList() <a href="" class="more_bt">more</a>
+
+    <?=$httpport?>://<?=$_SERVER['HTTP_HOST']?>/lib/control/board_control.siso?dbControl=getBestList
+    <div class="content">
+    [MEMO]
+        file의 경우 등록되어 있을경우에 출력됨
+    [Parameters]
+        dbControl           =   getBestList
+        BCODE               =   게시판코드(17 : 베스트상품관리)
+        idx                 =   상품번호
+
+    [Responses]
+            total               =   게시물 전체수
+            maxpageno           =   게시물 전체 페이지수
+            result              =   Y/N(성공/실패)
+            message             =   메세지
+            data
+                idx             =   베스트상품idx
+                title           =   상품제목
+                contents        =   상품내용
+                price           =   판매가격
+                sc_idx          =   상위카테고리
+                scc_idx         =   하위카테고리
+                file
+                    fidx            =   첨부파일idx
+                    bidx            =   게시판idx
+                    fdir            =   첨부파일경로
+                    ffile           =   첨부파일명
+                    ffile_org       =   첨부파일원본명
+                    fsize           =   첨부파일사이즈(KB)
+                    fregdate        =   파일등록일자
+    </div>
+</div>
+<div class="title">
+    1)상품리스트:getShopList(완료) <a href="" class="more_bt">more</a>
+
+    <?=$httpport?>://<?=$_SERVER['HTTP_HOST']?>/lib/control/board_control.siso?dbControl=getShopList&BCODE=14
+    <div class="content">
+    [MEMO]
+        file의 경우 등록되어 있을경우에 출력됨
+    [Parameters]
+        dbControl           =   getShopList
+        BCODE               =   게시판코드(14: 상품관리)
+        idx                 =   상품번호
+
+    [Responses]
+            total               =   게시물 전체수
+            maxpageno           =   게시물 전체 페이지수
+            result              =   Y/N(성공/실패)
+            message             =   메세지
+            data
+                idx             =   상품idx
+                best_yn         =   베스트여부
+                title           =   상품제목
+                contents        =   상품내용
+                price           =   판매가격
+                sc_idx          =   상위카테고리
+                scc_idx         =   하위카테고리
+                file
+                    fidx            =   첨부파일idx
+                    bidx            =   게시판idx
+                    fdir            =   첨부파일경로
+                    ffile           =   첨부파일명
+                    ffile_org       =   첨부파일원본명
+                    fsize           =   첨부파일사이즈(KB)
+                    fregdate        =   파일등록일자
+    </div>
+</div>
+<div class="title">
+    2)상품상위카테고리리스트:getShopCateList() <a href="" class="more_bt">more</a>
+
+    <?=$httpport?>://<?=$_SERVER['HTTP_HOST']?>/lib/control/board_control.siso?dbControl=getShopCateList
+    <div class="content">
+    [MEMO]
+
+    [Parameters]
+        dbControl           =   getShopCateList
+        idx                 =   상위카테고리idx
+
+    [Responses]
+            total               =   게시물 전체수
+            maxpageno           =   게시물 전체 페이지수
+            result              =   Y/N(성공/실패)
+            message             =   메세지
+            data
+                idx             =   상위카테고리idx
+                name            =   상위상위카테고리명
+                contents        =   상품카테고리 내용
+                status          =   상위카테고리 사용여부
+                regdate         =   등록일자
+
+    </div>
+</div>
+
+3.브랜드
+
+<div class="title">
+    1)브랜드소개:getBrandIntro() <a href="" class="more_bt">more</a>
+
+    <?=$httpport?>://<?=$_SERVER['HTTP_HOST']?>/lib/control/board_control.siso?dbControl=getBrandIntro&BCODE=15
+    <div class="content">
+    [Parameters]
+        dbControl           =   getBrandIntro
+        BCODE               =   게시판코드(15:브랜드소개)
+
+    [Responses]
+            result              =   Y/N(성공/실패)
+            message             =   메세지
+            data
+                idx             =   브랜드소개 idx
+                contents        =   브랜드소개 내용
+                regdate         =   등록일자
+
+    </div>
+</div>
+<div class="title">
+    2)브랜드스토리:getBrandStory() <a href="" class="more_bt">more</a>
+
+    <?=$httpport?>://<?=$_SERVER['HTTP_HOST']?>/lib/control/board_control.siso?dbControl=getBrandStory&BCODE=16
+    <div class="content">
+    [Parameters]
+        dbControl           =   getBrandStory
+        BCODE               =   게시판코드(16:브랜드스토리)
+
+    [Responses]
+            result              =   Y/N(성공/실패)
+            message             =   메세지
+            data
+                idx             =   브랜드스토리 idx
+                contents        =   브랜드스토리 내용
+                regdate         =   등록일자
+
+    </div>
+</div>
+</pre>

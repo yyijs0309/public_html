@@ -1,0 +1,98 @@
+<?php
+require $_SERVER['DOCUMENT_ROOT'].'/lib/global.php';
+$auth	=	$thisConnAuth != '' ?  $thisConnAuth : 'root';
+auth_limit($auth);
+
+$_TAGS = "";
+$_WHERE	=	" WHERE 1 ";
+$_WHERE	.=	" and M.m_idx <> 1 ";         // 최종admin 관리자(1)는 노출되지 않도록 처리
+$_WHERE	.=	" and M.m_level = 'user' ";
+
+//$pop_on = $_REQUEST['pop_on'];
+if($_REQUEST['pop_on'] != ''){
+    $pop_on = $_REQUEST['pop_on'];
+    $_TAGS = "&pop_on=".$_REQUEST['pop_on'];
+}else{
+    $pop_on = "N";
+    $_TAGS = "&pop_on=N";
+}
+//if($_REQUEST['word']	!=	''){
+if($_REQUEST['keyword']	!=	'' && $_REQUEST['word']	!=	''){
+    //$_WHERE	.=	" AND ( m_id like '%".setOutput($_REQUEST['word'])."%' or m_option2 like '%".setOutput($_REQUEST['m_option2'])."%' )";
+    if($_REQUEST['keyword'] == 'memberdevice'){
+        $_WHERE	.=	" AND MD.m_uniq = '".$_REQUEST['word']."' ";
+    }else{
+        $_WHERE	.=	" AND ".$_REQUEST['keyword']." LIKE '%".$_REQUEST['word']."%' ";
+    }
+    $_TAGS	.=	'&keyword='.$_REQUEST['keyword'];
+    $_TAGS	.=	'&word='.$_REQUEST['word'];
+}
+
+$_TABLE	=	"_MEMBER M";
+$_ORDER	=	" ORDER BY m_regdate DESC ";
+
+$onePageCount = 10;
+$pagenum = $_REQUEST['pagenum'] ? $_REQUEST['pagenum'] : 1;
+$offset			=	($pagenum-1) * $onePageCount;
+
+$total = getValue($_TABLE, $_WHERE, 'CNT', 'COUNT(*) AS CNT', false);
+$no = $total - ($pagenum-1) * $onePageCount;
+$sql	=
+    "
+        SELECT 
+            *
+        FROM 
+            ".$_TABLE.$_WHERE.$_ORDER."  
+        limit ".$offset.", ".$onePageCount
+;
+//echo "sql:".$sql; exit;
+$rs		=	query($sql);
+
+if(rows() > 0){
+    for($i=0; $row = assoc($rs); $i++){
+        $row['num']		=	$no--;
+        $list[]			=	$row;
+    }
+}
+
+if($total > 0)
+    $toalPageCn	=	ceil($total/$onePageCount);
+else
+    $toalPageCn	=	1;
+//$paging		=	disPgCount($toalPageCn, $pagenum, $_TAGS, 1);
+$paging		=	disPgCountPopup($toalPageCn, $pagenum, $_TAGS, 1);
+
+//if($_ANDWHERE)
+//    $_WHERE	.=	$_ANDWHERE;
+//
+//$_TAGS	=	'';
+//
+
+//$allMemberCnt	=	getValue('_MEMBER', " where 1  and m_level = 'user'  and m_regi <> '' ", 'cnt', 'count(*) as cnt', false);
+//$normalMemberCnt=	getValue('_MEMBER', " where 1  and m_level = 'user'  and m_regi <> '' /*and m_class = 'NORMAL'*/ ", 'cnt', 'count(*) as cnt', false);
+//$expertMemberCnt=	getValue('_MEMBER', " where 1  and m_level = 'user'  and m_regi <> '' and m_class = 'EXPERT' ", 'cnt', 'count(*) as cnt', false);
+
+/*
+$modelSql	=	"select idx, model_name from model where 1 order by idx asc";
+$modelRs	=	query($modelSql);
+if(rows() > 0){
+    $model	=	Array();
+    for($m=0; $modelRow = assoc($modelRs); $m++){
+        $modelRow['cnt']	=	getValue('_MEMBER', " where model_idx = '".$modelRow['idx']."' and m_level = 'user' and m_fcm <> '' ", 'cnt', 'count(*) as cnt');
+        $model[]			=	$modelRow;
+    }
+}
+*/
+//$row['top']		=	getValue('push_msg', " where type = 'top' ");
+//$row['front']	=	getValue('push_msg', " where type = 'front' ");
+
+//$push_info = getValue('push_msg',$_WHERE,"ar","*");
+//pSkinSet('adm', 'member.html', ($thisConnAuth != '' ? $thisConnAuth : 'adm'), 'adm');
+
+$_TITLE	=	'PUSH 등록하기';
+getSkinSet('_'.str_replace('root', 'adm', $auth).'/', 'form', $PUSANKJS['filename'], 'main', true);
+
+//exit($PSKIN['view_layout']);
+include($PSKIN['view_layout']);
+mysqli_close($DBINFO);
+?>

@@ -1,0 +1,352 @@
+<style type="text/css">
+	.table_st_02 th {
+		width: 130px;
+	}
+</style>
+<script type="text/javascript" src="/Conn/edit/smartEdit_2_0/js/HuskyEZCreator.js" charset="utf-8"></script>
+<div class="con_head_wrap">
+	<div class="con_head">
+		<h1><?=$_TITLE_SUB ? $SITE_NAME.'-'.$_TITLE_SUB : $SITE_NAME.'-'.$_TITLE?></h1>
+	</div>
+</div>
+<div class="con_body_wrap">
+	<div class="con_body">
+		<div class="con_body_top_form_wrap">
+			<div class="row">
+				<div class="col-xs-12">
+					<div class="cloud_box">
+						<div class="table_form_all_wrap">
+							<div class="table_form_top">
+								<h2>게시판 내용 입력</h2>
+							</div>
+							<form method="post" name="saveFAQFrmProcess" id="saveFAQFrmProcess" enctype="multipart/form-data">
+								<input type="hidden" name="dbControl" value="<?=$row["b_idx"] == '' ? 'setFAQBoardSend' : 'setFAQBoardModify'?>">
+								<input type="hidden" name="CODE" value="<?=$row["b_idx"]?>">
+								<input type="hidden" name="BCODE" value="<?=$BCODE?>">
+								<!--								<input type="hidden" name="RETURNURL" value="<?=str_replace('.form', '', $PUSANKJS['filename'])?>">-->
+								<input type="hidden" name="RETURNURL" value="faq.siso?pagenum=<?=$pagenum?>&search_order=<?=$search_order?>&word=<?=$word?>&search_cate=<?=$search_cate?>&options=<?=$options?>">
+
+
+								<div role="tabpanel">
+									<ul class="nav nav-tabs" role="tablist">
+										<li role="presentation" class="active"><a href="#lang_kr" aria-controls="lang_kr" role="tab" data-toggle="tab">한국어</a></li>
+										<li role="presentation"><a href="#lang_en" aria-controls="lang_en" role="tab" data-toggle="tab">영어</a></li>
+										<li role="presentation"><a href="#lang_cn" aria-controls="lang_cn" role="tab" data-toggle="tab">중국어</a></li>
+										<li role="presentation"><a href="#lang_jp" aria-controls="lang_jp" role="tab" data-toggle="tab">일본어</a></li>
+									</ul>
+									<div class="clearfix visible-block"></div>
+									<div class="tab-content">
+										<div class="table_form_wrap">
+											<table width="100%" border="0" cellspacing="0" cellpadding="0" class="table_st_02">
+												<tr>
+													<th scope="row">
+														<span>*</span>기기설정
+													</th>
+													<td>
+														<div class="form_div_wrap">
+															<div class="date_tab_wrap">
+																<div class="btn-group" data-toggle="buttons">
+																	<label class="btn btn_radio cate_all <?php if($row['b_cate']=='ALL' || $row['b_cate']=='') echo 'active'; ?>">
+																		<input type="radio" name="b_cate" id="b_cate_all" value="ALL" <?php if($row["b_cate"]=='ALL') echo 'checked'; ?>>
+																		전체
+																	</label>
+																	<label class="btn btn_radio cate_pc <?php if($row['b_cate']=='PC') echo 'active'; ?>">
+																		<input type="radio" name="b_cate" id="b_cate_pc" value="PC" <?php if($row["b_cate"]=='PC') echo 'checked'; ?>>
+																		PC
+																	</label>
+																	<label class="btn btn_radio cate_ios <?php if($row['b_cate']=='IOS') echo 'active'; ?>">
+																		<input type="radio" name="b_cate" id="b_cate_ios" value="IOS" <?php if($row["b_cate"]=='IOS') echo 'checked'; ?>>
+																		IOS
+																	</label>
+																	<label class="btn btn_radio cate_aos <?php if($row['b_cate']=='AOS') echo 'active'; ?>">
+																		<input type="radio" name="b_cate" id="b_cate_aos" value="AOS" <?php if($row["b_cate"]=='AOS') echo 'checked'; ?>>
+																		AOS
+																	</label>
+																</div>
+															</div>
+														</div>
+													</td>
+												</tr>
+												<tr>
+													<th scope="row">
+														<span>*</span>작성일
+													</th>
+													<td>
+														<div class="form_div_wrap">
+															<div class="input_box_100_wrap">
+																<input type="text" name="b_regdate" id="b_regdate" class="form-control" value="<?=$row["b_regdate"] ? $row["b_regdate"] : date('Y-m-d H:i:s')?>" readonly>
+															</div>
+														</div>
+													</td>
+												</tr>
+												<tr>
+													<th scope="row"  style="border-bottom: none;">
+														<span>*</span>작성자
+													</th>
+													<td style="border-bottom: none;">
+														<div class="form_div_wrap">
+															<div class="input_box_100_wrap">
+																<input type="text" name="b_name" id="b_name" class="form-control" value="<?=$row["b_name"] ? $row["b_name"] :trim(addslashes(setSqlFilter($partnerInfo['p_name'] ? $partnerInfo['p_name'] : $memberInfo['m_name'])))?>" readonly>
+															</div>
+														</div>
+													</td>
+												</tr>
+											</table>
+										</div>
+										<div role="tabpanel" class="tab-pane active" id="lang_kr">
+											<div class="table_form_wrap">
+												<table width="100%" border="0" cellspacing="0" cellpadding="0" class="table_st_02">
+													<tr>
+														<th scope="row">
+															<span>*</span>제목(한글)
+														</th>
+														<td>
+															<div class="form_div_wrap">
+																<div class="input_box_100_wrap">
+																	<input type="text" name="b_title" id="b_title" class="form-control" placeholder="게시물 제목을 입력해주세요." value="<?=$row["b_title"]?>">
+																</div>
+															</div>
+														</td>
+													</tr>
+													<tr>
+														<th scope="row">
+															<span>*</span>내용(한글)
+														</th>
+														<td>
+															<div class="form_div_wrap">
+																<div class="input_box_100_wrap">
+																	<!--													<textarea class="form-control" name="b_contents" id="b_contents"><?=$row["b_contents"]?></textarea>-->
+																	<textarea name="b_contents" id="b_contents"  class="form-control" rows="10"><?=stripslashes($row["b_contents"] ? $row["b_contents"] : ($getBoardAdmin['ba_style'].($getBoardAdmin['ba_sign'] ? ('<p><br><br>'.$getBoardAdmin['ba_sign']) : '')))?></textarea>
+																</div>
+															</div>
+														</td>
+													</tr>
+<!--													<tr>-->
+<!--														<th scope="row">-->
+<!--															<span>*</span>답변(한글)-->
+<!--														</th>-->
+<!--														<td>-->
+<!--															<div class="form_div_wrap">-->
+<!--																<div class="input_box_100_wrap">-->
+<!--																	<textarea name="b_reply" id="b_reply"  class="form-control tinymce" rows="10"><?=stripslashes($row["b_reply"] ? $row["b_reply"] : ($getBoardAdmin['ba_style'].($getBoardAdmin['ba_sign'] ? ('<p><br><br>'.$getBoardAdmin['ba_sign']) : '')))?></textarea>-->
+<!--																</div>-->
+<!--															</div>-->
+<!--														</td>-->
+<!--													</tr>-->
+													<?php  if(trim($getBoardAdmin['ba_file_is'])	==	'Y'){ ?>
+													<?php  for($f=1; $f <= trim($getBoardAdmin['ba_file_cnt']); $f++){ ?>
+													<tr>
+														<th scope="row">
+															<span>*</span>첨부파일
+
+														</th>
+														<td style="border-top: none;">
+															<div class="form_div_wrap">
+																<div class="input_box_wrap">
+																	<input type="file" name="bf_file_<?=$f?>" id="bf_file_<?=$f?>" class="form-control file_input" value="">
+																	<input type="hidden" name="bf_idx[<?=$f?>]" id="bf_idx_<?=$f?>" value="<?=$file[$f-1]['bf_idx']?>">
+
+																</div>
+																<div class="input_box_100_wrap">
+																	<?php  if($file[$f-1]['bf_file']){ ?>
+																	<div class="pre_file">
+																		※기존 파일 : <a href='<?=$file[$f-1]['bf_dir']?>/<?=$file[$f-1]['bf_file']?>' target="_blank"><?=$file[$f-1]['bf_file_org']?></a>
+																	</div>
+																	<?php  } ?>
+																</div>
+															</div>
+														</td>
+													</tr>
+													<?php  }} ?>
+												</table>
+											</div>
+										</div>
+										<div role="tabpanel" class="tab-pane" id="lang_en">
+											<div class="table_form_wrap">
+												<table width="100%" border="0" cellspacing="0" cellpadding="0" class="table_st_02">
+													<tr>
+														<th scope="row">
+															<span>*</span>제목(영어)
+														</th>
+														<td>
+															<div class="form_div_wrap">
+																<div class="input_box_100_wrap">
+																	<input type="text" name="b_title_en" id="b_title_en" class="form-control" placeholder="게시물 제목을 입력해주세요." value="<?=$row["b_title_en"]?>">
+																</div>
+															</div>
+														</td>
+													</tr>
+													<tr>
+														<th scope="row">
+															<span>*</span>내용(영어)
+														</th>
+														<td>
+															<div class="form_div_wrap">
+																<div class="input_box_100_wrap">
+																	<!--													<textarea class="form-control" name="b_contents" id="b_contents"><?=$row["b_contents"]?></textarea>-->
+																	<textarea name="b_contents_en" id="b_contents_en"  class="form-control" rows="10"><?=stripslashes($row["b_contents_en"] ? $row["b_contents_en"] : ($getBoardAdmin['ba_style'].($getBoardAdmin['ba_sign'] ? ('<p><br><br>'.$getBoardAdmin['ba_sign']) : '')))?></textarea>
+																</div>
+															</div>
+														</td>
+													</tr>
+													<tr>
+														<th scope="row">
+															<span>*</span>답변(영어)
+														</th>
+														<td>
+															<div class="form_div_wrap">
+																<div class="input_box_100_wrap">
+																	<textarea name="b_reply_en" id="b_reply_en"  class="form-control tinymce" rows="10"><?=stripslashes($row["b_reply_en"] ? $row["b_reply_en"] : ($getBoardAdmin['ba_style'].($getBoardAdmin['ba_sign'] ? ('<p><br><br>'.$getBoardAdmin['ba_sign']) : '')))?></textarea>
+																</div>
+															</div>
+														</td>
+													</tr>
+												</table>
+											</div>
+										</div>
+										<div role="tabpanel" class="tab-pane" id="lang_cn">
+											<div class="table_form_wrap">
+												<table width="100%" border="0" cellspacing="0" cellpadding="0" class="table_st_02">
+													<tr>
+														<th scope="row">
+															<span>*</span>제목(중국어)
+														</th>
+														<td>
+															<div class="form_div_wrap">
+																<div class="input_box_100_wrap">
+																	<input type="text" name="b_title_cn" id="b_title_cn" class="form-control" placeholder="게시물 제목을 입력해주세요." value="<?=$row["b_title_cn"]?>">
+																</div>
+															</div>
+														</td>
+													</tr>
+													<tr>
+														<th scope="row">
+															<span>*</span>내용(중국어)
+														</th>
+														<td>
+															<div class="form_div_wrap">
+																<div class="input_box_100_wrap">
+																	<!--													<textarea class="form-control" name="b_contents" id="b_contents"><?=$row["b_contents"]?></textarea>-->
+																	<textarea name="b_contents_cn" id="b_contents_cn"  class="form-control" rows="10"><?=stripslashes($row["b_contents_cn"] ? $row["b_contents_cn"] : ($getBoardAdmin['ba_style'].($getBoardAdmin['ba_sign'] ? ('<p><br><br>'.$getBoardAdmin['ba_sign']) : '')))?></textarea>
+																</div>
+															</div>
+														</td>
+													</tr>
+													<tr>
+														<th scope="row">
+															<span>*</span>답변(중국어)
+														</th>
+														<td>
+															<div class="form_div_wrap">
+																<div class="input_box_100_wrap">
+																	<textarea name="b_reply_cn" id="b_reply_cn"  class="form-control tinymce" rows="10"><?=stripslashes($row["b_reply_cn"] ? $row["b_reply_cn"] : ($getBoardAdmin['ba_style'].($getBoardAdmin['ba_sign'] ? ('<p><br><br>'.$getBoardAdmin['ba_sign']) : '')))?></textarea>
+																</div>
+															</div>
+														</td>
+													</tr>
+												</table>
+											</div>
+										</div>
+										<div role="tabpanel" class="tab-pane" id="lang_jp">
+											<div class="table_form_wrap">
+												<table width="100%" border="0" cellspacing="0" cellpadding="0" class="table_st_02">
+													<tr>
+														<th scope="row">
+															<span>*</span>제목(일본어)
+														</th>
+														<td>
+															<div class="form_div_wrap">
+																<div class="input_box_100_wrap">
+																	<input type="text" name="b_title_jp" id="b_title_jp" class="form-control" placeholder="게시물 제목을 입력해주세요." value="<?=$row["b_title_jp"]?>">
+																</div>
+															</div>
+														</td>
+													</tr>
+													<tr>
+														<th scope="row">
+															<span>*</span>내용(일본어)
+														</th>
+														<td>
+															<div class="form_div_wrap">
+																<div class="input_box_100_wrap">
+																	<!--													<textarea class="form-control" name="b_contents" id="b_contents"><?=$row["b_contents"]?></textarea>-->
+																	<textarea name="b_contents_jp" id="b_contents_jp"  class="form-control" rows="10"><?=stripslashes($row["b_contents_jp"] ? $row["b_contents_jp"] : ($getBoardAdmin['ba_style'].($getBoardAdmin['ba_sign'] ? ('<p><br><br>'.$getBoardAdmin['ba_sign']) : '')))?></textarea>
+																</div>
+															</div>
+														</td>
+													</tr>
+													<tr>
+														<th scope="row">
+															<span>*</span>답변(일본어)
+														</th>
+														<td>
+															<div class="form_div_wrap">
+																<div class="input_box_100_wrap">
+																	<textarea name="b_reply_jp" id="b_reply_jp"  class="form-control tinymce" rows="10"><?=stripslashes($row["b_reply_jp"] ? $row["b_reply_jp"] : ($getBoardAdmin['ba_style'].($getBoardAdmin['ba_sign'] ? ('<p><br><br>'.$getBoardAdmin['ba_sign']) : '')))?></textarea>
+																</div>
+															</div>
+														</td>
+													</tr>
+
+												</table>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="table_bottom_btn_wrap">
+									<button type="button" class="btn btn-primary" id="listSaveBtn">등록하기</button>
+									<!--								<button type="button" class="btn btn-preview">미리보기</button>-->
+									<button type="button" class="btn btn-default" onclick="javascript:history.back();">취소</button>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+
+	$(document).ready(function(){
+		if(("<?=$row["b_cate"]?>" == "")){
+			$('input[name="b_cate"]').attr("checked", false);
+			$('#board_free').attr("checked", true);
+		}
+	});
+
+
+	function readURL(input) {
+		if (input.files && input.files[0]) {
+			var reader = new FileReader();
+			reader.onload = function(e) {
+				var thisBumo = $(input).closest('.banner_img_all_wrap');
+				thisBumo.find(".banner_img_wrap img").attr('src', e.target.result);
+			}
+			reader.readAsDataURL(input.files[0]);
+		}
+	}
+	function saveFn(){
+		ajaxFormSave('saveFAQFrmProcess', '/lib/control.siso');
+	}
+	$('#listSaveBtn').click(function(){
+
+		oEditors1.getById["b_contents"].exec("UPDATE_CONTENTS_FIELD", []);
+		if(jQuery.inArray(document.getElementById('b_contents').value.toLowerCase().replace(/^\s*|\s*$/g, ''), ['&nbsp;','<p>&nbsp;</p>','<p><br></p>','<div><br></div>','<p></p>','<br>','']) != -1){
+			document.getElementById('b_contents').value='';
+		}
+
+		if(checkFormFn('b_title', '제목') == false) return;
+		if(checkFormFn('b_contents', '내용') == false) return;
+
+		saveFn();
+	});
+	// $(".banner_img_wrap .file_input").change(function() {
+	// 	readURL(this);
+	// });
+
+</script>
+
+<?php  naverSmartEditCall('b_contents'); ?>
+
+

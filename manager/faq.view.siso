@@ -1,0 +1,45 @@
+<?php
+require $_SERVER['DOCUMENT_ROOT'].'/lib/global.php';
+
+$auth	=	$thisConnAuth != '' ?  $thisConnAuth : 'root';
+auth_limit($auth);
+
+$BCODE = "5";
+$getBoardAdmin	=	getValue('_BOARD_ADMIN', " where ba_idx = '".$BCODE."' ");
+
+$_WHERE	=	" WHERE 1 ";
+if($CODE){
+    $_WHERE	.=	" AND b_idx = '".$CODE."' ";
+    $_TABLE	=	'_BOARD_'.$getBoardAdmin['ba_table'];
+    $_ORDER	=	'ORDER BY b_regdate DESC';
+    $row	=	getValue($_TABLE, $_WHERE, 'ar', '*', false);
+    $fileSql	=	"select * from _BOARD_FILE where bf_board_idx = '".$CODE."' and bf_board_id = '".$BCODE."' ";
+    $fileRs		=	query($fileSql);
+    if(rows() > 0){
+        for($f=0; $fileRow = assoc($fileRs); $f++){
+            $file[]	=	$fileRow;
+        }
+    }
+    //댓글 쿼리 추가
+    $_WHERE_COMMENT	= " WHERE 1 and bf_board_idx = '".$CODE."' and bf_board_id = '".$BCODE."' ";
+    $_TABLE_COMMENT	= " _BOARD_COMMENT ";
+    $commenttotal = getValue($_TABLE_COMMENT, $_WHERE_COMMENT, 'CNT', 'COUNT(*) AS CNT');
+    $commentSql = "select M.*, C.* from _BOARD_COMMENT C LEFT JOIN _MEMBER M ON M.m_idx = C.b_user_idx where C.bf_board_idx = '".$CODE."' and C.bf_board_id = '".$BCODE."' ";
+    $commentRs		=	query($commentSql);
+//    echo "total:" . $commenttotal; exit;
+    if(rows() > 0){
+        for($c=0; $commentRow = assoc($commentRs); $c++){
+            $comment[]	=	$commentRow;
+        }
+    }
+
+    query("update ".$_TABLE." set b_hits = b_hits+1 where b_idx = '".$CODE."'");
+}
+//echoAr($row);
+
+$_TITLE		=	$getBoardAdmin['ba_name'];
+//getSkinSet('_adm/', 'form', $PUSANKJS['filename'], 'main', true);
+getSkinSet('_'.str_replace('root', 'adm', $auth).'/', 'form', $PUSANKJS['filename'], 'main', true);
+include($PSKIN['view_layout']);
+mysqli_close($DBINFO);
+?>

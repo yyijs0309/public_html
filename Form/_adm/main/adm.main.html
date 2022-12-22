@@ -1,0 +1,150 @@
+<!doctype html>
+<!--[if IE 7 ]>		 <html class="no-js ie ie7 lte7 lte8 lte9" lang="en-US"> <![endif]-->
+<!--[if IE 8 ]>		 <html class="no-js ie ie8 lte8 lte9" lang="en-US"> <![endif]-->
+<!--[if IE 9 ]>		 <html class="no-js ie ie9 lte9>" lang="en-US"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html class="no-js" lang="en-US"> <!--<![endif]-->
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title><?=$PUSANKJS_SYS['A_SITE_TITLE']?></title>
+<script src="http://code.jquery.com/jquery-1.8.3.js"></script>
+<script src="http://code.jquery.com/ui/1.9.2/jquery-ui.js"></script>
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js?<?=time()?>"></script>
+<script src="/Conn/js/jquery.form.js"></script>
+<script src= "/Conn/js/global.func.js"></script>
+<script type="text/javascript" src="http://maps.google.com/maps/api/js?v=3&sensor=true"></script>
+<script type="text/javascript" src="/Conn/js/jquery.ui.map.js"></script>
+<script type="text/javascript" src="/Conn/js/jquery.ui.map.services.js"></script>
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.9.2/themes/redmond/jquery-ui.css" />
+<link href="<?=adminSkinDirRoot('css')?>/manager.css" rel="stylesheet" type="text/css" />
+
+<link rel="stylesheet" href="/Conn/css/jquery.treeview.css" />
+<link rel="stylesheet" href="/Conn/css/jquery.datetimepicker.css" />
+<script src="/Conn/js/jquery.cookie.js" type="text/javascript"></script>
+<script src="/Conn/js/jquery.treeview.js" type="text/javascript"></script>
+<script src="/Conn/js/jquery.datetimepicker.js" type="text/javascript"></script>
+<script src="/Conn/Highchart/highcharts.js"></script>
+
+
+<script>
+	var PSKIN_PATH		=	'<?=adminSkinDirRoot('images')?>';
+	$(document).ready(function(){ 
+		$('#admin_home_btn').click(function(){ go('<?=_ADMIN_URL?>'); }).css({"cursor":"pointer"});
+		$('#logout_btn').click(function(){ go('/lib/member.check2.php?logout=yes&logOutType=A'); }).css({"cursor":"pointer"});
+
+		$('.adminMainMenu').click(function(){
+			$(this).next('div').slideToggle(600);
+			if($(this).find("img").attr('src').indexOf("/leftbt3.png") != -1)
+				$(this).find("img").attr('src', PSKIN_PATH+'/leftbt2.png')
+			else
+				$(this).find("img").attr('src', PSKIN_PATH+'/leftbt3.png')
+			//$('.adminDetailMenu').slideToggle('slow');
+		}).css({"cursor":"pointer"});
+		
+		$( "input[type=button]" ).button();
+
+		$( document ).tooltip();
+
+		$("#browser").treeview();
+	});
+	
+</script>
+
+</head>
+
+<body !bgcolor="e7ebee">
+<input type="hidden" id='leve2Value' value='<?=$_REQUEST['appSite']?>'>
+<div id="popup1" class="popup_block"><div id="musicDiv" style="display:none"></div></div>
+<table width="100%" border="0" cellspacing="0" cellpadding="0" tyle="display:scroll;position:fixed;top:0; z-index:9997">
+<tr>
+	<td height="60" width="100%" align="center" valign="top" class="main_topbar_new">
+		<table border="0" cellspacing="0" cellpadding="0" width="100%" height="60" class="main_topbar_new_icon">
+			<tr>
+				<td height="30" align="left"><img src="<?=adminSkinDirRoot('img')?>/adm.png" /></td>
+				<!-- <td height="30" align="right"><img src="<?=adminSkinDirRoot('img')?>/logo.png" /></td> -->
+			</tr>
+		</table>
+	</td>
+</tr>
+<tr>
+	<td height="45" class="main_topbar_new_sub"><h2><?=$memberInfo['adm_name']?>님 반갑습니다.</h2></td>
+</tr>
+</table>
+<!-- <div style="height:107px">&nbsp;</div> -->
+<table width="100%" border="0" cellspacing="0" cellpadding="0" >
+<tr>
+	<td bgcolor="#ffffff" valign="top">
+		<table border="0" align="center" cellpadding="0" cellspacing="0" width="100%">
+		<tr>
+			<td width="288" align="center" valign="top" class="main_left"><br /><br />
+					<!--<table width="175" border="0" cellpadding="0" cellspacing="0">
+					<tr>
+						<td height="175" align="center" valign="bottom" class="profile">
+							<table border="0" cellspacing="0" cellpadding="0"><tr><td align="center"><p class="dotum_gray_no"><strong><?=$memberInfo['adm_name']?>님 방문을<br />환영합니다.</strong></p></td></tr></table>
+						</td>
+					</tr>
+					</table>-->
+					<table width="288" border="0" cellpadding="0" cellspacing="0">
+					<tr>
+						<td align="center" valign="bottom"><img src="<?=adminSkinDirRoot('img')?>/home_btn.png" onmouseover="this.src='<?=adminSkinDirRoot('img')?>/home_btn_on.png';" onmouseout="this.src='<?=adminSkinDirRoot('img')?>/home_btn.png';" id="admin_home_btn" !width="45%" /></td>
+						<td align="center" valign="bottom"><img src="<?=adminSkinDirRoot('img')?>/out_btn.png" onmouseover="this.src='<?=adminSkinDirRoot('img')?>/out_btn_on.png';" onmouseout="this.src='<?=adminSkinDirRoot('img')?>/out_btn.png';" id='logout_btn' !width="45%" /></td>
+					</tr>
+					</table>
+					<br />
+					<!--<table border="0" cellspacing="0" cellpadding="0">
+					<tr>
+						<td height="50">
+							<table width="173" border="0" cellpadding="0" cellspacing="0">
+							<tr>
+								<td height="37" align="center" class="leftbt" id='logout_btn'><strong>로그아웃</strong></td>
+							</tr>
+							</table>
+						</td>
+					</tr>
+					</table>
+					<table width="173" border="0" cellpadding="0" cellspacing="0"><tr><td height="37" align="center" class="leftbt2" id="admin_home_btn"><strong>관리자 홈으로가기</strong></td></tr></table><br />-->
+					<br />
+					<br />
+	<div class="menubar">
+	<?php for($m=0; $m < count($menu['admin']); $m++){ ?>
+		<ul>
+		<?php
+			$num	=	0;
+			for($d=0; $d < count($menu['admin'][$m][2]); $d++){ 
+		?>
+		
+			<!--<li><span <?php =($menu['admin'][$m][2][$d][1] != '' ? "onClick=\"go('".$menu['admin'][$m][2][$d][1]."')\" style='cursor:pointer' " : '')?>><img src="<?=adminSkinDirRoot('img').'/'.$menu['admin'][$m][2][$d][2]?>" width="100%" onmouseover="this.src='<?=adminSkinDirRoot('img').'/'.$menu['admin'][$m][2][$d][3]?>';" onmouseout="this.src='<?=adminSkinDirRoot('img').'/'.$menu['admin'][$m][2][$d][2]?>';"></span></li>-->
+			<li style="text-align: left; padding: 1% 0 1% 15%;"><span <?php =($menu['admin'][$m][2][$d][1] != '' ? "onClick=\"go('".$menu['admin'][$m][2][$d][1]."')\" class='main_menu_box' onmouseover='this.style.color=\"yellow\"' onmouseout='this.style.color=\"#fff\"' " : '')?>><?=$menu['admin'][$m][2][$d][0]?></span></li>
+		<?php
+				$num++;
+			}
+		?>
+		</ul>
+	<?php  } ?>
+	</div>
+			</td>
+			<td valign="top" bgcolor="f9f9f9" !width="1000" style="padding: <?=(basename($_SERVER['PHP_SELF']) == 'intro.php' ? '0' : '20')?>px;">
+				<?php  include(PUSANKJS_SKIN_MAIN_CONTENTS_FILE);?>
+			</td>
+		</tr>
+		</table>
+		<!-- <table border="0" width="100%" align="center" cellpadding="0" cellspacing="0" style="margin-bottom: -13px;">
+		<tr>
+			<td width="288" height="200" class="main_left">
+			</td>
+			<td bgcolor="f9f9f9">
+			
+			</td>
+		</tr>
+		</table><br /> -->
+	</td>
+</tr>
+</table>
+</body>
+<div class="modal fade" id="loadingmodal" data-backdrop="static">
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content"><div class="modal-body"><p class="col-md-12"><center><h2><i class="fa fa-circle-o-notch fa-spin"></i> Process Loading</h2></center></p></div></div>
+	</div>
+</div>
+</html>

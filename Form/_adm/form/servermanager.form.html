@@ -1,0 +1,142 @@
+<div class="con_head_wrap">
+    <div class="con_head">
+        <h1><?=$_TITLE_SUB ? $SITE_NAME.'-'.$_TITLE_SUB : $SITE_NAME.'-'.$_TITLE?></h1>
+    </div>
+</div>
+<div class="con_body_wrap">
+    <div class="con_body">
+        <div class="con_body_top_form_wrap">
+            <form method="post" name="saveFrmProcess" id="saveFrmProcess" action="" enctype="multipart/form-data">
+                <input type="hidden" name="dbControl" value="<?=$row["sm_idx"] == '' ? 'setServerManagerInsert' : 'setServerManagerUpdate'?>">
+                <input type="hidden" name="CODE" value="<?=$row["sm_idx"]?>">
+                <input type="hidden" name="retrunUrl" value="<?=str_replace('.form', '', $PUSANKJS['filename'])?>">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="cloud_box">
+                            <div class="table_form_all_wrap">
+                                <div class="table_form_wrap">
+                                    <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table_st_02">
+                                        <tr>
+                                            <th scope="row">
+                                                서버명
+                                            </th>
+                                            <td>
+                                                <div class="form_div_wrap">
+                                                    <div class="search_box_wrap">
+                                                        <input type="text" class="form-control" id="sm_name" name="sm_name" placeholder="서버명 입력해주세요." value="<?=setOutput($row['sm_name'])?>" >
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">
+                                                서버도메인
+                                            </th>
+                                            <td>
+                                                <div class="form_div_wrap">
+                                                    <div class="input_box_100_wrap">
+                                                        <input type="text" class="form-control" id="sm_domain" name="sm_domain" placeholder="서버도메인 입력해주세요." value="<?=setOutput($row['sm_domain'])?>">
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">
+                                                서버IP
+                                            </th>
+                                            <td>
+                                                <div class="form_div_wrap">
+                                                    <div class="search_box_wrap">
+                                                        <input type="text" class="form-control" id="sm_ip" name="sm_ip" placeholder="서버IP 입력해주세요." value="<?=setOutput($row['sm_ip'])?>">
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">
+                                                서버포트
+                                            </th>
+                                            <td>
+                                                <div class="form_div_wrap">
+                                                    <div class="search_box_wrap">
+                                                        <input type="text" class="form-control" id="sm_port" name="sm_port" placeholder="서버포트 입력해주세요." value="<?=setOutput($row['sm_port'])?>">
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">
+                                                ID
+                                            </th>
+                                            <td>
+                                                <div class="form_div_wrap">
+                                                    <div class="search_box_wrap">
+                                                        <input type="text" class="form-control" id="sm_id" name="sm_id" placeholder="서버ID 입력해주세요." value="<?=setOutput($row['sm_id'])?>">
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">
+                                                PW
+                                            </th>
+                                            <td>
+                                                <div class="form_div_wrap">
+                                                    <div class="search_box_wrap">
+                                                        <input type="text" class="form-control" id="sm_pw" name="sm_pw" placeholder="서버PW 입력해주세요." value="<?=setOutput($row['sm_pw'])?>">
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">
+                                                경로1
+                                            </th>
+                                            <td>
+                                                <div class="form_div_wrap">
+                                                    <div class="input_box_100_wrap">
+                                                        <input type="text" class="form-control" id="sm_logpath1" name="sm_logpath1" placeholder="서버경로1 입력해주세요." value="<?=setOutput($row['sm_logpath1'])?>">
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">
+                                                경로2
+                                            </th>
+                                            <td>
+                                                <div class="form_div_wrap">
+                                                    <div class="input_box_100_wrap">
+                                                        <input type="text" class="form-control" id="sm_logpath2" name="sm_logpath2" placeholder="서버경로2 입력해주세요." value="<?=setOutput($row['sm_logpath2'])?>">
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="table_bottom_btn_wrap">
+                                    <?php  if($row["sm_idx"] == ''){ ?>
+                                    <button type="button" class="btn btn-primary" id="saveBtn">등록하기</button>
+                                    <?php  }else{ ?>
+                                    <button type="button" class="btn btn-primary" id="saveBtn">수정하기</button>
+                                    <?php  } ?>
+                                    <button type="button" class="btn btn-default" onclick="javascript:history.back();">목록</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" charset="utf-8">
+    $(document).ready(function(){
+        $('#saveBtn').click(function(){
+
+            //if(checkFormFn('m_use', '사용여부') == false) return;
+            ajaxFormSave('saveFrmProcess', '/lib/control.siso');
+        }).css({"cursor":"pointer"});
+    });
+</script>
+

@@ -1,0 +1,27 @@
+
+
+<select class="form-control" name="s_service_type" id="s_service_type">
+	<option value="" <?php  if($row['s_service_type'] == '') echo 'selected'; ?>>선택</option>
+	<option value="호스팅 이용료" <?php  if($row['s_service_type'] == '호스팅 이용료') echo 'selected'; ?>>호스팅 이용료</option>
+</select>
+
+<select class="form-control" name="s_service_cnt" id="s_service_cnt">
+	<option value="" <?php  if($row['s_service_cnt'] == '') echo 'selected'; ?>>선택</option>
+	<option value="1" <?php  if($row['s_service_cnt'] == '1') echo 'selected'; ?>>1</option>
+	<option value="2" <?php  if($row['s_service_cnt'] == '2') echo 'selected'; ?>>2</option>
+	<option value="3" <?php  if($row['s_service_cnt'] == '3') echo 'selected'; ?>>3</option>
+	<option value="4" <?php  if($row['s_service_cnt'] == '4') echo 'selected'; ?>>4</option>
+	<option value="5" <?php  if($row['s_service_cnt'] == '5') echo 'selected'; ?>>5</option>
+</select>
+
+<script type="text/javascript" charset="utf-8">
+$(document).ready(function(){ 
+	$('#saveBtn').click(function(){
+		if(checkFormFn('c_name', '업체명') == false) return;
+		if(checkFormFn('c_responsibility_name', '담당자명') == false) return;
+		if(checkFormFn('c_email', '이메일') == false) return;
+		if(checkFormFn('c_hp', '핸드폰번호') == false) return;
+		ajaxFormSave('saveFrmProcess', '/lib/control.siso');
+	}).css({"cursor":"pointer"});
+});
+</script>

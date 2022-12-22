@@ -1,0 +1,11 @@
+<?php
+	require $_SERVER['DOCUMENT_ROOT'].'/lib/global.php';
+	use ElephantIO\Client as Elephant;
+
+	//1.관리자콘솔
+	require $_SERVER['DOCUMENT_ROOT'].'/lib/control/admin_control.siso';
+	//6.홈페이지
+	//require $_SERVER['DOCUMENT_ROOT'].'/lib/control/homepage_control.siso';
+
+
+?>

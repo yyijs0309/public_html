@@ -1,0 +1,91 @@
+<script>
+function login(){
+	var frm = $('form[name="frmProcess"]');
+
+	/*
+	var obj = $('#p_code');
+	if(!$.trim( obj.val())){
+		alert('업체코드를 입력하세요.');
+		obj.focus();
+		return;
+	}
+	*/
+
+	var obj = $('#p_id');
+	if(!$.trim( obj.val())){
+		alert('아이디를 입력하세요.');
+		obj.focus();
+		return;
+	}
+
+	var obj = $('#p_pass');
+	if(!$.trim( obj.val())){
+		alert('비밀번호를 입력하세요.');
+		obj.focus();
+		return;
+	}
+
+	var url = "/lib/control/admin_control.siso";
+	var params = frm.serialize();
+	$.post(url, params, function(data){
+		var ojson = $.parseJSON(data);
+		if(ojson.result=='Y'){
+			location.href=ojson.url;
+		}else{
+			alert( ojson.message );
+		}
+	});
+}
+
+$(document).ready(function(){
+	$('#btn_login').click(function(){ login(); }).css({"cursor":"pointer"});
+	$('#p_code, #p_pass, #p_id').keypress(function(e){ if(e.keyCode==13) login(); });
+	$('#p_code').focus();
+});
+</script>
+
+<div class="login_all_wrap">
+	<div class="login_pl">
+		<div class="login_wrap">
+			<div class="ma_logo">
+<!--				<img src="<?=THEME_SKIN_URL?>/images/ma_logo.png" alt="">-->
+			</div>
+			<div class="login_in">
+				<div class="login_top_wrap">
+					<a href="/manager">
+						<b>관리자 로그인</b>
+					</a>
+				</div>
+				<div class="login_form_wrap">
+					<form role="form" class="login-form" method="post" name="frmProcess" id="frmProcess" >
+						<input type="hidden" name="dbControl" id="dbControl" value="setLoginCk">
+						<input type="hidden" name="setLevel" id="setLevel" value="root">
+						<input type="hidden" name="loginAfterUrl" id="loginAfterUrl" value="<?=$loginAfterUrl?>">
+						<input type="hidden" name="pwSave" id="pwSave" value="Y">
+						<div class="login_box_wrap">
+							<div class="login_box_input">
+								<input type="text" class="form-control" placeholder="아이디 입력" name="p_id" id="p_id">
+							</div>
+							<div class="login_box_input">
+								<input type="password" class="form-control" placeholder="비밀번호 입력" name="p_pass" id="p_pass">
+							</div>
+							<div class="login_box_check">
+								<div class="form_radio_chk_wrap">
+										<div class="radio_chk_st_wrap">
+											<input type="checkbox" id="id_save" name="id_save" value="" >
+										<label for="id_save">
+											<span>아이디저장</span>
+											</label>
+									</div>
+								</div>
+							</div>
+							<div class="login_box_btn_wrap">
+								<a class="btn btn-submit" id="btn_login">로그인</a>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
